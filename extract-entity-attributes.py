@@ -34,11 +34,10 @@ def main(text):
         if VERBOSE:
             print('-- Found entity:', entity.text + '(' + entity.lemma_ + ')', entity.label_)
 
-        sentences = entity.sent
         attr = None
 
-        for i in range(len(sentences), 0, -1):
-            token = sentences[i - 1]
+        for i in range(len(entity.sent), 0, -1):
+            token = entity.sent[i - 1]
 
             if attr is not None:
                 if token.pos_ in ADJ_JOIN_POS:
