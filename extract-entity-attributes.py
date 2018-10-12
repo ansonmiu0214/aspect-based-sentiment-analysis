@@ -1,17 +1,18 @@
 # Given text, output a list of entity-attribute pairs.
 
+import argparse
 import spacy
 
 
-def add_to_dict(dict, key, value):
-    if key in dict:
-        dict[key].append(value)
+def add_to_dict(dictionary, key, value):
+    if key in dictionary:
+        dictionary[key].append(value)
     else:
-        dict[key] = [value]
+        dictionary[key] = [value]
 
 
 def main(text):
-    VERBOSE = True
+    VERBOSE = False
     SKIP_ENTITIES = ['LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']
     ADJ_JOIN_POS = ['ADJ', 'ADV', 'CCONJ', 'ADP']
 
@@ -25,7 +26,7 @@ def main(text):
 
     print('Extracting entity-attribute pairs.')
 
-    dict = {}
+    dictionary = {}
 
     for entity in doc.ents:
         if entity.label_ in SKIP_ENTITIES:
@@ -43,7 +44,7 @@ def main(text):
                 if token.pos_ in ADJ_JOIN_POS:
                     attr = token.lemma_ + ' ' + attr
                 else:
-                    add_to_dict(dict, entity.lemma_, attr)
+                    add_to_dict(dictionary, entity.lemma_, attr)
                     attr = None
             elif token.pos_ == 'ADJ':
                 attr = token.lemma_
@@ -52,10 +53,24 @@ def main(text):
                 print('- Found token:', token.text + '(' + token.lemma_ + ')', token.pos_,
                       token.dep_ + '(' + spacy.explain(token.tag_) + ')')
 
-    return dict
+    return dictionary
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
        ''' Google's directions are not very much as terrible or bad as you think.'''
 # Outputs {'python': ['also great', 'same', 'very bad'], 'google': ['not very much as terrible or bad']}
-print(main(text))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file")
+    parser.add_argument("-t", "--text", default=text)
+    args = parser.parse_args()
+
+    data = ""
+    if args.file:
+        with open('data.txt', 'r') as file:
+            data = file.read().replace('\n', '')
+    else:
+        data = args.text
+
+    print(main(data))
