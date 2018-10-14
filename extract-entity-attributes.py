@@ -3,7 +3,7 @@
 import argparse
 import spacy
 from spacy import displacy
-from spacy.symbols import acomp, advmod, dobj, nsubj, VERB, conj
+from spacy.symbols import acomp, advmod, dobj, nsubj, VERB, conj, attr
 
 
 def add_to_dict(dictionary, key, value):
@@ -34,7 +34,7 @@ def extract_subjects(token):
 
 def extract_attributes(token):
     attributes = list()
-    ATTR_DEPENDENCIES = { acomp, dobj, advmod }
+    ATTR_DEPENDENCIES = { acomp, dobj, advmod, attr }
 
     for child in token.children:
         dep = child.dep
