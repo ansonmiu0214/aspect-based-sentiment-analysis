@@ -3,7 +3,7 @@
 import argparse
 import spacy
 from spacy import displacy
-from spacy.symbols import acomp, advmod, dobj, nsubj, VERB
+from spacy.symbols import acomp, advmod, dobj, nsubj, VERB, conj
 
 
 def add_to_dict(dictionary, key, value):
@@ -39,8 +39,15 @@ def extract_attributes(token):
     for child in token.children:
         dep = child.dep
         if dep in ATTR_DEPENDENCIES:
-            attributes.append(get_phrase(child))
-            # attributes.append(token.text + " " + get_phrase(child))
+            # check if child has conjunction
+            conjs = list(filter(lambda x: x.dep == conj, child.children))
+
+            if len(conjs) > 0:
+                attributes.append(child.text)
+                attributes += list(map(get_phrase, conjs))
+            else:
+                attributes.append(get_phrase(child))
+                # attributes.append(token.text + " " + get_phrase(child))
 
     return attributes
 
