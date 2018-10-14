@@ -18,6 +18,8 @@ def get_phrase(token):
     return " ".join(map(lambda x: x.text, subtree))
 
 
+# Find the NSUBJ linked to the token.
+# e.g. given "The battery life of the iPhone is..." and token="is", return the subject.
 def extract_subjects(token):
     subjects = list()
     current = token
@@ -32,11 +34,13 @@ def extract_subjects(token):
 
 def extract_attributes(token):
     attributes = list()
+    ATTR_DEPENDENCIES = { acomp, dobj, advmod }
 
     for child in token.children:
         dep = child.dep
-        if dep == acomp or dep == dobj or dep == advmod:
-            attributes.append(token.text + " " + get_phrase(child))
+        if dep in ATTR_DEPENDENCIES:
+            attributes.append(get_phrase(child))
+            # attributes.append(token.text + " " + get_phrase(child))
 
     return attributes
 
