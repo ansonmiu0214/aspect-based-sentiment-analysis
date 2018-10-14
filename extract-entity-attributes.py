@@ -3,7 +3,7 @@
 import argparse
 import spacy
 from spacy import displacy
-from spacy.symbols import acomp, dobj, nsubj, VERB
+from spacy.symbols import acomp, advmod, dobj, nsubj, VERB
 
 
 def add_to_dict(dictionary, key, value):
@@ -20,18 +20,12 @@ def get_phrase(token):
 
 def extract_subjects(token):
     subjects = list()
-    for child in token.children:
-        if child.dep == nsubj:
-            subjects.append(child)
-
-    if not subjects:
-        root = token
-        while root.dep_ != "ROOT":
-            root = root.head
-
-        for child in root.children:
+    current = token
+    while not subjects:
+        for child in current.children:
             if child.dep == nsubj:
-                subjects.append(child)
+                subjects.append(get_phrase(child))
+        current = current.head
 
     return subjects
 
@@ -41,7 +35,7 @@ def extract_attributes(token):
 
     for child in token.children:
         dep = child.dep
-        if dep == acomp or dep == dobj:
+        if dep == acomp or dep == dobj or dep == advmod:
             attributes.append(token.text + " " + get_phrase(child))
 
     return attributes
