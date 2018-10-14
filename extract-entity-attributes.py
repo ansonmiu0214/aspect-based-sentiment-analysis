@@ -18,13 +18,28 @@ def get_phrase(token):
     return " ".join(map(lambda x: x.text, subtree))
 
 
-def extract_attribute(subjects, attributes, token):
+def extract_subjects(token):
+    root = token
+    while root.dep_ != "ROOT":
+        root = root.head
+
+    subjects = list()
+    for child in root.children:
+        if child.dep == nsubj:
+            subjects.append(child)
+
+    return subjects
+
+
+def extract_attributes(token):
+    attributes = list()
+
     for child in token.children:
         dep = child.dep
         if dep == acomp or dep == dobj:
             attributes.append(token.text + " " + get_phrase(child))
-        elif dep == nsubj:
-            subjects.append(child)
+
+    return attributes
 
 
 def main(text):
@@ -38,15 +53,10 @@ def main(text):
 
     dictionary = {}
 
-    verbs = set()
-
     for token in doc:
-        if token.pos == VERB and token not in verbs:
-            verbs.add(token)
-            subjects = list()
-            attributes = list()
-
-            extract_attribute(subjects, attributes, token)
+        if token.pos == VERB:
+            subjects = extract_subjects(token)
+            attributes = extract_attributes(token)
 
             for subject in subjects:
                 for attribute in attributes:
