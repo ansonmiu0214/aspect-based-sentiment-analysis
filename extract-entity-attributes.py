@@ -19,14 +19,19 @@ def get_phrase(token):
 
 
 def extract_subjects(token):
-    root = token
-    while root.dep_ != "ROOT":
-        root = root.head
-
     subjects = list()
-    for child in root.children:
+    for child in token.children:
         if child.dep == nsubj:
             subjects.append(child)
+
+    if not subjects:
+        root = token
+        while root.dep_ != "ROOT":
+            root = root.head
+
+        for child in root.children:
+            if child.dep == nsubj:
+                subjects.append(child)
 
     return subjects
 
