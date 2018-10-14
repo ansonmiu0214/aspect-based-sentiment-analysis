@@ -22,7 +22,7 @@ def extract_subjects(token):
     subjects = list()
     for child in token.children:
         if child.dep == nsubj:
-            subjects.append(child)
+            subjects.append(get_phrase(child))
 
     if not subjects:
         root = token
@@ -31,7 +31,8 @@ def extract_subjects(token):
 
         for child in root.children:
             if child.dep == nsubj:
-                subjects.append(child)
+                subjects.append(get_phrase(child))
+                
 
     return subjects
 
