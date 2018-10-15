@@ -2,6 +2,8 @@
 
 import argparse
 import spacy
+from spacy import displacy
+from spacy.symbols import acomp, advmod, dobj, nsubj, VERB, conj, attr
 
 
 def add_to_dict(dictionary, key, value):
@@ -11,53 +13,72 @@ def add_to_dict(dictionary, key, value):
         dictionary[key] = [value]
 
 
+def get_phrase(token):
+    subtree = token.subtree
+    return " ".join(map(lambda x: x.text, subtree))
+
+
+# Find the NSUBJ linked to the token.
+# e.g. given "The battery life of the iPhone is..." and token="is", return the subject.
+def extract_subjects(token):
+    subjects = list()
+    current = token
+    while not subjects:
+        for child in current.children:
+            if child.dep == nsubj:
+                subjects.append(get_phrase(child))
+        current = current.head
+
+    return subjects
+
+
+def extract_attributes(token):
+    attributes = list()
+    ATTR_DEPENDENCIES = { acomp, dobj, advmod, attr }
+
+    for child in token.children:
+        dep = child.dep
+        if dep in ATTR_DEPENDENCIES:
+            # check if child has conjunction
+            conjs = list(filter(lambda x: x.dep == conj, child.children))
+
+            if len(conjs) > 0:
+                attributes.append(child.text)
+                attributes += list(map(get_phrase, conjs))
+            else:
+                attributes.append(get_phrase(child))
+                # attributes.append(token.text + " " + get_phrase(child))
+
+    return attributes
+
+
 def main(text):
-    VERBOSE = False
-    SKIP_ENTITIES = ['LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']
-    ADJ_JOIN_POS = ['ADJ', 'ADV', 'CCONJ', 'ADP']
-
     print('Loading model.')
-
-    nlp = spacy.load('en_core_web_lg')
+    nlp = spacy.load('en')
 
     print('Processing text.')
-
     doc = nlp(text)
 
     print('Extracting entity-attribute pairs.')
 
     dictionary = {}
 
-    for entity in doc.ents:
-        if entity.label_ in SKIP_ENTITIES:
-            continue
+    for token in doc:
+        if token.pos == VERB:
+            subjects = extract_subjects(token)
+            attributes = extract_attributes(token)
 
-        if VERBOSE:
-            print('-- Found entity:', entity.text + '(' + entity.lemma_ + ')', entity.label_)
+            for subject in subjects:
+                for attribute in attributes:
+                    add_to_dict(dictionary, subject, attribute)
 
-        attr = None
+    print(dictionary)
 
-        for i in range(len(entity.sent), 0, -1):
-            token = entity.sent[i - 1]
-
-            if attr is not None:
-                if token.pos_ in ADJ_JOIN_POS:
-                    attr = token.lemma_ + ' ' + attr
-                else:
-                    add_to_dict(dictionary, entity.lemma_, attr)
-                    attr = None
-            elif token.pos_ == 'ADJ':
-                attr = token.lemma_
-
-            if VERBOSE:
-                print('- Found token:', token.text + '(' + token.lemma_ + ')', token.pos_,
-                      token.dep_ + '(' + spacy.explain(token.tag_) + ')')
-
-    return dictionary
+    displacy.serve(doc, style="dep")
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
-       ''' Google's directions are not very much as terrible or bad as you think.'''
+       '''Google's directions are not very much as terrible or bad as you think.'''
 # Outputs {'python': ['also great', 'same', 'very bad'], 'google': ['not very much as terrible or bad']}
 
 if __name__ == "__main__":
@@ -73,4 +94,5 @@ if __name__ == "__main__":
     else:
         data = args.text
 
-    print(main(data))
+    # print(main(data))
+    main(data)
