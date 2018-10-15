@@ -2,6 +2,8 @@
 
 import numpy as np
 import word2vec
+import torch
+
 
 """
 TODO handle KeyError for `unknown' words
@@ -18,5 +20,6 @@ if __name__ == "__main__":
   sentence = input().strip().split()
 
   matrix = word_vector_of_sentence(sentence)
+  print(type(matrix))
   print(matrix.shape)
   print(matrix)
