@@ -4,6 +4,7 @@
 import re
 
 
+# Returns [-1, 1]
 def get_polarity(dict, word, type):
     type_dict = dict[type]
     if word in type_dict:
