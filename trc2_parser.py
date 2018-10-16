@@ -11,14 +11,17 @@ def prepare(file):
 # Returns (date, headline, body) or (date, headline).
 def next(file, has_body):
     line = file.readline()
+
     if line == '':
         return None
     else:
         if has_body:
-            reg = '^([\d\-/ :]+),"(.+)"(?!"),"(?!")(.+)"\s*$'
+            reg = '^([\d\-/ :]+),"(.*)"(?!"),"(?!")(.*)"\s*$'
         else:
-            reg = '^([\d\-/ :]+),"(.+)"(?!")\s*$'
+            reg = '^([\d\-/ :]+),"(.*)"(?!")\s*$'
+
         res = re.search(reg, line)
+
         if res is None:
             raise Exception('Invalid line: ' + line)
         elif has_body:
