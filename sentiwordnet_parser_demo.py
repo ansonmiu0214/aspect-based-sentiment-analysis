@@ -5,7 +5,8 @@ file = open(name)
 
 dictionary = sentiwordnet_parser.parse(file)
 
-print('good', dictionary['good'])
-print('bad', dictionary['bad'])
+for word in ['good', 'bad']:
+    for type in ['a', 'n', 'v', 'r']:
+        print(word, type, sentiwordnet_parser.get_polarity(dictionary, word, type))
 
 file.close()
