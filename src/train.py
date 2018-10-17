@@ -14,28 +14,31 @@ def create_training_data():
     temp = []
     train_data = []
 
-    s = True
+    is_sentence = True
     for d in data:
-        if d == '/s':
-            s = True
+        elem = d.rstrip('\n')
+        if elem == '/s':
+            is_sentence = True
             continue
-        elif d == '/l':
-            if s:
-                s = False
+        elif elem == '/l':
+            if is_sentence:
+                is_sentence = False
                 continue
             else:
-                labels.append(temp)
+                labels.append(temp.copy())
                 temp.clear()
+                print(labels)
 
             continue
         else:
-            if s:
-                sentences.append(d)
+            if is_sentence:
+                sentences.append(elem)
             else:
-                temp.append(d)
+                print(elem)
+                temp.append(elem)
 
-    for elem in zip(sentences,labels):
-        train_data.append(elem[0],{'tags': elem[1]})
+    for pair in zip(sentences, labels):
+        train_data.append((pair[0], {'tags': pair[1]}))
 
     return train_data
 
@@ -103,3 +106,6 @@ def start_training(model=None, output=None, epoch=10):
 def evalutation(model, data):
     # return all the E&A pairs and evidences
     pass
+
+if __name__ ==  '__main__':
+    print(create_training_data())

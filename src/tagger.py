@@ -13,6 +13,7 @@ def tokenize(file):
 
 def label_text(sentences,data_file):
 
+
     print(len(sentences))
     for sentence in sentences:
         labels = []
