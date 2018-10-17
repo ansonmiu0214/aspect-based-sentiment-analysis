@@ -7,6 +7,11 @@ from spacy.symbols import acomp, amod, advmod, dobj, nsubj, VERB, conj, attr, NO
 compound = 7037928807040764755
 
 
+def get_phrase(token):
+    subtree = token.subtree
+    return " ".join(map(lambda x: x.text, subtree))
+
+
 # Get tokens at end of arcs from the current token.
 def get_sources(token, arcs):
     return [child for child in token.children if child.dep in arcs]
@@ -53,7 +58,7 @@ def extract_attribute_sentiments(token, entity_attributes):
         sentiment_sources = get_sources(token, {amod})
         for source in sentiment_sources:
             entity_attribute_sentiments.extend(list(
-                map(lambda e_a: (e_a[0], token.text, source.text),
+                map(lambda e_a: (e_a[0], token.text, get_phrase(source)),
                     filter(lambda e_a: not e_a[1], entity_attributes)
                     )
             ))
@@ -65,7 +70,7 @@ def extract_attribute_sentiments(token, entity_attributes):
             )
     elif token.pos == ADJ:
         entity_attribute_sentiments.extend(list(
-            map(lambda e_a: (e_a[0], e_a[1], token.text), entity_attributes)
+            map(lambda e_a: (e_a[0], e_a[1], get_phrase(token)), entity_attributes)
         ))
         further_sources = get_sources(token, {conj})
         for source in further_sources:
