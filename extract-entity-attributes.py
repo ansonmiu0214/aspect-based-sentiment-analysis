@@ -36,7 +36,7 @@ def extract_entity_attributes(noun):
             entity_attributes.extend(extract_entity_attributes(source))
         entity_attributes = list(map(lambda e_a: (e_a[0], noun.text), entity_attributes))
 
-        if len(entity_attributes) == 0:
+        if not entity_attributes:
             entity_attributes.append((None, noun.text))
 
         attribute_sources = get_sources(noun, {conj})
@@ -85,13 +85,18 @@ def extract_tuples(verb):
     for source in entity_attribute_sources:
         entity_attributes.extend(extract_entity_attributes(source))
 
+    current = verb.head
+    while not entity_attributes or not current:
+        sources = get_sources(current, entity_attribute_arcs)
+        for source in sources:
+            entity_attributes.extend(extract_entity_attributes(source))
+
     entity_attribute_sentiments = list()
     attribute_sentiment_sources = get_sources(verb, attribute_sentiment_arcs)
     for source in attribute_sentiment_sources:
         entity_attribute_sentiments.extend(extract_attribute_sentiments(source, entity_attributes))
 
     return entity_attribute_sentiments
-
 
 
 def main(text):
