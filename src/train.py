@@ -5,6 +5,16 @@ import random
 import sys
 from spacy.util import minibatch
 
+TAG_MAP = {
+    'E': {'pos': 'NOUN'},
+    'A': {'pos': 'NOUN'},
+    'S': {'pos': 'ADJ'},
+    '-': {'pos': 'NOUN'}
+}
+
+TRAIN_DATA = [
+    ("I like green's eggs", {'tags': ['-', 'A', 'E', 'S', 'E']})
+]
 
 def create_training_data():
     file = open(sys.argv[1])
@@ -27,15 +37,17 @@ def create_training_data():
             else:
                 labels.append(temp.copy())
                 temp.clear()
-                print(labels)
+                #print(labels)
 
             continue
         else:
             if is_sentence:
                 sentences.append(elem)
             else:
-                print(elem)
+                #print(elem)
                 temp.append(elem)
+    print(sentences)
+    print(labels)
 
     for pair in zip(sentences, labels):
         train_data.append((pair[0], {'tags': pair[1]}))
@@ -51,8 +63,10 @@ def test_model(model):
 
 def start_training(model=None, output=None, epoch=10):
     train_data = create_training_data()
+    print(train_data)
+    # train_data = TRAIN_DATA
 
-    # Loading or create a empty model.
+    # Loading or create an empty model.
     if model is not None:
         nlp = spacy.load(model)
         print("Loaded model '%s'." % model)
@@ -60,20 +74,19 @@ def start_training(model=None, output=None, epoch=10):
         nlp = spacy.blank('en')
         print("Create blank model to train.")
 
-    # Create a fresh instance of parser.
-    if 'parser' in nlp.pipe_names:
-        nlp.remove_pipe('parser')
-    parser = nlp.create_pipe('parser')
-    nlp.add_pipe(nlp.create_pipe('parser'), first=True)
+    # Create a fresh instance of tagger.
+    if 'tagger' in nlp.pipe_names:
+        nlp.remove_pipe('tagger')
+    tagger = nlp.create_pipe('tagger')
 
-    for text, labels in train_data:
-        for label in labels.get('deps', []):
-            parser.add_label(label)
+    for text, label in TAG_MAP.items():
+        tagger.add_label(text, label)
+    nlp.add_pipe(tagger, first=True)
 
-    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
+    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'tagger']
     with nlp.disable_pipes(*other_pipes):
         optimizer = nlp.begin_training()
-        for _ in epoch:
+        for _ in  range(epoch):
             random.shuffle(train_data)
             losses = {}
             batches = minibatch(train_data, size=4)
@@ -99,8 +112,8 @@ def start_training(model=None, output=None, epoch=10):
             #print data based on how labels are tagged
 
     # test the saved model to check it is correctly saved.
-    nlp_updated_model = spacy.load(output)
-    test_model(nlp_updated_model)
+    #nlp_updated_model = spacy.load(output)
+    #test_model(nlp_updated_model)
 
 
 def evalutation(model, data):
@@ -108,4 +121,6 @@ def evalutation(model, data):
     pass
 
 if __name__ ==  '__main__':
-    print(create_training_data())
+    start_training()
+    # print(create_training_data())
+    # print(TRAIN_DATA)

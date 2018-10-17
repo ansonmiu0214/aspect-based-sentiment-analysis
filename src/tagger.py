@@ -20,7 +20,7 @@ def label_text(sentences,data_file):
         print(sentence)
         words = word_tokenize(sentence[:-1])
         #words = re.split(' |,', sentence[:-1])
-        words = filter(lambda x: x not in [',',';',':','\'s'], words)
+        words = filter(lambda x: x not in [',',';',':'], words)
         for word in words:
             print(word)
             label = input("").upper()
@@ -29,7 +29,7 @@ def label_text(sentences,data_file):
             else:
                 labels.append('-')
         data_file.write('/s\n')
-        data_file.write(sentence + '\n')
+        data_file.write(sentence[:-1] + '\n')
         data_file.write('/l\n')
         for label in labels:
             data_file.write(label + '\n')
