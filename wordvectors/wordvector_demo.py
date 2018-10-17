@@ -9,7 +9,7 @@ import torch
 TODO handle KeyError for `unknown' words
 """
 def word_vector_of_sentence(sentence):
-  matrix = np.asmatrix([model[word] for word in sentence])  
+  matrix = np.asmatrix([model[word.lower()] for word in sentence])
   return matrix
 
 if __name__ == "__main__":
