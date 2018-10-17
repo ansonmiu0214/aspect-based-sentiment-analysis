@@ -2,11 +2,12 @@
 
 import argparse
 import spacy
-from spacy.symbols import acomp, amod, advmod, dobj, nsubj, VERB, conj, attr, NOUN, PROPN, prep, poss, nmod, ADJ
+from spacy.symbols import acomp, amod, dobj, nsubj, VERB, conj, NOUN, PROPN, prep, poss, nmod, ADJ
 
 compound = 7037928807040764755
 
 
+# Returns the subtree of a token as a phrase.
 def get_phrase(token):
     subtree = token.subtree
     return " ".join(map(lambda x: x.text, subtree))
@@ -22,21 +23,14 @@ def get_sources(token, arcs):
 def extract_entity_attributes(noun):
     entity_attributes = list()
 
-    entity_arcs = {poss, nmod, compound}
-    # If current noun is a proper noun, it is assigned as an entity,
-    # conjugated proper nouns are also found and assigned as entities.
-    # We assume an entity does not have arcs to an attribute, only from.
+    # If current noun is a proper noun, it is assigned as an entity.
     if noun.pos == PROPN:
         entity_attributes.append((noun.text, None))
-        entity_sources = get_sources(noun, {conj})
 
-        for source in entity_sources:
-            entity_attributes.extend(extract_entity_attributes(source))
-    # If current noun is a regular noun, it is assigned as an attribute,
-    # its entity (if any) or conjugated attributes are also found.
+    # If current noun is a regular noun, it is assigned as an attribute.
     elif noun.pos == NOUN:
-        entity_sources = get_sources(noun, entity_arcs)
-
+        # Try to find the relevant entity.
+        entity_sources = get_sources(noun, {poss, nmod, compound})
         for source in entity_sources:
             entity_attributes.extend(extract_entity_attributes(source))
         entity_attributes = list(map(lambda e_a: (e_a[0], noun.text), entity_attributes))
@@ -44,16 +38,21 @@ def extract_entity_attributes(noun):
         if not entity_attributes:
             entity_attributes.append((None, noun.text))
 
-        attribute_sources = get_sources(noun, {conj})
-        for source in attribute_sources:
-            entity_attributes.extend(extract_entity_attributes(source))
+    # Extract entity-attributes from further conjugated tokens.
+    further_sources = get_sources(noun, {conj})
+    for source in further_sources:
+        entity_attributes.extend(extract_entity_attributes(source))
 
     return entity_attributes
 
 
+# Extract attribute-sentiment pairs and attach onto given entity-attribute pairs.
+# e.g. "Apple has good cameras" -> [(Apple, cameras, good)]
 def extract_attribute_sentiments(token, entity_attributes):
     entity_attribute_sentiments = list()
 
+    # If token is a noun, attach attribute-sentiment pair to entity-attribute
+    # pairs which do not currently have an attribute.
     if token.pos == NOUN:
         sentiment_sources = get_sources(token, {amod})
         for source in sentiment_sources:
@@ -62,22 +61,18 @@ def extract_attribute_sentiments(token, entity_attributes):
                     filter(lambda e_a: not e_a[1], entity_attributes)
                     )
             ))
-
-        further_sources = get_sources(token, {conj})
-        for source in further_sources:
-            entity_attribute_sentiments.extend(
-                extract_attribute_sentiments(source, entity_attributes)
-            )
+    # If token is an adjective, attach sentiment to all entity-attribute pairs.
     elif token.pos == ADJ:
         entity_attribute_sentiments.extend(list(
             map(lambda e_a: (e_a[0], e_a[1], get_phrase(token)), entity_attributes)
         ))
-        further_sources = get_sources(token, {conj})
-        for source in further_sources:
-            entity_attribute_sentiments.extend(
-                extract_attribute_sentiments(source, entity_attributes)
-            )
 
+    # Extract attribute-sentiment pairs from further conjugated tokens.
+    further_sources = get_sources(token, {conj})
+    for source in further_sources:
+        entity_attribute_sentiments.extend(
+            extract_attribute_sentiments(source, entity_attributes)
+        )
     return entity_attribute_sentiments
 
 
@@ -85,17 +80,22 @@ def extract_tuples(verb):
     entity_attribute_arcs = {nsubj}
     attribute_sentiment_arcs = {dobj, acomp, prep}
 
+    # Get entity-attribute pairs (left side of verb)
     entity_attribute_sources = get_sources(verb, entity_attribute_arcs)
     entity_attributes = list()
     for source in entity_attribute_sources:
         entity_attributes.extend(extract_entity_attributes(source))
 
+    # If no entity-attribute pairs found, attempt searching from
+    # previous verb in conjugation chain.
     current = verb.head
     while not entity_attributes or not current:
         sources = get_sources(current, entity_attribute_arcs)
         for source in sources:
             entity_attributes.extend(extract_entity_attributes(source))
+        current = current.head
 
+    # Attach attribute-sentiment pairs.
     entity_attribute_sentiments = list()
     attribute_sentiment_sources = get_sources(verb, attribute_sentiment_arcs)
     for source in attribute_sentiment_sources:
