@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     data = ""
     if args.file:
-        with open('data.txt', 'r') as file:
+        with open(args.file, 'r') as file:
             data = file.read().replace('\n', '')
     else:
         data = args.text

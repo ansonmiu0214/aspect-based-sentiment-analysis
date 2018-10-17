@@ -73,8 +73,9 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
                   .format(losses['textcat'], scores['textcat_p'],
                           scores['textcat_r'], scores['textcat_f']))
 
+    # TODO: this can be modified to run our own test model
     # test the trained model
-    test_text = "This movie sucked"
+    test_text = "Omar is kinky"
     doc = nlp(test_text)
     print(test_text, doc.cats)
 
@@ -92,6 +93,7 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
         print(test_text, doc2.cats)
 
 
+# TODO:This function can be modified to use our own dataset.
 def load_data(limit=0, split=0.8):
     """Load data from the IMDB dataset."""
     # Partition off part of the train data for evaluation
