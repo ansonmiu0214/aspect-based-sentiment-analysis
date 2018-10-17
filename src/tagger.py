@@ -1,7 +1,6 @@
 import sys
 from nltk import sent_tokenize, word_tokenize
 import nltk
-import re
 nltk.download('punkt')
 
 def get_data():
@@ -30,7 +29,6 @@ def label_text(sentences,data_file):
                 labels.append('-')
         data_file.write('/s\n')
         data_file.write(sentence + '\n')
-        data_file.write('/s\n')
         data_file.write('/l\n')
         for label in labels:
             data_file.write(label + '\n')

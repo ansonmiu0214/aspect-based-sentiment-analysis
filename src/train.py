@@ -2,11 +2,44 @@ from pathlib import Path
 
 import spacy
 import random
+import sys
 from spacy.util import minibatch
 
 
 def create_training_data():
-    return
+    file = open(sys.argv[1])
+    data = file.readlines()
+    sentences = []
+    labels = []
+    temp = []
+    train_data = []
+
+    s = True
+    for d in data:
+        if d == '/s':
+            s = True
+            continue
+        elif d == '/l':
+            if s:
+                s = False
+                continue
+            else:
+                labels.append(temp)
+                temp.clear()
+
+            continue
+        else:
+            if s:
+                sentences.append(d)
+            else:
+                temp.append(d)
+
+    for elem in zip(sentences,labels):
+        train_data.append(elem[0],{'tags': elem[1]})
+
+    return train_data
+
+
 
 
 def test_model(model):
