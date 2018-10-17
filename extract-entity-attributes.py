@@ -2,54 +2,52 @@
 
 import argparse
 import spacy
-from spacy import displacy
-from spacy.symbols import acomp, advmod, dobj, nsubj, VERB, conj, attr
+from spacy.symbols import acomp, advmod, dobj, nsubj, VERB, conj, attr, NOUN, PROPN, prep, poss, nmod
 
 
-def add_to_dict(dictionary, key, value):
-    if key in dictionary:
-        dictionary[key].append(value)
-    else:
-        dictionary[key] = [value]
+compound = 7037928807040764755
 
 
-def get_phrase(token):
-    subtree = token.subtree
-    return " ".join(map(lambda x: x.text, subtree))
+def get_sources(token, arcs):
+    return [child for child in token.children if child.dep in arcs]
 
 
-# Find the NSUBJ linked to the token.
-# e.g. given "The battery life of the iPhone is..." and token="is", return the subject.
-def extract_subjects(token):
-    subjects = list()
-    current = token
-    while not subjects:
-        for child in current.children:
-            if child.dep == nsubj:
-                subjects.append(get_phrase(child))
-        current = current.head
+def extract_entity_attributes(noun):
+    entity_attributes = list()
 
-    return subjects
+    entity_arcs = {poss, nmod, compound}
+    if noun.pos == PROPN:
+        entity_attributes.append((noun.text, None))
+        entity_sources = get_sources(noun, {conj})
+
+        for source in entity_sources:
+            entity_attributes.extend(extract_entity_attributes(source))
+    elif noun.pos == NOUN:
+        entity_sources = get_sources(noun, entity_arcs)
+
+        for source in entity_sources:
+            entity_attributes.extend(extract_entity_attributes(source))
+        entity_attributes = list(map(lambda e_a: (e_a[0], noun.text), entity_attributes))
+
+        if len(entity_attributes) == 0:
+            entity_attributes.append((None, noun.text))
+
+        attribute_sources = get_sources(noun, {conj})
+        for source in attribute_sources:
+            entity_attributes.extend(extract_entity_attributes(source))
+
+    return entity_attributes
 
 
-def extract_attributes(token):
-    attributes = list()
-    ATTR_DEPENDENCIES = { acomp, dobj, advmod, attr }
+def extract_tuples(verb):
+    entity_attribute_arcs = {nsubj}
+    attribute_sentiment_arcs = {dobj, acomp, prep}
 
-    for child in token.children:
-        dep = child.dep
-        if dep in ATTR_DEPENDENCIES:
-            # check if child has conjunction
-            conjs = list(filter(lambda x: x.dep == conj, child.children))
-
-            if len(conjs) > 0:
-                attributes.append(child.text)
-                attributes += list(map(get_phrase, conjs))
-            else:
-                attributes.append(get_phrase(child))
-                # attributes.append(token.text + " " + get_phrase(child))
-
-    return attributes
+    entity_attribute_sources = [child for child in verb.children if child.dep in entity_attribute_arcs]
+    foobar = list()
+    for s in entity_attribute_sources:
+        foobar.extend(extract_entity_attributes(s))
+    return foobar
 
 
 def main(text):
@@ -61,20 +59,12 @@ def main(text):
 
     print('Extracting entity-attribute pairs.')
 
-    dictionary = {}
+    foobar = list()
 
     for token in doc:
         if token.pos == VERB:
-            subjects = extract_subjects(token)
-            attributes = extract_attributes(token)
-
-            for subject in subjects:
-                for attribute in attributes:
-                    add_to_dict(dictionary, subject, attribute)
-
-    print(dictionary)
-
-    displacy.serve(doc, style="dep")
+            foobar.extend(extract_tuples(token))
+    print(foobar)
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
