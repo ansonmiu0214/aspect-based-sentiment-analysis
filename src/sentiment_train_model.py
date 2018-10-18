@@ -37,11 +37,10 @@ def main(model="sample_model", output_dir="sample_model", n_iter=20, n_texts=200
     # add label to text classifier
     textcat.add_label('POSITIVE')
 
-    # load the IMDB dataset
-    print("Loading IMDB data...")
-    train_data, _ = thinc.extra.datasets.imdb()
-    data_loader = Loader(limit=n_texts, train_data=train_data)
-    (train_texts, train_cats), (dev_texts, dev_cats) = data_loader.load_data()
+    # load the dataset
+    print("Loading data...")
+    data_loader = Loader(limit=n_texts)
+    (train_texts, train_cats), (dev_texts, dev_cats) = data_loader.load_data_reviews()
     print("Using {} examples ({} training, {} evaluation)"
           .format(n_texts, len(train_texts), len(dev_texts)))
 

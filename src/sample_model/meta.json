@@ -1,20 +1,20 @@
 {
+  "name":"model",
+  "version":"0.0.0",
   "pipeline":[
     "textcat"
   ],
-  "vectors":{
-    "keys":0,
-    "vectors":0,
-    "name":"spacy_pretrained_vectors",
-    "width":0
-  },
-  "spacy_version":">=2.0.12",
-  "version":"0.0.0",
-  "name":"model",
-  "url":"",
+  "lang":"en",
   "license":"",
   "email":"",
+  "author":"",
   "description":"",
-  "lang":"en",
-  "author":""
+  "spacy_version":">=2.0.12",
+  "url":"",
+  "vectors":{
+    "width":0,
+    "keys":0,
+    "vectors":0,
+    "name":"spacy_pretrained_vectors"
+  }
 }
