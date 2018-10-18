@@ -1,14 +1,6 @@
 #!/usr/bin/env python
 # coding: utf8
-"""Train a convolutional neural network text classifier on the
-IMDB dataset, using the TextCategorizer component. The dataset will be loaded
-automatically via Thinc's built-in dataset loader. The model is added to
-spacy.pipeline, and predictions are available via `doc.cats`. For more details,
-see the documentation:
-* Training: https://spacy.io/usage/training
 
-Compatible with: spaCy v2.0.0+
-"""
 from __future__ import unicode_literals, print_function
 import plac
 import random
@@ -17,6 +9,8 @@ import thinc.extra.datasets
 
 import spacy
 from spacy.util import minibatch, compounding
+
+from src.data_loader import Loader
 
 
 @plac.annotations(
@@ -46,7 +40,9 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
 
     # load the IMDB dataset
     print("Loading IMDB data...")
-    (train_texts, train_cats), (dev_texts, dev_cats) = load_data(limit=n_texts)
+    train_data, _ = thinc.extra.datasets.imdb()
+    data_loader = Loader(limit=n_texts, train_data=train_data)
+    (train_texts, train_cats), (dev_texts, dev_cats) = data_loader.load_data()
     print("Using {} examples ({} training, {} evaluation)"
           .format(n_texts, len(train_texts), len(dev_texts)))
     train_data = list(zip(train_texts,
@@ -93,19 +89,6 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
         print(test_text, doc2.cats)
 
 
-# TODO:This function can be modified to use our own dataset.
-def load_data(limit=0, split=0.8):
-    """Load data from the IMDB dataset."""
-    # Partition off part of the train data for evaluation
-    train_data, _ = thinc.extra.datasets.imdb()
-    random.shuffle(train_data)
-    train_data = train_data[-limit:]
-    texts, labels = zip(*train_data)
-    cats = [{'POSITIVE': bool(y)} for y in labels]
-    split = int(len(train_data) * split)
-    return (texts[:split], cats[:split]), (texts[split:], cats[split:])
-
-
 def evaluate(tokenizer, textcat, texts, cats):
     docs = (tokenizer(text) for text in texts)
     tp = 1e-8  # True positives
@@ -119,11 +102,11 @@ def evaluate(tokenizer, textcat, texts, cats):
                 continue
             if score >= 0.5 and gold[label] >= 0.5:
                 tp += 1.
-            elif score >= 0.5 and gold[label] < 0.5:
+            elif score >= 0.5 > gold[label]:
                 fp += 1.
             elif score < 0.5 and gold[label] < 0.5:
                 tn += 1
-            elif score < 0.5 and gold[label] >= 0.5:
+            elif score < 0.5 <= gold[label]:
                 fn += 1
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
