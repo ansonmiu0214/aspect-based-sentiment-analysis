@@ -5,7 +5,7 @@ from spacy import displacy
 from collections import deque
 
 # TODO optimise imports to avoid undetected conflicts
-from spacy.symbols import nsubj, dobj, amod, conj, acomp, poss, prep, pobj, advmod
+from spacy.symbols import nsubj, dobj, amod, conj, acomp, poss, prep, pobj, advmod, advcl, neg
 
 # Missing constants from spacy.symbols
 compound = 7037928807040764755
@@ -64,7 +64,7 @@ Given a spaCy document, returns [((Entity: String, Attribute: String), Polarity:
 def extract_entity_attribute_pairs(root):
   entity_arcs = { nsubj }
   attribute_arcs = { dobj, acomp, prep }
-  link_arcs = { conj }
+  link_arcs = { conj, advcl }
   root_as_attr_arcs = { advmod }
 
   entity_sources = [child for child in root.children if child.dep in entity_arcs]
@@ -110,7 +110,7 @@ def parse_attribute(attr_src):
   # print("text={} subtree={}".format(attr_src.text, ", ".join(map(lambda x: "{} via {} enum {}".format(x.text, x.dep_, x.dep), attr_src.children))))
   attr = [(attr_src.i, attr_src.text)]
 
-  attr_arcs = { amod, compound, pobj, advmod }
+  attr_arcs = { amod, compound, pobj, advmod, neg }
   link_arcs = { conj } 
 
   rest = []
