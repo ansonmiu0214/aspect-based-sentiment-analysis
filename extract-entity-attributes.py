@@ -2,18 +2,21 @@
 
 import argparse
 import spacy
-from spacy.symbols import acomp, amod, dobj, nsubj, VERB, conj, NOUN, PROPN, prep, poss, nmod, ADJ, neg, attr
+from spacy.symbols import acomp, amod, dobj, nsubj, VERB, conj, NOUN, PROPN, prep, poss, nmod, ADJ, neg, attr, cc
 
 # Missing variables from spacy.symbols
 compound = 7037928807040764755
 
 
 # Returns the subtree of a token as a phrase.
-# TODO handle conjunction case
-# e.g. "nice".subtree = "nice and not perfect"
-# but only want "nice"
-def get_phrase(token):
-    subtree = token.subtree
+def get_phrase(token, is_adjective=False):
+    subtree = list(token.subtree)
+    # Handles possible phrase duplication when adjective has a conjunction
+    if is_adjective:
+        prune_branches = [list(child.subtree) for child in token.children if child.dep in {cc, conj}]
+        subtree = [subtoken for subtoken in subtree if subtoken not in [
+            branch_token for branch in prune_branches for branch_token in branch
+        ]]
     phrase = " ".join(map(lambda x: x.text, subtree))
     return phrase
 
@@ -58,30 +61,30 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
 
     # Add the negation prefix if it exists
     prefix = (get_phrase(negation) + " ") if negation else ""
-    
+
     # If token is a noun, attach attribute-sentiment pair to entity-attribute
     # pairs which do not currently have an attribute.
     if token.pos == NOUN:
         sentiment_sources = get_sources(token, {amod})
         for source in sentiment_sources:
             entity_attribute_sentiments += list(
-                map(lambda e_a: (e_a[0], prefix + token.text, get_phrase(source)),
+                map(lambda e_a: (e_a[0], prefix + token.text, get_phrase(source, True)),
                     filter(lambda e_a: not e_a[1], entity_attributes)
-                )
+                    )
             )
 
     # If token is an adjective, attach sentiment to all entity-attribute pairs.
     elif token.pos == ADJ:
         print("token={} negation={}".format(token, prefix))
         entity_attribute_sentiments += list(
-            map(lambda e_a: (e_a[0], e_a[1], prefix + get_phrase(token)), entity_attributes)
+            map(lambda e_a: (e_a[0], e_a[1], prefix + get_phrase(token, True)), entity_attributes)
         )
 
     # Extract attribute-sentiment pairs from further conjugated tokens.
     further_sources = get_sources(token, {conj})
     for source in further_sources:
         entity_attribute_sentiments += extract_attribute_sentiments(source, entity_attributes)
-        
+
     return entity_attribute_sentiments
 
 
@@ -115,7 +118,7 @@ def extract_tuples(verb):
         # Compute distance from each negation to the source token
         # e.g. "not good but perfect", so "good" is 1 away and "perfect" is 3 away
         dist_from_neg = [(source.i - negation.i, negation) for negation in negations]
-        
+
         # The relevant negations are where the source is AFTER the negation
         # so ignore entries with negative distances
         relevant_negations = list(filter(lambda x: x[0] > 0, dist_from_neg))
@@ -139,7 +142,7 @@ def main(text):
     doc = nlp(text)
 
     print('Extracting entity-attribute pairs.')
-    entity_attribute_sentiments = []    
+    entity_attribute_sentiments = []
     for token in doc:
         if token.pos == VERB:
             entity_attribute_sentiments += extract_tuples(token)
