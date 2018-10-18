@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals, print_function
 import plac
-import random
 from pathlib import Path
 import thinc.extra.datasets
 
@@ -45,6 +44,7 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
     (train_texts, train_cats), (dev_texts, dev_cats) = data_loader.load_data()
     print("Using {} examples ({} training, {} evaluation)"
           .format(n_texts, len(train_texts), len(dev_texts)))
+
     train_data = list(zip(train_texts,
                           [{'cats': cats} for cats in train_cats]))
 
@@ -69,24 +69,12 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
                   .format(losses['textcat'], scores['textcat_p'],
                           scores['textcat_r'], scores['textcat_f']))
 
-    # TODO: this can be modified to run our own test model
-    # test the trained model
-    test_text = "Omar is kinky"
-    doc = nlp(test_text)
-    print(test_text, doc.cats)
-
     if output_dir is not None:
         output_dir = Path(output_dir)
         if not output_dir.exists():
             output_dir.mkdir()
         nlp.to_disk(output_dir)
         print("Saved model to", output_dir)
-
-        # test the saved model
-        print("Loading from", output_dir)
-        nlp2 = spacy.load(output_dir)
-        doc2 = nlp2(test_text)
-        print(test_text, doc2.cats)
 
 
 def evaluate(tokenizer, textcat, texts, cats):
