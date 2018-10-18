@@ -1,0 +1,20 @@
+{
+  "pipeline":[
+    "textcat"
+  ],
+  "vectors":{
+    "keys":0,
+    "vectors":0,
+    "name":"spacy_pretrained_vectors",
+    "width":0
+  },
+  "spacy_version":">=2.0.12",
+  "version":"0.0.0",
+  "name":"model",
+  "url":"",
+  "license":"",
+  "email":"",
+  "description":"",
+  "lang":"en",
+  "author":""
+}
