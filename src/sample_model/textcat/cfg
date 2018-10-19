@@ -1,0 +1,9 @@
+{
+  "pretrained_vectors":null,
+  "labels":[
+    "POSITIVE"
+  ],
+  "deprecation_fixes":{
+    "vectors_name":"spacy_pretrained_vectors"
+  }
+}
