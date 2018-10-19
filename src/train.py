@@ -37,14 +37,12 @@ def create_training_data():
             else:
                 labels.append(temp.copy())
                 temp.clear()
-                #print(labels)
 
             continue
         else:
             if is_sentence:
                 sentences.append(elem)
             else:
-                #print(elem)
                 temp.append(elem)
     print(sentences)
     print(labels)
@@ -54,9 +52,6 @@ def create_training_data():
 
     return train_data
 
-
-
-
 def test_model(model):
     pass
 
@@ -64,7 +59,6 @@ def test_model(model):
 def start_training(model=None, output=None, epoch=10):
     train_data = create_training_data()
     print(train_data)
-    # train_data = TRAIN_DATA
 
     # Loading or create an empty model.
     if model is not None:
@@ -95,8 +89,6 @@ def start_training(model=None, output=None, epoch=10):
                 nlp.update(texts, labels, sgd=optimizer, losses=losses)
             print('Losses', losses)
 
-    # test the model with out-of-domain data
-    #test_model(nlp)
 
     if output is not None:
         output = Path(output)
@@ -105,22 +97,16 @@ def start_training(model=None, output=None, epoch=10):
         nlp.to_disk(output)
         print("Saved model to directory %s." % output)
 
-    def test_model(nlp,text):
-        docs = nlp.pipe(text)
-        for doc in docs:
-            print(doc.text)
-            #print data based on how labels are tagged
+    return nlp
 
-    # test the saved model to check it is correctly saved.
-    #nlp_updated_model = spacy.load(output)
-    #test_model(nlp_updated_model)
+def test_model(nlp,text):
+    docs = nlp.pipe(text)
+    for doc in docs:
+        print(doc.text)
 
 
-def evalutation(model, data):
-    # return all the E&A pairs and evidences
-    pass
 
 if __name__ ==  '__main__':
-    start_training()
-    # print(create_training_data())
-    # print(TRAIN_DATA)
+    model = start_training()
+    doc = model(u'The food is bad but the service is good')
+    print([t.tag_ for t in doc])
