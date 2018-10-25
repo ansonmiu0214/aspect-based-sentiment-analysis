@@ -1,11 +1,19 @@
 # Given text, output a list of entity-attribute pairs.
 
 import argparse
+import json
 import spacy
 from spacy.symbols import acomp, amod, dobj, nsubj, VERB, conj, NOUN, PROPN, prep, poss, nmod, ADJ, neg, attr, cc
 
 # Missing variables from spacy.symbols
 compound = 7037928807040764755
+
+def concatMap(f, ls):
+    mapped = map(f, ls)
+    res = []
+    for m in mapped:
+        res += m
+    return res
 
 
 # Returns the subtree of a token as a phrase.
@@ -87,51 +95,73 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
 
     return entity_attribute_sentiments
 
+def extract_nearest_negation(token, negations):
+    # Compute distance from each negation to the source token
+    # e.g. "not good but perfect", so "good" is 1 away and "perfect" is 3 away
+    dist_from_neg = map(lambda x: (token.i - x.i, x), negations)
+
+    # The relevant negations are where the source is AFTER the negation
+    # so ignore entries with negative distances
+    relevant_negations = list(filter(lambda x: x[0] > 0, dist_from_neg))
+
+    negation = None
+    if relevant_negations:
+        # Relevant negation is the one that occurs first when searching
+        # to the right of the token
+        _, negation = min(relevant_negations)
+    return negation
+
 
 def extract_tuples(verb):
     entity_attribute_arcs = {nsubj}
     attribute_sentiment_arcs = {dobj, acomp, prep}
 
     # Collate the negations linked to the verb
-    negations = [child for child in verb.children if child.dep == neg]
+    negations = filter(lambda x: x.dep == neg, verb.children)
 
-    # Get entity-attribute pairs (left side of verb)
-    entity_attribute_sources = get_sources(verb, entity_attribute_arcs)
+    current = verb
     entity_attributes = []
-    for source in entity_attribute_sources:
-        entity_attributes += extract_entity_attributes(source)
-
-    # If no entity-attribute pairs found, attempt searching from
-    # previous verb in conjugation chain.
-    current = verb.head
-    while not entity_attributes or not current:
+    while not entity_attributes and current:
         sources = get_sources(current, entity_attribute_arcs)
-        for source in sources:
-            entity_attributes += extract_entity_attributes(source)
+        entity_attributes = concatMap(extract_entity_attributes, sources)
         current = current.head
 
     # Attach attribute-sentiment pairs.
-    entity_attribute_sentiments = []
-    attribute_sentiment_sources = get_sources(verb, attribute_sentiment_arcs)
-
-    for source in attribute_sentiment_sources:
-        # Compute distance from each negation to the source token
-        # e.g. "not good but perfect", so "good" is 1 away and "perfect" is 3 away
-        dist_from_neg = [(source.i - negation.i, negation) for negation in negations]
-
-        # The relevant negations are where the source is AFTER the negation
-        # so ignore entries with negative distances
-        relevant_negations = list(filter(lambda x: x[0] > 0, dist_from_neg))
-
-        negation = None
-        if relevant_negations:
-            # Relevant negation is the one that occurs first when searching
-            # to the right of the token
-            _, negation = min(relevant_negations)
-
-        entity_attribute_sentiments += extract_attribute_sentiments(source, entity_attributes, negation)
-
+    entity_attribute_sentiments = concatMap(
+                lambda s:
+                    extract_attribute_sentiments(s,
+                                                 entity_attributes,
+                                                 extract_nearest_negation(s, negations)
+                                                ),
+                get_sources(verb, attribute_sentiment_arcs)
+            )
     return entity_attribute_sentiments
+
+
+def extract_entity_attribute_sentiment(doc):
+    entity_attribute_sentiments = []
+    for token in doc:
+        if token.pos == VERB:
+            entity_attribute_sentiments += extract_tuples(token)
+    return entity_attribute_sentiments;
+
+
+def position_to_JSON(t):
+    if t is None:
+        return json.dumps({'start': -1, 'end': -1})
+    return json.dumps({'start': t[0], 'end': t[1]})
+
+
+def tuple_to_JSON(tuples):
+    result = []
+    for t in tuples:
+        result += json.dumps(
+                {
+                    'entity': position_to_JSON(t[0]),
+                    'attribute': position_to_JSON(t[1]),
+                    'sentiment': position_to_JSON(t[2])
+                }
+            )
 
 
 def main(text):
@@ -142,12 +172,7 @@ def main(text):
     doc = nlp(text)
 
     print('Extracting entity-attribute pairs.')
-    entity_attribute_sentiments = []
-    for token in doc:
-        if token.pos == VERB:
-            entity_attribute_sentiments += extract_tuples(token)
-
-    print(entity_attribute_sentiments)
+    print(extract_entity_attribute_sentiment(doc))
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
@@ -167,5 +192,4 @@ if __name__ == "__main__":
     else:
         data = args.text
 
-    # print(main(data))
     main(data)
