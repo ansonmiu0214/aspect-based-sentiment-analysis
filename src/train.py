@@ -5,15 +5,8 @@ import random
 import sys
 from spacy.util import minibatch
 
-TAG_MAP = {
-    'E': {'pos': 'NOUN'},
-    'A': {'pos': 'NOUN'},
-    'S': {'pos': 'ADJ'},
-    '-': {'pos': 'NOUN'}
-}
 
 TRAIN_DATA = [
-    ("I like green's eggs", {'tags': ['-', 'A', 'E', 'S', 'E']})
 ]
 
 def create_training_data():
@@ -69,13 +62,14 @@ def start_training(model=None, output=None, epoch=10):
         print("Create blank model to train.")
 
     # Create a fresh instance of tagger.
-    if 'tagger' in nlp.pipe_names:
-        nlp.remove_pipe('tagger')
-    tagger = nlp.create_pipe('tagger')
+    if 'parser' in nlp.pipe_names:
+        nlp.remove_pipe('parser')
+    parser = nlp.create_pipe('parser')
+    nlp.add_pipe(parser, first=True)
 
-    for text, label in TAG_MAP.items():
-        tagger.add_label(text, label)
-    nlp.add_pipe(tagger, first=True)
+    for text, tags in TRAIN_DATA:
+        for dep in tags.get('deps', []):
+            parser.add_label(dep)
 
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'tagger']
     with nlp.disable_pipes(*other_pipes):
