@@ -21,7 +21,7 @@ def get_phrase(token, is_adjective=False):
     subtree = list(token.subtree)
     # Handles possible phrase duplication when adjective has a conjunction
     if is_adjective:
-        prune_branches = [list(child.subtree) for child in token.children if child.dep in {cc, conj}]
+        prune_branches = map(lambda c: c.subtree, filter(lambda c: c.dep in {cc, conj}, token.children))
         subtree = [subtoken for subtoken in subtree if subtoken not in [
             branch_token for branch in prune_branches for branch_token in branch
         ]]
@@ -31,7 +31,7 @@ def get_phrase(token, is_adjective=False):
 
 # Get tokens at end of arcs from the current token.
 def get_sources(token, arcs):
-    return [child for child in token.children if child.dep in arcs]
+    return filter(lambda c: c.dep in arcs, token.children)
 
 
 # Extract entity-attribute pairs from a subject noun (before the verb)
@@ -39,16 +39,15 @@ def get_sources(token, arcs):
 def extract_entity_attributes(noun):
     entity_attributes = list()
 
-    # If current noun is a proper noun, it is assigned as an entity.
     if noun.pos == PROPN:
+        # If current noun is a proper noun, it is assigned as an entity.
         entity_attributes.append((noun.text, None))
-
-    # If current noun is a regular noun, it is assigned as an attribute.
     elif noun.pos == NOUN:
+        # If current noun is a regular noun, it is assigned as an attribute.
         # Try to find the relevant entity.
         entity_sources = get_sources(noun, {poss, nmod, compound})
-        for source in entity_sources:
-            entity_attributes.extend(extract_entity_attributes(source))
+        entity_attributes += concatMap(extract_entity_attributes, entity_sources)
+        print(entity_attributes)
         entity_attributes = list(map(lambda e_a: (e_a[0], noun.text), entity_attributes))
 
         if not entity_attributes:
@@ -56,8 +55,7 @@ def extract_entity_attributes(noun):
 
     # Extract entity-attributes from further conjugated tokens.
     further_sources = get_sources(noun, {conj})
-    for source in further_sources:
-        entity_attributes.extend(extract_entity_attributes(source))
+    entity_attributes += concatMap(extract_entity_attributes, further_sources)
 
     return entity_attributes
 
@@ -70,9 +68,9 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
     # Add the negation prefix if it exists
     prefix = (get_phrase(negation) + " ") if negation else ""
 
-    # If token is a noun, attach attribute-sentiment pair to entity-attribute
-    # pairs which do not currently have an attribute.
     if token.pos == NOUN:
+        # If token is a noun, attach attribute-sentiment pair to entity-attribute
+        # pairs which do not currently have an attribute.
         sentiment_sources = get_sources(token, {amod})
         for source in sentiment_sources:
             entity_attribute_sentiments += list(
@@ -80,9 +78,8 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
                     filter(lambda e_a: not e_a[1], entity_attributes)
                     )
             )
-
-    # If token is an adjective, attach sentiment to all entity-attribute pairs.
     elif token.pos == ADJ:
+        # If token is an adjective, attach sentiment to all entity-attribute pairs.
         print("token={} negation={}".format(token, prefix))
         entity_attribute_sentiments += list(
             map(lambda e_a: (e_a[0], e_a[1], prefix + get_phrase(token, True)), entity_attributes)
@@ -90,8 +87,10 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
 
     # Extract attribute-sentiment pairs from further conjugated tokens.
     further_sources = get_sources(token, {conj})
-    for source in further_sources:
-        entity_attribute_sentiments += extract_attribute_sentiments(source, entity_attributes)
+    entity_attribute_sentiments += concatMap(
+            lambda s: extract_attribute_sentiments(s, entity_attributes),
+            further_sources
+    )
 
     return entity_attribute_sentiments
 
@@ -111,6 +110,13 @@ def extract_nearest_negation(token, negations):
         _, negation = min(relevant_negations)
     return negation
 
+def extract_all_attribute_sentiments(sources, entity_attributes, negations):
+    all_attribute_sentiments = []
+    for source in sources:
+        nearest_negation = extract_nearest_negation(source, negations)
+        e_s = extract_attribute_sentiments(source, entity_attributes, nearest_negation)
+        all_attribute_sentiments += e_s
+    return all_attribute_sentiments
 
 def extract_tuples(verb):
     entity_attribute_arcs = {nsubj}
@@ -119,6 +125,8 @@ def extract_tuples(verb):
     # Collate the negations linked to the verb
     negations = filter(lambda x: x.dep == neg, verb.children)
 
+    # Extracts entities and attributes from current verb, or from
+    # nearest, previous verb if none found.
     current = verb
     entity_attributes = []
     while not entity_attributes and current:
@@ -127,15 +135,8 @@ def extract_tuples(verb):
         current = current.head
 
     # Attach attribute-sentiment pairs.
-    entity_attribute_sentiments = concatMap(
-                lambda s:
-                    extract_attribute_sentiments(s,
-                                                 entity_attributes,
-                                                 extract_nearest_negation(s, negations)
-                                                ),
-                get_sources(verb, attribute_sentiment_arcs)
-            )
-    return entity_attribute_sentiments
+    entity_attribute_sources = get_sources(verb, attribute_sentiment_arcs)
+    return extract_all_attribute_sentiments(entity_attribute_sources, entity_attributes, negations)
 
 
 def extract_entity_attribute_sentiment(doc):
