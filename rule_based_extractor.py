@@ -167,29 +167,25 @@ def extract_tuples(verb):
 
 
 def extract_entity_attribute_sentiment(doc):
-    entity_attribute_sentiments = []
-    for token in doc:
-        if token.pos == VERB:
-            entity_attribute_sentiments += extract_tuples(token)
-    return entity_attribute_sentiments;
+    return list(concatMap(extract_tuples, filter(lambda t: t.pos == VERB, doc)))
 
 
-def position_to_JSON(t):
-    if t is None:
+def position_to_JSON(i):
+    if i is None:
         return json.dumps({'start': -1, 'end': -1})
-    return json.dumps({'start': t[0], 'end': t[1]})
+    return json.dumps({'start': i[0], 'end': i[1]})
 
 
-def tuple_to_JSON(tuples):
-    result = []
-    for t in tuples:
-        result += json.dumps(
-                {
-                    'entity': position_to_JSON(t[0]),
-                    'attribute': position_to_JSON(t[1]),
-                    'sentiment': position_to_JSON(t[2])
-                }
-            )
+def tuple_to_JSON(t):
+    return json.dumps({
+        'entity': position_to_JSON(t[0]),
+        'attribute': position_to_JSON(t[1]),
+        'sentiment': position_to_JSON(t[2])
+        })
+
+
+def all_tuples_to_JSON(tuples):
+    return list(map(tuple_to_JSON, tuples))
 
 
 def indices_to_phrase(text, i):
@@ -217,11 +213,11 @@ def main(text):
     eas = extract_entity_attribute_sentiment(doc)
     print(eas)
     print(all_indices_to_phrases(text, eas))
+    print(all_tuples_to_JSON(eas))
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
        '''Google's directions are not very much as terrible or bad as you think.'''
-# Outputs {'python': ['also great', 'same', 'very bad'], 'google': ['not very much as terrible or bad']}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
