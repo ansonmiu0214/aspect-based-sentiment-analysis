@@ -33,6 +33,7 @@ def create_training_data():
 
             continue
         else:
+
             if is_sentence:
                 sentences.append(elem)
             else:
