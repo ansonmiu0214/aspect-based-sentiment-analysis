@@ -46,14 +46,13 @@ function mockText() {
 }
 
 function loadText() {
-  text = textArea.value
-  if (text == '') mockText()
+  let text = textArea.value
 
   // Reset annotation window
   annotationWindow.innerHTML = ''
 
   // Split on whitespace
-  const words = text.split(new RegExp('[ \w\b\n]'))
+  const words = text.split(new RegExp('[ \w\b\n]')).filter(x => x != '')
   words.forEach((word, idx) => {
     const tag = new TagElement(word, idx)
 
@@ -65,6 +64,8 @@ function loadText() {
     tags.push(tag)
     annotationWindow.appendChild(spanElement)
   })
+
+  console.log(tags)
 }
 
 var entity = null
