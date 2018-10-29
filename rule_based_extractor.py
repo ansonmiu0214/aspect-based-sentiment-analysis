@@ -202,7 +202,13 @@ def all_indices_to_phrases(text, tuples):
     return list(map(lambda t: indices_to_phrases(text, t), tuples))
 
 
-def main(text):
+# tuples must be phrase tuples
+def get_relevant_tuples(entity, tuples):
+    lower = entity.lower()
+    return list(filter(lambda t: t[0].lower() == lower, tuples))
+
+
+def main(text, entity=None):
     print('Loading model.')
     nlp = spacy.load('en')
 
@@ -211,9 +217,15 @@ def main(text):
 
     print('Extracting entity-attribute pairs.')
     eas = extract_entity_attribute_sentiment(doc)
-    print(eas)
-    print(all_indices_to_phrases(text, eas))
-    print(all_tuples_to_JSON(eas))
+    phrase_eas = all_indices_to_phrases(text, eas)
+    if entity:
+        phrase_eas = get_relevant_tuples(entity, phrase_eas)
+    print(phrase_eas)
+    #print(eas)
+    #print(all_indices_to_phrases(text, eas))
+    #print(all_tuples_to_JSON(eas))
+
+
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
@@ -223,6 +235,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file")
     parser.add_argument("-t", "--text", default=text)
+    parser.add_argument("-e", "--entity")
     args = parser.parse_args()
 
     data = ""
@@ -232,4 +245,4 @@ if __name__ == "__main__":
     else:
         data = args.text
 
-    main(data)
+    main(data, args.entity)
