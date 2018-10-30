@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import json
 import spacy
 import random
 import sys
@@ -11,39 +12,11 @@ TRAIN_DATA = [
 
 def create_training_data():
     file = open(sys.argv[1])
-    data = file.readlines()
-    sentences = []
-    labels = []
-    temp = []
+    json_text = json.load(file)
+
     train_data = []
 
-    is_sentence = True
-    for d in data:
-        elem = d.rstrip('\n')
-        if elem == '/s':
-            is_sentence = True
-            continue
-        elif elem == '/l':
-            if is_sentence:
-                is_sentence = False
-                continue
-            else:
-                labels.append(temp.copy())
-                temp.clear()
-
-            continue
-        else:
-
-            if is_sentence:
-                sentences.append(elem)
-            else:
-                temp.append(elem)
-    print(sentences)
-    print(labels)
-
-    for pair in zip(sentences, labels):
-        train_data.append((pair[0], {'tags': pair[1]}))
-
+    train_data.append((json_text["text"], {'heads': json_text["heads"], 'deps': json_text["deps"]}))
     return train_data
 
 def test_model(model):
@@ -72,7 +45,7 @@ def start_training(model=None, output=None, epoch=10):
         for dep in tags.get('deps', []):
             parser.add_label(dep)
 
-    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'tagger']
+    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
     with nlp.disable_pipes(*other_pipes):
         optimizer = nlp.begin_training()
         for _ in  range(epoch):
@@ -102,6 +75,7 @@ def test_model(nlp,text):
 
 
 if __name__ ==  '__main__':
-    model = start_training()
-    doc = model(u'The food is bad but the service is good')
-    print([t.tag_ for t in doc])
+    # model = start_training()
+    # doc = model(u'The food is bad but the service is good')
+    # print([t.tag_ for t in doc])
+    create_training_data()
