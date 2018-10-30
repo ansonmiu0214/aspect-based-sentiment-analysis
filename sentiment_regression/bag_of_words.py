@@ -1,10 +1,12 @@
+from sklearn.linear_model import LinearRegression
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 
 sample_docs = [
   "The iPhone has a great camera.", 
-  "The iPhone has a bad screen.",
+  "The screen on the iPhone is not great.",
   "The iPhone provides great battery life for users."
+  "The iPhone's camera isn't great"
 ]
 
 sample_sentiments = [
@@ -32,8 +34,15 @@ def generate_matrix(vectorizer=vectorizer, docs=sample_docs, sentiments=sample_s
 
 
 if __name__ == "__main__":
+
   matrix, vector = generate_matrix()
   print(matrix.toarray())
   print(vector)
+  model = LinearRegression()
+  model.fit(matrix,vector)
+  test = "It is not the case that my day is not great"
+  test_vector =vectorizer.transform([test])
+  print(model.predict(test_vector))
+  print('Done!')
 
 
