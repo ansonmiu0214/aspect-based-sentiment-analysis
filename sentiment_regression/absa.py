@@ -10,7 +10,7 @@ if __name__ == "__main__":
   parser.add_argument('-d', '--document')
   parser.add_argument('-t', '--text', default=default_text)
   parser.add_argument('-e', '--entity', default=default_entity)
-  parser.add_argument('-f', '--training')
+  parser.add_argument('-f', '--training', required=True, help="Directory to training sentences")
 
   args = parser.parse_args()
 
