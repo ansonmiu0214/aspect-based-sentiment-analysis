@@ -42,9 +42,41 @@ def create_training_data():
     file = open(sys.argv[1])
     json_text = json.load(file)
 
+    # Initialise variables
+    current_sentence = ""
+    last_word_count = 0
+    current_word_count = 0
+    current_heads = []
+    current_deps = []
     train_data = []
 
-    train_data.append((json_text["text"], {'heads': json_text["heads"], 'deps': json_text["deps"]}))
+    # Loop through text word by word and store in train_data sentence by sentence
+    for word in json_text["text"].split():
+
+        # If the word includes a full stop, break everything previous to the current word
+        # and the current word into a sentence and append to train_data
+        if word.find('.') != -1:
+            current_sentence = current_sentence + word[:-1]
+
+            # Set up heads and deps for the current sentence
+            while current_word_count >= last_word_count:
+                current_heads.append(json_text["heads"][last_word_count])
+                current_deps.append(json_text["deps"][last_word_count])
+                last_word_count = last_word_count + 1
+
+            # Append the current sentence to train_data
+            train_data.append((current_sentence, {'heads': current_heads, 'deps': current_deps}))
+
+            # Clear variables for the next sentence
+            current_sentence = ""
+            current_heads = []
+            current_deps = []
+        else:
+            # Append current word to the current sentence
+            current_sentence = current_sentence + word + " "
+
+        current_word_count = current_word_count + 1
+
     return train_data
 
 def test_model(model):
@@ -105,5 +137,4 @@ def test_model(nlp,text):
 if __name__ ==  '__main__':
     model = start_training()
     doc = model(u'The food is bad but the service is good')
-    print([t.tag_ for t in doc])
-    # create_training_data()
+    print([t.tag_ for t in doc]
