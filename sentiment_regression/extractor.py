@@ -121,6 +121,7 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
 
     return entity_attribute_sentiments
 
+
 def extract_nearest_negation(token, negations):
     # Compute distance from each negation to the source token
     # e.g. "not good but perfect", so "good" is 1 away and "perfect" is 3 away
@@ -137,6 +138,7 @@ def extract_nearest_negation(token, negations):
         _, negation = min(relevant_negations)
     return negation
 
+
 def extract_all_attribute_sentiments(sources, entity_attributes, negations):
     all_attribute_sentiments = []
     for source in sources:
@@ -144,6 +146,7 @@ def extract_all_attribute_sentiments(sources, entity_attributes, negations):
         e_s = extract_attribute_sentiments(source, entity_attributes, nearest_negation)
         all_attribute_sentiments += e_s
     return all_attribute_sentiments
+
 
 def extract_tuples(verb):
     entity_attribute_arcs = {nsubj}
@@ -159,7 +162,7 @@ def extract_tuples(verb):
     while not entity_attributes and current:
         sources = get_sources(current, entity_attribute_arcs)
         entity_attributes = concatMap(extract_entity_attributes, sources)
-        current = current.head
+        current = current.head if not current == current.head else None
 
     # Attach attribute-sentiment pairs.
     entity_attribute_sources = get_sources(verb, attribute_sentiment_arcs)
