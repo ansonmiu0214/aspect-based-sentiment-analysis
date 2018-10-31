@@ -8,9 +8,9 @@ from spacy.util import minibatch
 
 
 TRAIN_DATA = [
-    ("find a cafe with great wifi", {
-        'heads': [0, 2, 0, 5, 5, 2],  # index of token head
-        'deps': ['ROOT', '-', 'PLACE', '-', 'QUALITY', 'ATTRIBUTE']
+    ('find a cafe with great wifi.', {
+        'heads': [0, 2, 0, 5, 5, 2, 0],  # index of token head
+        'deps': ['ROOT', '-', 'PLACE', '-', 'QUALITY', 'ATTRIBUTE', '-']
     }),
     ("find a hotel near the beach", {
         'heads': [0, 2, 0, 5, 5, 2],
@@ -39,6 +39,16 @@ TRAIN_DATA = [
 ]
 
 def create_training_data():
+    file = open(sys.argv[1])
+    json_text = json.load(file)
+
+    train_data = []
+    train_data.append((json_text["text"], {'heads': json_text["heads"], 'deps': json_text["deps"]}))
+
+    return train_data
+
+
+def create_training_data_sentence():
     file = open(sys.argv[1])
     json_text = json.load(file)
 
@@ -84,6 +94,7 @@ def test_model(model):
 
 
 def start_training(model=None, output=None, epoch=15):
+    # train_data = create_training_data_sentence()
     train_data = create_training_data()
     print(train_data)
 
@@ -137,4 +148,4 @@ def test_model(nlp,text):
 if __name__ ==  '__main__':
     model = start_training()
     doc = model(u'The food is bad but the service is good')
-    print([t.tag_ for t in doc]
+    print([t.tag_ for t in doc])
