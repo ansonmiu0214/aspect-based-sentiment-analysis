@@ -6,31 +6,36 @@ default_text = "The iPhone has a great camera but a poor screen. The MacBook has
 default_entity = "iPhone"
 
 if __name__ == "__main__":
-  parser = ArgumentParser()
-  parser.add_argument('-d', '--document')
-  parser.add_argument('-t', '--text', default=default_text)
-  parser.add_argument('-e', '--entity', default=default_entity)
-  parser.add_argument('-f', '--training', required=True, help="Directory to training sentences")
+    parser = ArgumentParser()
+    parser.add_argument('-d', '--document')
+    parser.add_argument('-t', '--text', default=default_text)
+    parser.add_argument('-e', '--entity', default=None)
+    parser.add_argument('-f', '--training', required=True, help="Directory to training sentences")
 
-  args = parser.parse_args()
+    args = parser.parse_args()
 
-  data = ''
-  if args.document:
-    with open(args.document, 'r') as f:
-      data = f.read().replace('\n', '')
-  else:
-    data = args.text
-  
-  eas = extractor.main(data, args.entity)
-  print("Relevant aspects: {}".format(eas))
+    entity = args.entity
+    if args.text == default_text:
+        print("ys")
+        entity = default_entity
 
-  model = bag_of_words.train_model(args.training)
+    data = ''
+    if args.document:
+        with open(args.document, 'r') as f:
+          data = f.read().replace('\n', '')
+    else:
+        data = args.text
 
-  aggregation = []
+    eas = extractor.main(data, entity)
+    print("Relevant aspects: {}".format(eas))
 
-  for entry in eas:
-    entity, attribute, sentiment = entry
-    [score] = bag_of_words.predict(model, sentiment)
-    aggregation.append((entry, score))
-  
-  print(aggregation)
+    model = bag_of_words.train_model(args.training)
+
+    aggregation = []
+
+    for entry in eas:
+        entity, attribute, sentiment = entry
+        [score] = bag_of_words.predict(model, sentiment)
+        aggregation.append((entry, score))
+
+    print(aggregation)
