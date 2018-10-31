@@ -8,6 +8,34 @@ from spacy.util import minibatch
 
 
 TRAIN_DATA = [
+    ("find a cafe with great wifi", {
+        'heads': [0, 2, 0, 5, 5, 2],  # index of token head
+        'deps': ['ROOT', '-', 'PLACE', '-', 'QUALITY', 'ATTRIBUTE']
+    }),
+    ("find a hotel near the beach", {
+        'heads': [0, 2, 0, 5, 5, 2],
+        'deps': ['ROOT', '-', 'PLACE', 'QUALITY', '-', 'ATTRIBUTE']
+    }),
+    ("find me the closest gym that's open late", {
+        'heads': [0, 0, 4, 4, 0, 6, 4, 6, 6],
+        'deps': ['ROOT', '-', '-', 'QUALITY', 'PLACE', '-', '-', 'ATTRIBUTE', 'TIME']
+    }),
+    ("show me the cheapest store that sells flowers", {
+        'heads': [0, 0, 4, 4, 0, 4, 4, 4],  # attach "flowers" to store!
+        'deps': ['ROOT', '-', '-', 'QUALITY', 'PLACE', '-', '-', 'PRODUCT']
+    }),
+    ("find a nice restaurant in london", {
+        'heads': [0, 3, 3, 0, 3, 3],
+        'deps': ['ROOT', '-', 'QUALITY', 'PLACE', '-', 'LOCATION']
+    }),
+    ("show me the coolest hostel in berlin", {
+        'heads': [0, 0, 4, 4, 0, 4, 4],
+        'deps': ['ROOT', '-', '-', 'QUALITY', 'PLACE', '-', 'LOCATION']
+    }),
+    ("find a good italian restaurant near work", {
+        'heads': [0, 4, 4, 4, 0, 4, 5],
+        'deps': ['ROOT', '-', 'QUALITY', 'ATTRIBUTE', 'PLACE', 'ATTRIBUTE', 'LOCATION']
+    })
 ]
 
 def create_training_data():
@@ -23,7 +51,7 @@ def test_model(model):
     pass
 
 
-def start_training(model=None, output=None, epoch=10):
+def start_training(model=None, output=None, epoch=15):
     train_data = create_training_data()
     print(train_data)
 
@@ -33,15 +61,15 @@ def start_training(model=None, output=None, epoch=10):
         print("Loaded model '%s'." % model)
     else:
         nlp = spacy.blank('en')
-        print("Create blank model to train.")
+        print("Created blank model to train.")
 
-    # Create a fresh instance of tagger.
+    # Create a fresh instance of parser.
     if 'parser' in nlp.pipe_names:
         nlp.remove_pipe('parser')
     parser = nlp.create_pipe('parser')
     nlp.add_pipe(parser, first=True)
 
-    for text, tags in TRAIN_DATA:
+    for text, tags in train_data:
         for dep in tags.get('deps', []):
             parser.add_label(dep)
 
@@ -75,7 +103,7 @@ def test_model(nlp,text):
 
 
 if __name__ ==  '__main__':
-    # model = start_training()
-    # doc = model(u'The food is bad but the service is good')
-    # print([t.tag_ for t in doc])
-    create_training_data()
+    model = start_training()
+    doc = model(u'The food is bad but the service is good')
+    print([t.tag_ for t in doc])
+    # create_training_data()
