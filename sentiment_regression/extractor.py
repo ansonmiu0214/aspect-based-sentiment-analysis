@@ -205,7 +205,8 @@ def all_indices_to_phrases(text, tuples):
 # tuples must be phrase tuples
 def get_relevant_tuples(entity, tuples):
     lower = entity.lower()
-    return list(filter(lambda t: t[0].lower() == lower, tuples))
+    has_entity = filter(lambda t: t[0], tuples)
+    return list(filter(lambda t: t[0].lower() == lower, has_entity))
 
 
 def main(text, entity=None):
