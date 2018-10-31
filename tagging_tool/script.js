@@ -46,7 +46,7 @@ function mockText() {
 }
 
 function loadText() {
-  let text = textArea.value
+  text = textArea.value
 
   // Reset annotation window
   annotationWindow.innerHTML = ''
