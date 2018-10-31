@@ -52,7 +52,10 @@ function loadText() {
   annotationWindow.innerHTML = ''
 
   // Split on whitespace
-  const words = text.split(new RegExp('[ \w\b\n]')).filter(x => x != '')
+  const whitespaceRegex = new RegExp('[ \w\b\n]')
+  
+  // /([_\W])/
+  const words = text.split(/([_\W])/).filter(x => x != '')
   words.forEach((word, idx) => {
     const tag = new TagElement(word, idx)
 
