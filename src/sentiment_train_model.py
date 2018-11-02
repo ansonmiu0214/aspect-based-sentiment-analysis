@@ -1,22 +1,15 @@
 #!/usr/bin/env python
 # coding: utf8
-"""Train a convolutional neural network text classifier on the
-IMDB dataset, using the TextCategorizer component. The dataset will be loaded
-automatically via Thinc's built-in dataset loader. The model is added to
-spacy.pipeline, and predictions are available via `doc.cats`. For more details,
-see the documentation:
-* Training: https://spacy.io/usage/training
 
-Compatible with: spaCy v2.0.0+
-"""
 from __future__ import unicode_literals, print_function
 import plac
-import random
 from pathlib import Path
 import thinc.extra.datasets
 
 import spacy
 from spacy.util import minibatch, compounding
+
+from src.data_loader import Loader
 
 
 @plac.annotations(
@@ -24,7 +17,7 @@ from spacy.util import minibatch, compounding
     output_dir=("Optional output directory", "option", "o", Path),
     n_texts=("Number of texts to train from", "option", "t", int),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
+def main(model="sample_model", output_dir="sample_model", n_iter=20, n_texts=2000):
     if model is not None:
         nlp = spacy.load(model)  # load existing spaCy model
         print("Loaded model '%s'" % model)
@@ -44,11 +37,13 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
     # add label to text classifier
     textcat.add_label('POSITIVE')
 
-    # load the IMDB dataset
-    print("Loading IMDB data...")
-    (train_texts, train_cats), (dev_texts, dev_cats) = load_data(limit=n_texts)
+    # load the dataset
+    print("Loading data...")
+    data_loader = Loader(limit=n_texts)
+    (train_texts, train_cats), (dev_texts, dev_cats) = data_loader.load_data_reviews()
     print("Using {} examples ({} training, {} evaluation)"
           .format(n_texts, len(train_texts), len(dev_texts)))
+
     train_data = list(zip(train_texts,
                           [{'cats': cats} for cats in train_cats]))
 
@@ -73,37 +68,12 @@ def main(model=None, output_dir=None, n_iter=20, n_texts=2000):
                   .format(losses['textcat'], scores['textcat_p'],
                           scores['textcat_r'], scores['textcat_f']))
 
-    # TODO: this can be modified to run our own test model
-    # test the trained model
-    test_text = "Omar is kinky"
-    doc = nlp(test_text)
-    print(test_text, doc.cats)
-
     if output_dir is not None:
         output_dir = Path(output_dir)
         if not output_dir.exists():
             output_dir.mkdir()
         nlp.to_disk(output_dir)
         print("Saved model to", output_dir)
-
-        # test the saved model
-        print("Loading from", output_dir)
-        nlp2 = spacy.load(output_dir)
-        doc2 = nlp2(test_text)
-        print(test_text, doc2.cats)
-
-
-# TODO:This function can be modified to use our own dataset.
-def load_data(limit=0, split=0.8):
-    """Load data from the IMDB dataset."""
-    # Partition off part of the train data for evaluation
-    train_data, _ = thinc.extra.datasets.imdb()
-    random.shuffle(train_data)
-    train_data = train_data[-limit:]
-    texts, labels = zip(*train_data)
-    cats = [{'POSITIVE': bool(y)} for y in labels]
-    split = int(len(train_data) * split)
-    return (texts[:split], cats[:split]), (texts[split:], cats[split:])
 
 
 def evaluate(tokenizer, textcat, texts, cats):
@@ -119,11 +89,11 @@ def evaluate(tokenizer, textcat, texts, cats):
                 continue
             if score >= 0.5 and gold[label] >= 0.5:
                 tp += 1.
-            elif score >= 0.5 and gold[label] < 0.5:
+            elif score >= 0.5 > gold[label]:
                 fp += 1.
             elif score < 0.5 and gold[label] < 0.5:
                 tn += 1
-            elif score < 0.5 and gold[label] >= 0.5:
+            elif score < 0.5 <= gold[label]:
                 fn += 1
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)

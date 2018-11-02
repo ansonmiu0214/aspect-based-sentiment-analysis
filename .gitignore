@@ -107,3 +107,6 @@ venv.bak/
 
 # VSCode
 .vscode/
+
+# macOS temporary files
+.DS_Store

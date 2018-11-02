@@ -2,7 +2,6 @@
 
 import numpy as np
 import word2vec
-import torch
 
 
 """
