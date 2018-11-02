@@ -43,7 +43,7 @@ def train_model(folder, extension='txt'):
   sentiments = []
   for path in pathlist:
     print(path)
-    with open(path, 'r') as f:
+    with open(str(path), 'r') as f:
       for line in f:
         line = line.strip()
         
