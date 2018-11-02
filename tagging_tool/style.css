@@ -1,0 +1,27 @@
+/* html, body {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+h1 {
+  text-align: center;
+}
+
+textarea {
+  width: 100%;
+}
+
+#annotationWindow {
+  line-height: 2rem;
+}
+
+.word {
+  transition: font-size 0.5s ease-out;
+}
+
+.word:hover {
+  color: red;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
