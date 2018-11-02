@@ -3,12 +3,18 @@
 import argparse
 import json
 import spacy
-from spacy.symbols import acomp, amod, dobj, nsubj, VERB, conj, NOUN, PROPN, prep, poss, nmod, ADJ, neg, attr, cc
+from spacy.symbols import acomp, amod, dobj, nsubj, VERB, conj, NOUN, PROPN, prep, poss, nmod, ADJ, neg, cc
+
+# Use lg model for better (but slower) results.
+# spacy_model = 'en_core_web_lg'
+spacy_model = 'en_core_web_sm'
+# spacy_model = 'en'
 
 # Missing variables from spacy.symbols
 compound = 7037928807040764755
 
-def concatMap(f, ls):
+
+def concat_map(f, ls):
     mapped = map(f, ls)
     res = []
     for m in mapped:
@@ -19,7 +25,7 @@ def concatMap(f, ls):
 def get_token_indices(token):
     if not token:
         return None
-    return (token.idx, token.idx + len(token.text) - 1)
+    return token.idx, token.idx + len(token.text) - 1
 
 
 def get_phrase_indices(token, is_adjective=False):
@@ -33,7 +39,7 @@ def get_phrase_indices(token, is_adjective=False):
     indices = list(map(get_token_indices, subtree))
     if not indices:
         return None
-    return (min(map(lambda i: i[0], indices)), max(map(lambda i: i[1], indices)))
+    return min(map(lambda i: i[0], indices)), max(map(lambda i: i[1], indices))
 
 
 # Returns the subtree of a token as a phrase.
@@ -66,7 +72,7 @@ def extract_entity_attributes(noun):
         # If current noun is a regular noun, it is assigned as an attribute.
         # Try to find the relevant entity.
         entity_sources = get_sources(noun, {poss, nmod, compound})
-        entity_attributes += concatMap(extract_entity_attributes, entity_sources)
+        entity_attributes += concat_map(extract_entity_attributes, entity_sources)
         token_indices = get_token_indices(noun)
         entity_attributes = list(map(lambda e_a: (e_a[0], token_indices), entity_attributes))
 
@@ -75,7 +81,7 @@ def extract_entity_attributes(noun):
 
     # Extract entity-attributes from further conjugated tokens.
     further_sources = get_sources(noun, {conj})
-    entity_attributes += concatMap(extract_entity_attributes, further_sources)
+    entity_attributes += concat_map(extract_entity_attributes, further_sources)
 
     return entity_attributes
 
@@ -114,12 +120,13 @@ def extract_attribute_sentiments(token, entity_attributes, negation=None):
 
     # Extract attribute-sentiment pairs from further conjugated tokens.
     further_sources = get_sources(token, {conj})
-    entity_attribute_sentiments += concatMap(
-            lambda s: extract_attribute_sentiments(s, entity_attributes),
-            further_sources
+    entity_attribute_sentiments += concat_map(
+        lambda s: extract_attribute_sentiments(s, entity_attributes),
+        further_sources
     )
 
     return entity_attribute_sentiments
+
 
 def extract_nearest_negation(token, negations):
     # Compute distance from each negation to the source token
@@ -137,6 +144,7 @@ def extract_nearest_negation(token, negations):
         _, negation = min(relevant_negations)
     return negation
 
+
 def extract_all_attribute_sentiments(sources, entity_attributes, negations):
     all_attribute_sentiments = []
     for source in sources:
@@ -144,6 +152,7 @@ def extract_all_attribute_sentiments(sources, entity_attributes, negations):
         e_s = extract_attribute_sentiments(source, entity_attributes, nearest_negation)
         all_attribute_sentiments += e_s
     return all_attribute_sentiments
+
 
 def extract_tuples(verb):
     entity_attribute_arcs = {nsubj}
@@ -158,8 +167,8 @@ def extract_tuples(verb):
     entity_attributes = []
     while not entity_attributes and current:
         sources = get_sources(current, entity_attribute_arcs)
-        entity_attributes = concatMap(extract_entity_attributes, sources)
-        current = current.head
+        entity_attributes = concat_map(extract_entity_attributes, sources)
+        current = current.head if not current == current.head else None
 
     # Attach attribute-sentiment pairs.
     entity_attribute_sources = get_sources(verb, attribute_sentiment_arcs)
@@ -167,31 +176,31 @@ def extract_tuples(verb):
 
 
 def extract_entity_attribute_sentiment(doc):
-    return list(concatMap(extract_tuples, filter(lambda t: t.pos == VERB, doc)))
+    return list(concat_map(extract_tuples, filter(lambda t: t.pos == VERB, doc)))
 
 
-def position_to_JSON(i):
+def position_to_json(i):
     if i is None:
         return json.dumps({'start': -1, 'end': -1})
     return json.dumps({'start': i[0], 'end': i[1]})
 
 
-def tuple_to_JSON(t):
+def tuple_to_json(t):
     return json.dumps({
-        'entity': position_to_JSON(t[0]),
-        'attribute': position_to_JSON(t[1]),
-        'sentiment': position_to_JSON(t[2])
-        })
+        'entity': position_to_json(t[0]),
+        'attribute': position_to_json(t[1]),
+        'sentiment': position_to_json(t[2])
+    })
 
 
-def all_tuples_to_JSON(tuples):
-    return list(map(tuple_to_JSON, tuples))
+def all_tuples_to_json(tuples):
+    return list(map(tuple_to_json, tuples))
 
 
 def indices_to_phrase(text, i):
     if not i:
         return None
-    return text[i[0] : i[1] + 1]
+    return text[i[0]: i[1] + 1]
 
 
 def indices_to_phrases(text, t):
@@ -211,7 +220,7 @@ def get_relevant_tuples(entity, tuples):
 
 def main(text, entity=None):
     print('Loading model.')
-    nlp = spacy.load('en')
+    nlp = spacy.load(spacy_model)
 
     print('Processing text.')
     doc = nlp(text)
@@ -224,11 +233,9 @@ def main(text, entity=None):
 
     return phrase_eas
     # print(phrase_eas)
-    #print(eas)
-    #print(all_indices_to_phrases(text, eas))
-    #print(all_tuples_to_JSON(eas))
-
-
+    # print(eas)
+    # print(all_indices_to_phrases(text, eas))
+    # print(all_tuples_to_JSON(eas))
 
 
 text = '''Python packaging may or may not actually be very bad but at the same time also great today.''' \
