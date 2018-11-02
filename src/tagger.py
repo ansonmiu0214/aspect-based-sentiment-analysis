@@ -40,6 +40,3 @@ if __name__ == "__main__":
     data = get_data()
     sentences = tokenize(data)
     label_text(sentences, data_file)
-
-
-
