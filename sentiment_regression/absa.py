@@ -22,20 +22,25 @@ if __name__ == "__main__":
     data = ''
     if args.document:
         with open(args.document, 'r') as f:
-          data = f.read().replace('\n', '')
+            data = f.read().replace('\n', '')
     else:
         data = args.text
 
+    # Extractor pipeline.
     eas = extractor.main(data, entity)
     print("Relevant aspects: {}".format(eas))
 
-    model = bag_of_words.train_model(args.training)
+    # Sentiment analyser.
+    # TODO:refine this
+    model = bag_of_words.BOWModel()
+    model.train_model(args.training)
 
+    # TODO:Move this to evaluation model
     aggregation = []
 
     for entry in eas:
         entity, attribute, sentiment = entry
-        [score] = bag_of_words.predict(model, sentiment)
+        [score] = model.predict(sentiment)
         aggregation.append((entry, score))
 
     print(aggregation)
