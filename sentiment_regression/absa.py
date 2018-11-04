@@ -2,7 +2,8 @@ from argparse import ArgumentParser
 import extractor
 import bag_of_words
 
-default_text = "The iPhone has a great camera but a poor screen. The MacBook has excellent battery, just like the iPhone. The iPhone and MacBook also have terrible prices."
+default_text = "The iPhone has a great camera but a poor screen. The MacBook has excellent battery, just like the " \
+               "iPhone. The iPhone and MacBook also have terrible prices. "
 default_entity = "iPhone"
 
 if __name__ == "__main__":
@@ -16,7 +17,6 @@ if __name__ == "__main__":
 
     entity = args.entity
     if args.text == default_text:
-        print("ys")
         entity = default_entity
 
     data = ''
