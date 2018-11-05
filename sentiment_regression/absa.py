@@ -8,15 +8,15 @@ default_entity = "iPhone"
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('-d', '--document')
-    parser.add_argument('-t', '--text', default=default_text)
+    parser.add_argument('-t', '--text')
     parser.add_argument('-e', '--entity', default=None)
     parser.add_argument('-f', '--training', required=True, help="Directory to training sentences")
 
     args = parser.parse_args()
 
     entity = args.entity
-    if args.text == default_text:
-        print("ys")
+    if not args.text:
+        args.text = default_text
         entity = default_entity
 
     data = ''
