@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import extractor
 import bag_of_words
+from sentiment_model import SentimentModel
 
 default_text = "The iPhone has a great camera but a poor screen. The MacBook has excellent battery, just like the " \
                "iPhone. The iPhone and MacBook also have terrible prices. "
@@ -33,15 +34,16 @@ if __name__ == "__main__":
 
     # Sentiment analyser.
     # TODO:refine this
-    model = bag_of_words.BOWModel()
-    model.train_model(args.training)
+    # model = bag_of_words.BOWModel()
+    # model.train_model(args.training)
+    model = SentimentModel()
 
     # TODO:Move this to evaluation model
     aggregation = []
 
     for entry in eas:
         entity, attribute, sentiment = entry
-        [score] = model.predict(sentiment)
+        score = model.predict(sentiment)
         aggregation.append((entry, score))
 
     print(aggregation)
