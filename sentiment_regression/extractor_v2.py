@@ -9,7 +9,11 @@ ENT_TO_EXTRACT_BLACKLIST = ['PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MO
 ATTR_BLACKLIST = ['high', 'low', 'max', 'maximum', 'min', 'minimum', 'growth', 'trend', 'improvement']
 MODEL = 'en_core_web_sm'  # en_core_web_sm
 
+
 def is_valid_attribute_token(token):
+    if token.text == 'out':
+        print(token, token.pos_, token.sent)
+
     # Skip if part of entity (e.g. 'pound' is MONEY).
     if token.ent_iob_ != 'O':
         return False
@@ -26,11 +30,6 @@ def is_valid_attribute_token(token):
     if token.dep_ == 'quantmod':
         return False
 
-    # Skip if compound (i.e. part of multi-word attribute)
-    # Compound token will be gotten together with the base token.
-    if token.dep_ == 'compound':
-        return False
-
     return True
 
 
@@ -41,13 +40,9 @@ def retrieve_attribute(token):
     while True:
         compound = next(filter(lambda x: x.dep_ == 'compound', cur.children), None)
 
-        if compound is None:
+        if compound is None or not is_valid_attribute_token(compound):
             break
         else:
-            # Break if part of entity.
-            if not is_valid_attribute_token(compound):
-                break
-
             cur = compound
             s = compound.lemma_ + ' ' + s
 
@@ -107,6 +102,11 @@ def main(text):
 
             # Skip if no attached entity.
             if cur_entity is None:
+                continue
+
+            # Skip if compound (i.e. part of multi-word attribute)
+            # Compound token will be gotten together with the base token.
+            if token.dep_ == 'compound':
                 continue
 
             # Skip if not valid attribute token.
