@@ -95,6 +95,10 @@ def main(text):
             if is_sent_start:
                 cur_sent_polar = None
 
+            # Skip if current sentence has 0 polarity.
+            if cur_sent_polar == 0:
+                continue
+
             # Set current entity.
             if token.ent_iob_ == 'B' and token.i in para_ents_with_attr:
                 cur_entity = para_ents_with_attr[token.i]
@@ -118,6 +122,10 @@ def main(text):
 
             if cur_sent_polar is None:
                 cur_sent_polar = analyser.polarity_scores(token.sent.text)['compound']
+
+            # Skip if current sentence has 0 polarity.
+            if cur_sent_polar == 0:
+                continue
 
             ent_attributes = ents_to_extract[cur_entity.lemma_]['attributes']
             if attribute in ent_attributes:
