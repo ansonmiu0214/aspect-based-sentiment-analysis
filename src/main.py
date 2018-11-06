@@ -7,6 +7,7 @@ from src.models import ExtractorService, SentimentService, PreprocessorService, 
     DataSourceService
 from src.preprocessor_service.text_preprocessor import TextPreprocessor
 from src.query_parser.simple_parser import SimpleParser
+from src.sentiment_service.bag_of_words import BagOfWords
 from src.sentiment_service.vader import Vader
 
 
@@ -62,6 +63,8 @@ class ABSA:
 
 if __name__ == '__main__':
     sentiment_service = Vader()
+    # sentiment_service = BagOfWords()
+
     absa = ABSA(preprocessor=TextPreprocessor(),
                 extractor=SpacyExtractor(sentiment_service),
                 sentiment=sentiment_service,
