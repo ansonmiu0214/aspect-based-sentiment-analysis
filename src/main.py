@@ -20,10 +20,9 @@ class ABSA:
         self.query_parser = query_parser  # type: QueryParser
         self.aggregator_service = aggregator  # type: AggregatorService
 
-        self.extractor_service
-
     def load_document(self, input_document):
         '''
+        Load and process a document of any form.
 
         :param input_document:
         :return: void
@@ -39,9 +38,10 @@ class ABSA:
 
     def process_query(self, input_query):
         '''
+        Process the user query and return the aggregated sentiment and related entries.
 
-        :param query:
-        :return:
+        :param query: str
+        :rtype: (float, List[AttributeEntry])
         '''
 
         query = self.query_parser.parse_query(input_query)
