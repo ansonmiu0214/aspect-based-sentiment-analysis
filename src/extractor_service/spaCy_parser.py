@@ -144,7 +144,7 @@ def start_training(input=None, output=None, epoch=10):
 
     return nlp
 
-def test_model(nlp,text):
+def run_model(nlp,text):
     docs = nlp.pipe(text)
     for doc in docs:
         print(doc.text)
@@ -157,6 +157,7 @@ if __name__ ==  '__main__':
     options = argparser.add_mutually_exclusive_group()
     options.add_argument('--train',nargs=3, action="store", dest="train_info", type=str)
     options.add_argument('--load', action="store", dest="model_loc", type=str)
+    argparser.add_argument('--dataset', action="store", dest="data", type=str)
     params = vars(argparser.parse_args())
     print(params)
     if params['train_info']:
@@ -169,8 +170,15 @@ if __name__ ==  '__main__':
     if not model:
         print('Please either load a saved model or request to train a model when running this program')
     else:
-        #TODO; Run model on dataset and filter results
-        pass
+
+        with open(params['data'], 'r') as f:
+            dataset = f.read()
+        output = run_model(model,[dataset])
+
+        entity = input("Entity you are interested in")
+        attrribute = input("Attribute of interest for the entity")
+
+
 
 
 
