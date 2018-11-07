@@ -49,6 +49,9 @@ def create_training_data():
 
 
 def create_training_data_sentence():
+
+    mid_char_set = [',',':',]
+    end_char_set = ['.','?','!']
     file = open(sys.argv[1])
     json_text = json.load(file)
 
@@ -62,10 +65,11 @@ def create_training_data_sentence():
 
     # Loop through text word by word and store in train_data sentence by sentence
     for word in json_text["text"].split():
+        print(word)
 
         # If the word includes a full stop, break everything previous to the current word
         # and the current word into a sentence and append to train_data
-        if word.find('.') != -1:
+        if 1 in [c in word for c in end_char_set]:
             current_sentence = current_sentence + word[:-1]
 
             # Set up heads and deps for the current sentence
@@ -83,8 +87,10 @@ def create_training_data_sentence():
             current_deps = []
         else:
             # Append current word to the current sentence
-            current_sentence = current_sentence + word + " "
-
+            if 1 in [c in word for c in mid_char_set]:
+                current_sentence = current_sentence + word[:-1] + " "
+            else:
+                current_sentence = current_sentence + word + " "
         current_word_count = current_word_count + 1
 
     return train_data
@@ -93,9 +99,10 @@ def test_model(model):
     pass
 
 
-def start_training(model=None, output=None, epoch=15):
-    # train_data = create_training_data_sentence()
-    train_data = create_training_data()
+def start_training(model=None, output=None, epoch=10):
+    train_data = [create_training_data_sentence()[0]]
+    #train_data = create_training_data()
+    #train_data = TRAIN_DATA
     print(train_data)
 
     # Loading or create an empty model.
@@ -142,10 +149,11 @@ def test_model(nlp,text):
     docs = nlp.pipe(text)
     for doc in docs:
         print(doc.text)
+        print([(t.head, t.dep_, t.head.text) for t in doc if t.dep_ != '-'])
 
 
 
 if __name__ ==  '__main__':
     model = start_training()
-    doc = model(u'The food is bad but the service is good')
-    print([t.tag_ for t in doc])
+    text = ["find a cafe with great wifi"]
+    test_model(model, text)
