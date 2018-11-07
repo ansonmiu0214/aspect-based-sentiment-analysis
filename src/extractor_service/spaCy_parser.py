@@ -5,6 +5,7 @@ import spacy
 import random
 import sys
 from spacy.util import minibatch
+import argparse
 
 
 TRAIN_DATA = [
@@ -154,6 +155,32 @@ def test_model(nlp,text):
 
 
 if __name__ ==  '__main__':
+    argparser = argparse.ArgumentParser(description="Options for using the entity-attribute extraction model")
+    options = argparser.add_mutually_exclusive_group()
+    options.add_argument('--train', action="store", dest="train_set", type=str)
+    options.add_argument('--load', action="store", dest="model_loc", type=str)
+    params = vars(argparser.parse_args())
+    if params['train_set']:
+        model = start_training()
+    elif params['model_loc']:
+        model = spacy.load(params['model_loc'])
+        pass
+    else:
+        model = None
+
+    if not model:
+        print('Please either load a saved model or request to train a model when running this program')
+    else:
+        #TODO; Run model on dataset and filter results
+        pass
+
+
+
+
+
+    '''
     model = start_training()
     text = ["find a cafe with great wifi"]
     test_model(model, text)
+    '''
+
