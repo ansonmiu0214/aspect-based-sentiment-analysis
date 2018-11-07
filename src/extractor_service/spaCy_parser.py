@@ -1,5 +1,6 @@
 from pathlib import Path
-
+import os
+import sys
 import json
 import spacy
 import random
@@ -49,11 +50,11 @@ def create_training_data():
     return train_data
 
 
-def create_training_data_sentence():
+def create_training_data_sentence(path):
 
     mid_char_set = [',',':',]
     end_char_set = ['.','?','!']
-    file = open(sys.argv[1])
+    file = open(path)
     json_text = json.load(file)
 
     # Initialise variables
@@ -100,19 +101,17 @@ def test_model(model):
     pass
 
 
-def start_training(model=None, output=None, epoch=10):
-    train_data = [create_training_data_sentence()[0]]
-    #train_data = create_training_data()
-    #train_data = TRAIN_DATA
+def start_training(input=None, output=None, epoch=10):
+    train_data = []
+
+    for f in os.listdir(input):
+        data = create_training_data_sentence(os.path.join(input,f))
+        train_data.append(data[0])
     print(train_data)
 
-    # Loading or create an empty model.
-    if model is not None:
-        nlp = spacy.load(model)
-        print("Loaded model '%s'." % model)
-    else:
-        nlp = spacy.blank('en')
-        print("Created blank model to train.")
+    # Create an empty model.
+    nlp = spacy.blank('en')
+    print("Created blank model to train.")
 
     # Create a fresh instance of parser.
     if 'parser' in nlp.pipe_names:
@@ -127,7 +126,7 @@ def start_training(model=None, output=None, epoch=10):
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
     with nlp.disable_pipes(*other_pipes):
         optimizer = nlp.begin_training()
-        for _ in  range(epoch):
+        for _ in  range(int(epoch)):
             random.shuffle(train_data)
             losses = {}
             batches = minibatch(train_data, size=4)
@@ -136,8 +135,7 @@ def start_training(model=None, output=None, epoch=10):
                 nlp.update(texts, labels, sgd=optimizer, losses=losses)
             print('Losses', losses)
 
-
-    if output is not None:
+    if output != 'None':
         output = Path(output)
         if not output.exists():
             output.mkdir()
@@ -157,14 +155,14 @@ def test_model(nlp,text):
 if __name__ ==  '__main__':
     argparser = argparse.ArgumentParser(description="Options for using the entity-attribute extraction model")
     options = argparser.add_mutually_exclusive_group()
-    options.add_argument('--train', action="store", dest="train_set", type=str)
+    options.add_argument('--train',nargs=3, action="store", dest="train_info", type=str)
     options.add_argument('--load', action="store", dest="model_loc", type=str)
     params = vars(argparser.parse_args())
-    if params['train_set']:
-        model = start_training()
+    print(params)
+    if params['train_info']:
+        model = start_training(*params['train_info'])
     elif params['model_loc']:
         model = spacy.load(params['model_loc'])
-        pass
     else:
         model = None
 
