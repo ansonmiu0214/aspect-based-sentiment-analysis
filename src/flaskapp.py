@@ -4,12 +4,16 @@ app = Flask(__name__)
 
 all_docs = [
     {
+        "id": 0,
         "entity": "apple",
+        "headline": "Apple does good things",
         "content": "real good apple stuff",
         "sentiment": 0.5
     },
     {
+        "id": 1,
         "entity": "google",
+        "headline": "Google does inappropriate things",
         "content": "real bad google stuff",
         "sentiment": -0.5
     }
