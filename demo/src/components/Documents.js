@@ -17,6 +17,12 @@ class Doc extends Component {
           {this.props.document.headline}
         </Typography>
         <Typography component="p">{this.props.document.content}</Typography>
+        <Typography component="p">
+          Main Entity: {this.props.document.entity}
+        </Typography>
+        <Typography component="p">
+          Overall Sentiment: {this.props.document.sentiment}
+        </Typography>
       </Paper>
     );
   }

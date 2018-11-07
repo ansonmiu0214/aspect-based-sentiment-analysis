@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^3.4.0",
     "axios": "^0.18.0",
+    "material-ui-slider": "^3.0.0",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-scripts": "2.1.1"

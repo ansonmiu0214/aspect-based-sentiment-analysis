@@ -21,19 +21,25 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Grid container direction="column" justify="center" alignItems="center">
+        <Grid container direction="column" spacing={24}>
           <Grid item>
             <Title />
           </Grid>
           <Grid item>
-            <Grid container direction="row">
+            <Grid
+              container
+              direction="row"
+              spacing={24}
+              alignItems="center"
+              justify="center"
+            >
               <Grid item xs={4}>
                 <Options
                   documents={this.state.documents}
                   updateDocuments={this.updateDocuments}
                 />
               </Grid>
-              <Grid item>
+              <Grid item xs={8}>
                 <Documents documents={this.state.documents} />
               </Grid>
             </Grid>
