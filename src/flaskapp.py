@@ -19,11 +19,14 @@ all_docs = [
     }
 ]
 
+# replace with db calls?
 def check_entity_name(doc_entity, search_entity):
     if not search_entity:
         return True
     return doc_entity.lower() == search_entity.lower()
 
+
+# replace with db calls?
 def check_document(requirements, doc):
     entity = requirements.get('entity')
     lower = float(requirements.get('lowerSentiment'))
@@ -32,6 +35,7 @@ def check_document(requirements, doc):
         and doc['sentiment'] >= lower
         and doc['sentiment'] <= upper
     )
+
 
 @app.route("/docs")
 def docs():
