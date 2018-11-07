@@ -167,4 +167,6 @@ Adjusted revenue slipped 1 percent to 11.62 billion pounds as regulated price re
 BT’s shares rose to 266 pence, their highest since January, but are well off a high of 5 pounds during Patterson’s tenure and trade on only around a nine times forward earnings multiple.
 """
 
-main(text)
+
+if __name__ == '__main__':
+    main(text)
