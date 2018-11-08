@@ -51,12 +51,19 @@ function loadText() {
   // Reset annotation window
   annotationWindow.innerHTML = ''
 
-  // Split on whitespace
-  const whitespaceRegex = new RegExp('[ \w\b\n]')
-  
-  // /([_\W])/
-  const words = text.split(/([_\W])/).filter(x => x != '')
+  if (text == '') return
 
+  // Call spaCy to parse tokens
+  $.ajax({
+    type: 'POST',
+    url: './tokenise',
+    data: JSON.stringify({ text: text }),
+    contentType: 'application/json',
+    success: data => handleTokens(data.data)
+  })
+}
+
+function handleTokens(words) {
   let spaceOffset = 0
   for (let idx = 0; idx < words.length; ++idx) {
     const word = words[idx]
