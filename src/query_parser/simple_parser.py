@@ -1,4 +1,4 @@
-from src.models import QueryParser, Query
+from models import QueryParser, Query
 
 
 class SimpleParser(QueryParser):
