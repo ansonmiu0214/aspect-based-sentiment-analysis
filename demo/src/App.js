@@ -22,15 +22,14 @@ class App extends Component {
     return (
       <div className="App">
         <Title />
-        <br />
-        <Grid container direction="row" alignItems="center" justify="center">
+        <Grid container direction="row" justify="center">
           <Grid item xs={4}>
             <Options
               documents={this.state.documents}
               updateDocuments={this.updateDocuments}
             />
           </Grid>
-          <Grid item xs={8}>
+          <Grid style={{ padding: "0 5% 0 0" }} item xs={8}>
             <Documents documents={this.state.documents} />
           </Grid>
         </Grid>
