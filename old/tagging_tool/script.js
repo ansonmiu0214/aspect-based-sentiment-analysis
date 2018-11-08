@@ -56,17 +56,26 @@ function loadText() {
   
   // /([_\W])/
   const words = text.split(/([_\W])/).filter(x => x != '')
-  words.forEach((word, idx) => {
-    const tag = new TagElement(word, idx)
+
+  let spaceOffset = 0
+  for (let idx = 0; idx < words.length; ++idx) {
+    const word = words[idx]
+    if (word.trim().length == 0) {
+      ++spaceOffset
+      continue
+    }
+
+    const correctIdx = idx - spaceOffset
+    const tag = new TagElement(word, correctIdx)
 
     const spanElement = document.createElement('span')
     spanElement.classList.add('word')
     spanElement.innerText = word + ' '
-    spanElement.addEventListener('click', () => handleDependency(idx))
+    spanElement.addEventListener('click', () => handleDependency(correctIdx))
 
     tags.push(tag)
-    annotationWindow.appendChild(spanElement)
-  })
+    annotationWindow.appendChild(spanElement)    
+  }
 
   console.log(tags)
 }
@@ -102,6 +111,7 @@ function updateHelpText() {
 
 function handleDependency(idx) {
   const tag = tags[idx]
+  console.log(tag)
 
   switch (modes[modeIdx]) {
     case 'entity':
