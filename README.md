@@ -13,6 +13,10 @@ $ source venv/bin/activate
 (venv) $ pip install -r requirements.txt 
 ```
 
+### Setting up with PyCharm
+Locate the "Project Structure" menu in Preferences and set `src/` as a source folder.
+Not doing so may lead to errors in the import statements.
+
 ### Tagging Tool
 Make sure there is no process running on **port 5000**. Use `lsof -i :5000` to check if this is the case.
 
