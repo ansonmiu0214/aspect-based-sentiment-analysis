@@ -16,7 +16,11 @@ from src.models import SentimentService
 
 class SentimentAnalyser(SentimentService):
     def compute_sentiment(self, text):
-        pass
+        nlp = spacy.load('en_vectors_web_lg')
+        nlp.add_pipe(nlp.create_pipe('sentencizer'))
+        nlp.add_pipe(SentimentAnalyser.load(pathlib.Path("DeepLearning_training"), nlp))
+        doc = nlp(text)
+        return doc.sentiment
 
     @classmethod
     def load(cls, path, nlp, max_length=100):
@@ -192,15 +196,18 @@ def main(model_dir=None, train_dir=None, dev_dir=None,
         acc = evaluate(model_dir, dev_texts, dev_labels, max_length=max_length)
         print(acc)
     else:
+
         if train_dir is None:
             train_texts, train_labels = zip(*imdb_data[0])
         else:
             print("Read data")
             train_texts, train_labels = read_data(train_dir, limit=nr_examples)
+
         if dev_dir is None:
             dev_texts, dev_labels = zip(*imdb_data[1])
         else:
             dev_texts, dev_labels = read_data(dev_dir, imdb_data, limit=nr_examples)
+
         train_labels = numpy.asarray(train_labels, dtype='int32')
         dev_labels = numpy.asarray(dev_labels, dtype='int32')
         lstm = train(train_texts, train_labels, dev_texts, dev_labels,
