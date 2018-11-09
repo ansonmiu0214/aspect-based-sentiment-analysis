@@ -1,4 +1,4 @@
-from src.models import DocumentComponent, PreprocessorService, Document
+from models import DocumentComponent, PreprocessorService, Document
 
 
 class TextPreprocessor(PreprocessorService):

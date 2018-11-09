@@ -1,7 +1,7 @@
 import spacy
 from collections import deque
 
-from src.models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry
+from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry
 
 MODEL = 'en_core_web_sm'
 ENT_WITH_ATTR_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
