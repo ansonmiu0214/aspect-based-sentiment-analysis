@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./ext_lib/bootstrap.min.css">
+    <link rel="stylesheet" href="./style.css">
+    <title>Tagging Tool</title>
+</head>
+<body>
+<div class="jumbotron">
+    <div class="container">
+        <h1>Tagging Tool</h1>
+    </div>
+</div>
+
+<div class="container">
+    <h3>Import</h3>
+    <input type="file" class="form-control-file" name="fileUpload" id="fileUpload">
+    <br>
+    <textarea name="textArea" id="textArea" rows="10" placeholder="Or alternatively, copy the text here."></textarea>
+    <br>
+    <button class="btn btn-primary" id="loadDocument" onclick="loadText()">Load into Annotation Window</button>
+    <hr>
+
+    <h3>Annotation Window</h3>
+    <div id="helptext" class="alert alert-info" role="alert"></div>
+
+    <div style="margin-bottom: 1rem;">
+            <button class="btn btn-primary" id="btnEntity" disabled>Entity <span class="badge badge-light"></span> </button>
+            <button class="btn btn-warning" id="btnAttribute" disabled>Attribute <span class="badge badge-light"></span> </button>
+        <button class="btn btn-success" id="btnSentiment" disabled>Sentiment <span class="badge badge-light"></span> </button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="card-text" id="annotationWindow"></div>
+        </div>
+    </div>
+    <hr>
+
+    <h3>Console</h3>
+    <div class="card" id="consoleCard">
+        <div class="card-body">
+            <pre class="card-text" id="console"></pre>
+        </div>
+    </div>
+    <hr>
+
+    <h3>Export</h3>
+    <form>
+        <div class="form-group">
+            <input class="form-control" type="text" id="exportName" placeholder="Export Name"/>
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-success" id="exportJSON">Export</button>
+        </div>
+    </form>
+
+</div>
+
+<div class="modal fade" id="multiSelectModal" tabindex="-1" role="dialog" aria-labelledby="multiSelect" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="multiSelectHeader"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <label for="mainSelect">Main element ('root'):</label>
+                    <select id="elemSelect" class="form-control"></select>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modalSave">Save Tag</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./ext_lib/popper.min.js"></script>
+<script src="./ext_lib/jquery-3.2.1.min.js"></script>
+<script src="./ext_lib/bootstrap.min.js"></script>
+
+<script src="./script.js"></script>
+</body>
+</html>
