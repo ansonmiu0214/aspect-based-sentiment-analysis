@@ -28,14 +28,3 @@ class TextPreprocessor(PreprocessorService):
         document.add_metadata('author', author)
 
         return document
-
-
-def main():
-    tp = TextPreprocessor()
-    with open('../444498newsML.xml') as file:
-        document = tp.preprocess(file)
-
-
-
-if __name__ == '__main__':
-    main()
