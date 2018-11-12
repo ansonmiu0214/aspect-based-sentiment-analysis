@@ -1,21 +1,19 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import Title from "./components/Title.js";
 import Options from "./components/Options.js";
-import Documents from "./components/Documents.js";
+import Results from "./components/Results.js";
 import Grid from "@material-ui/core/Grid";
 import "./App.css";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { documents: [] };
-
-    this.updateDocuments = this.updateDocuments.bind(this);
+    this.state = { results: { entity: null, score: null, entries: [] } };
+    this.updateResults = this.updateResults.bind(this);
   }
 
-  updateDocuments(documents) {
-    this.setState({ documents });
+  updateResults(results) {
+    this.setState({ results });
   }
 
   render() {
@@ -24,13 +22,10 @@ class App extends Component {
         <Title />
         <Grid container direction="row" justify="center">
           <Grid item xs={4}>
-            <Options
-              documents={this.state.documents}
-              updateDocuments={this.updateDocuments}
-            />
+            <Options updateResults={this.updateResults} />
           </Grid>
           <Grid style={{ padding: "0 5% 0 0" }} item xs={8}>
-            <Documents documents={this.state.documents} />
+            <Results results={this.state.results} />
           </Grid>
         </Grid>
       </div>
