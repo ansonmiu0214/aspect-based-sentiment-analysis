@@ -61,6 +61,16 @@ def docs():
     return jsonify(list(filter(lambda d: check_document(request.args, d), all_docs)))
 """
 
+def jsonify_entry(entry):
+    return {
+        'attribute': entry.attribute,
+        'expression': entry.expression,
+        'sentiment': entry.sentiment
+    }
+
+def jsonify_entries(entries):
+    return list(map(jsonify_entry, entries))
+
 @app.route("/absa/load", methods=['POST'])
 def load():
     document = request.files.get('file')
@@ -77,4 +87,5 @@ def query():
     relevant_entries = []
     if query is not None:
         (score, relevant_entries) = absa.process_query(query)
+        return jsonify({'score': score, 'entries': jsonify_entries(relevant_entries)})
     return jsonify({'score': score, 'entries': relevant_entries})

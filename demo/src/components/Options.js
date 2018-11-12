@@ -19,6 +19,7 @@ class ABSALoad extends Component {
     if (!this.fileInput.current) {
       return;
     }
+
     let formData = new FormData();
     formData.append("file", this.fileInput.current.files[0]);
     axios
@@ -27,8 +28,7 @@ class ABSALoad extends Component {
           "Content-Type": "multipart/form-data"
         }
       })
-      .catch(e => console.log(e))
-      .finally(() => (this.fileInput = React.createRef()));
+      .catch(e => console.log(e));
   }
 
   render() {
