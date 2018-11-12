@@ -1,6 +1,24 @@
 from flask import Flask, jsonify, request
 
+from aggregator_service.average_aggregator import AverageAggregator
+from data_source.VolatileSource import VolatileSource
+from extractor_service.spacy_extractor import SpacyExtractor
+from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
+    DataSourceService
+from preprocessor_service.text_preprocessor import TextPreprocessor
+from query_parser.simple_parser import SimpleParser
+from sentiment_service.vader import Vader
+from main import ABSA
+
 app = Flask(__name__)
+
+sentiment_service = Vader()
+absa = ABSA(preprocessor=TextPreprocessor(),
+            extractor=SpacyExtractor(sentiment_service),
+            sentiment=sentiment_service,
+            datasource=VolatileSource(),
+            query_parser=SimpleParser(),
+            aggregator=AverageAggregator())
 
 all_docs = [
     {
@@ -40,3 +58,18 @@ def check_document(requirements, doc):
 @app.route("/docs")
 def docs():
     return jsonify(list(filter(lambda d: check_document(request.args, d), all_docs)))
+
+@app.route("/absa/load")
+def load():
+    document = request.args.get('document')
+    if document is not None:
+        absa.load_document(request.args.get('document'))
+
+@app.route("/absa/query")
+def query():
+    query = request.args.get('query')
+    score = -1
+    relevant_entries = []
+    if query is not None:
+        (score, relevant_entries) = absa.process_query(query)
+    return jsonify({'score': score, 'entries': relevant_entries})
