@@ -1,4 +1,4 @@
-from src.models import SentimentService
+from models import SentimentService
 from sklearn.linear_model import LinearRegression
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np

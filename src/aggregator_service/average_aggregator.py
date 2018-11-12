@@ -1,4 +1,4 @@
-from src.models import AggregatorService
+from models import AggregatorService
 
 
 class AverageAggregator(AggregatorService):

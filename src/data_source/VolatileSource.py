@@ -1,6 +1,6 @@
 from typing import List
 
-from src.models import DataSourceService, Query, Document
+from models import DataSourceService, Query, Document
 
 
 class VolatileSource(DataSourceService):
