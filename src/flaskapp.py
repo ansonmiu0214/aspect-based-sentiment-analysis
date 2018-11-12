@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+import http
 
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
@@ -19,7 +20,7 @@ absa = ABSA(preprocessor=TextPreprocessor(),
             datasource=VolatileSource(),
             query_parser=SimpleParser(),
             aggregator=AverageAggregator())
-
+"""
 all_docs = [
     {
         "id": 0,
@@ -58,12 +59,16 @@ def check_document(requirements, doc):
 @app.route("/docs")
 def docs():
     return jsonify(list(filter(lambda d: check_document(request.args, d), all_docs)))
+"""
 
-@app.route("/absa/load")
+@app.route("/absa/load", methods=['POST'])
 def load():
-    document = request.args.get('document')
+    document = request.files.get('file')
     if document is not None:
-        absa.load_document(request.args.get('document'))
+        absa.load_document(document)
+        return ('', http.HTTPStatus.NO_CONTENT)
+    return ('', http.HTTPStatus.BAD_REQUEST)
+
 
 @app.route("/absa/query")
 def query():
