@@ -1,0 +1,27 @@
+h1 {
+  text-align: center;
+}
+
+textarea {
+  width: 100%;
+}
+
+#annotationWindow {
+  line-height: 2rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.word:hover {
+  color: red;
+  font-weight: bold;
+}
+ 
+#helptext {
+  font-weight: bold;
+}
+
+#consoleCard {
+  height: 200px;
+  overflow: auto;
+}

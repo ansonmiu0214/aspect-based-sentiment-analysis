@@ -1,4 +1,4 @@
-from src.models import SentimentService
+from models import SentimentService
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
