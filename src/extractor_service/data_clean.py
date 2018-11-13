@@ -24,7 +24,8 @@ def cleanup_text(docs, logging=True):
 def data_clean(path):
     file = open(path)
     data = file.readlines()
-    print(cleanup_text(data))
+    random.shuffle(data)
+    print(cleanup_text(data[:50000]))
 
 
 
