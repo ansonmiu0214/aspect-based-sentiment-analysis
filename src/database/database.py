@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 from eas import Eas
 
 connection = sqlite3.connect(':memory:')
@@ -11,17 +12,19 @@ c.execute("""CREATE TABLE eas_pair(
                         attribute text,
                         sentiment text,
                         sentence text,
-                        document text)""")
+                        document text,
+                        timestamp text)""")
 
 
 def insert_eas(eas):
     with connection:
-        c.execute("""INSERT INTO eas_pair VALUES (:entity, :attribute, :sentiment, :sentence, :document)""",
+        c.execute("""INSERT INTO eas_pair VALUES (:entity, :attribute, :sentiment, :sentence, :document, :timestamp)""",
                   {'entity': eas.entity,
                    'attribute': eas.attribute,
                    'sentiment': eas.sentiment,
                    'sentence': eas.sentence,
-                   'document': eas.document})
+                   'document': eas.document,
+                   'timestamp': datetime.datetime.utcnow()})
 
 
 def get_eas_by_entity(entity):
