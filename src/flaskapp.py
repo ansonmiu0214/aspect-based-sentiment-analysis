@@ -82,8 +82,12 @@ def load():
 
 @app.route("/absa/query")
 def query():
-    query = request.args.get('query')
-    if query is not None:
+    entity = request.args.get('entity')
+    attribute = request.args.get('attribute')
+    if entity is not None:
+        query = entity
+        if attribute is not None:
+            query +=  " " + attribute
         (score, relevant_entries) = absa.process_query(query)
         return jsonify({'score': score, 'entries': jsonify_entries(relevant_entries)})
     return ('', http.HTTPStatus.NO_CONTENT)
