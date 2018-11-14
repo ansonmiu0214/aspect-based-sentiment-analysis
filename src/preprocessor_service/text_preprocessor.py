@@ -10,21 +10,25 @@ class TextPreprocessor(PreprocessorService):
     def concat_elements(root, tag):
         return ' '.join(map(lambda i: i.text, root.findall(tag)))
 
-    def preprocess(self, xml):
+    def preprocess(self, doc):
         document = Document()
 
         document.add_metadata('title', 'Imported from TextPreprocessor')
 
-        tree = ET.parse(xml)
-        root = tree.getroot()
+        if doc.filename.endswith(".xml"):
+            tree = ET.parse(doc)
+            root = tree.getroot()
 
-        content = self.concat_elements(root, './text/p')
-        document.add_component(DocumentComponent('content', content))
+            content = self.concat_elements(root, './text/p')
+            document.add_component(DocumentComponent('content', content))
 
-        headline = self.concat_elements(root, './headline')
-        document.add_component(DocumentComponent('headline', headline))
+            headline = self.concat_elements(root, './headline')
+            document.add_component(DocumentComponent('headline', headline))
 
-        author = self.concat_elements(root, './byline')
-        document.add_metadata('author', author)
+            author = self.concat_elements(root, './byline')
+            document.add_metadata('author', author)
+        else:
+            content = doc.read().decode('utf-8')
+            document.add_component(DocumentComponent('content', content))
 
         return document
