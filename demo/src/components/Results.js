@@ -11,6 +11,7 @@ function Results(props) {
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <Typography variant="h3" gutterBottom>
           {results.entity}
+          {results.attribute ? ` - ${results.attribute}` : ""}
         </Typography>
         <Typography variant="h3" gutterBottom>
           {scoreTitle}

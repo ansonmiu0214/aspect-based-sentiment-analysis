@@ -20,11 +20,11 @@ class App extends Component {
     return (
       <div className="App">
         <Title />
-        <Grid container direction="row" justify="center">
-          <Grid item xs={4}>
+        <Grid container direction="row" justify="center" spacing={24}>
+          <Grid style={{ padding: "0 5% 0 5%" }} item xs={4}>
             <Options updateResults={this.updateResults} />
           </Grid>
-          <Grid style={{ padding: "0 5% 0 0" }} item xs={8}>
+          <Grid style={{ padding: "0 5% 0 5%" }} item xs={8}>
             <Results results={this.state.results} />
           </Grid>
         </Grid>
