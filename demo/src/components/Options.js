@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
-import FormLabel from "@material-ui/core/FormLabel";
 import axios from "axios";
 
 class ABSALoad extends Component {
@@ -43,7 +41,7 @@ class ABSALoad extends Component {
       >
         <Grid item>
           <input
-            accept=".xml"
+            accept=".xml, .txt"
             id="contained-button-file"
             multiple
             type="file"
@@ -62,7 +60,7 @@ class ABSALoad extends Component {
             variant="contained"
             color="default"
             component="span"
-            type="submit"
+            onClick={this.handleSubmit}
           >
             Submit
           </Button>
@@ -105,7 +103,7 @@ class ABSAQuery extends Component {
   }
 
   handleKeyPress(e) {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
       this.handleSubmit(e);
     }
   }
