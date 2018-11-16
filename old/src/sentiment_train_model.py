@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf8
 
 from __future__ import unicode_literals, print_function
 import plac
@@ -17,7 +16,7 @@ from src.data_loader import Loader
     output_dir=("Optional output directory", "option", "o", Path),
     n_texts=("Number of texts to train from", "option", "t", int),
     n_iter=("Number of training iterations", "option", "n", int))
-def main(model="sample_model", output_dir="sample_model", n_iter=20, n_texts=2000):
+def main(model="DeepLearning_training", output_dir="DeepLearning_training", n_iter=20, n_texts=2000):
     if model is not None:
         nlp = spacy.load(model)  # load existing spaCy model
         print("Loaded model '%s'" % model)
