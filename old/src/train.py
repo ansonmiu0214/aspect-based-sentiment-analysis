@@ -6,7 +6,6 @@ import random
 import sys
 from spacy.util import minibatch
 
-
 TRAIN_DATA = [
     ('find a cafe with great wifi.', {
         'heads': [0, 2, 0, 5, 5, 2, 0],  # index of token head
@@ -37,6 +36,7 @@ TRAIN_DATA = [
         'deps': ['ROOT', '-', 'QUALITY', 'ATTRIBUTE', 'PLACE', 'ATTRIBUTE', 'LOCATION']
     })
 ]
+
 
 def create_training_data():
     file = open(sys.argv[1])
@@ -89,6 +89,7 @@ def create_training_data_sentence():
 
     return train_data
 
+
 def test_model(model):
     pass
 
@@ -119,7 +120,7 @@ def start_training(model=None, output=None, epoch=15):
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
     with nlp.disable_pipes(*other_pipes):
         optimizer = nlp.begin_training()
-        for _ in  range(epoch):
+        for _ in range(epoch):
             random.shuffle(train_data)
             losses = {}
             batches = minibatch(train_data, size=4)
@@ -127,7 +128,6 @@ def start_training(model=None, output=None, epoch=15):
                 texts, labels = zip(*batch)
                 nlp.update(texts, labels, sgd=optimizer, losses=losses)
             print('Losses', losses)
-
 
     if output is not None:
         output = Path(output)
@@ -138,14 +138,14 @@ def start_training(model=None, output=None, epoch=15):
 
     return nlp
 
-def test_model(nlp,text):
+
+def test_model(nlp, text):
     docs = nlp.pipe(text)
     for doc in docs:
         print(doc.text)
 
 
-
-if __name__ ==  '__main__':
+if __name__ == '__main__':
     model = start_training()
     doc = model(u'The food is bad but the service is good')
     print([t.tag_ for t in doc])

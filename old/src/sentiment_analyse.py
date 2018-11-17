@@ -1,7 +1,7 @@
 import spacy
 
 if __name__ == "__main__":
-    nlp = spacy.load('sample_model')
+    nlp = spacy.load('DeepLearning_training')
 
     print("Enter text: ", end="")
     text = input().strip()
