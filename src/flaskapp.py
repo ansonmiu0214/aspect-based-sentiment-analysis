@@ -64,7 +64,7 @@ def docs():
 def jsonify_entry(entry):
     return {
         'attribute': entry.attribute,
-        'expression': entry.expression,
+        'expression': "\n".join(entry.expressions),
         'sentiment': entry.sentiment
     }
 
@@ -85,9 +85,9 @@ def query():
     entity = request.args.get('entity')
     attribute = request.args.get('attribute')
     if entity is not None:
-        query = entity
-        if attribute is not None:
-            query +=  " " + attribute
-        (score, relevant_entries) = absa.process_query(query)
+        # query = entity
+        # if attribute is not None:
+        #     query +=  " " + attribute
+        (score, relevant_entries) = absa.process_query(entity, attribute)
         return jsonify({'score': score, 'entries': jsonify_entries(relevant_entries)})
     return ('', http.HTTPStatus.NO_CONTENT)

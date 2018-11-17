@@ -76,17 +76,17 @@ class AttributeEntry(HasMetadata):
     Sentiment values can be optionally added (depending on the approach).
     An AttributeEntry can also contain metadata (e.g. the document it is from).
     '''
-    def __init__(self, attribute, expression, sentiment=None):
+    def __init__(self, attribute, expressions, sentiment=None):
         super().__init__()
         self.attribute = attribute  # type: str
-        self.expression = expression  # type: str
+        self.expressions = expressions  # type: List[str]
         self.sentiment = sentiment  # type: float
 
     def __repr__(self):
         truncate = lambda n, x: x[:n] + "..."
         max_length = 10
         return "Attr={} Exprs={} Sent={}".format(self.attribute,
-                                                 list(map(lambda x: truncate(max_length, x), self.expression)),
+                                                 list(map(lambda x: truncate(max_length, x), self.expressions)),
                                                  self.sentiment)
 
 
@@ -94,7 +94,7 @@ class Query:
     '''
     A wrapper class for user queries into the ABSA service.
     '''
-    def __init__(self, entity, attribute, positive_sentiment):
+    def __init__(self, entity, attribute, positive_sentiment=None):
         self.entity = entity
         self.attribute = attribute
         self.positive_sentiment = positive_sentiment
