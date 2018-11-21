@@ -66,6 +66,21 @@ def extract_entity_sentences(doc, entities):
 
 
 def parse_expressions(ents_to_sents, sentiment_service):
+    '''
+    Given a dictionary mapping entities to the set of sentences that refers to it,
+    for each sentence, extracts the "expression"
+
+    Returns a new dictionary of the following structure:
+        { entity:
+            {
+                'span': Span object of entity,
+                'expressions': list of Span objects that represent the expression
+            }
+        }
+
+    e.g. in the sentence 'Apple's profits are increasing but Google's business is getting worse' mapped
+    to the entity 'Apple', extract the expression 'Apple's profits are increasing'.
+    '''
     ents_to_exprs = {}
     return ents_to_exprs
 
