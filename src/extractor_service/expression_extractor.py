@@ -1,3 +1,5 @@
+from collections import deque
+
 import spacy
 
 from extractor_service.coref import Coreferencer
@@ -6,6 +8,10 @@ from sentiment_service.vader import Vader
 
 
 def annotate_document(doc, annotations):
+    '''
+    Transfer the entity/attribute/expression/sentiment data in the :param annotations dict
+    as AttributeEntry and EntityEntry in the :param doc.
+    '''
     pass
 
 
@@ -34,9 +40,10 @@ def extract_entity_sentences(doc, entities):
         is_matching_entity = False
         entity = ""
         for token in sent:
+            # Beginning of entity: add token as
             if token.ent_iob_ == 'B':
                 if is_matching_entity:
-                    # Handle previously matched entity first
+                    # If previously capturing entity, handle previous match first
                     entity = entity.strip()
                     if entity:
                         if 'sentences' in entities[entity]:
@@ -44,17 +51,21 @@ def extract_entity_sentences(doc, entities):
                         else:
                             entities[entity]['sentences'] = [sent]
 
-                        # Reset flags/variables
+                        # Reset variables
                         entity = ""
 
                 is_matching_entity = True
                 entity += token.text_with_ws
+
+            # Inside an entity
             elif token.ent_iob_ == 'I':
                 entity += token.text_with_ws
+
+            # Outside of an entity: add relevant sentence to entity_sentence dict
             elif token.ent_iob_ == 'O' and is_matching_entity:
                 entity = entity.strip()
                 if 'sentences' not in entities[entity]:
-                    entities[entity]['sentences'] = set([sent])
+                    entities[entity]['sentences'] = {sent}
                 elif sent not in entities[entity]['sentences']:
                     entities[entity]['sentences'].add(sent)
 
@@ -68,24 +79,101 @@ def extract_entity_sentences(doc, entities):
 def parse_expressions(ents_to_sents, sentiment_service):
     '''
     Given a dictionary mapping entities to the set of sentences that refers to it,
-    for each sentence, extracts the "expression"
+    for each sentence, extracts the "expression" and computes the sentiment score for that expression.
+
+    If the expression expresses no sentiment, it is not added to the list.
 
     Returns a new dictionary of the following structure:
         { entity:
             {
                 'span': Span object of entity,
-                'expressions': list of Span objects that represent the expression
+                'expressions': [ { 'expression': Span object of expression }]
             }
         }
 
     e.g. in the sentence 'Apple's profits are increasing but Google's business is getting worse' mapped
     to the entity 'Apple', extract the expression 'Apple's profits are increasing'.
+
+    Postcondition: all expressions in the dictionary express some form of sentiment.
     '''
     ents_to_exprs = {}
     return ents_to_exprs
 
 
+def extract_attributes(expr):
+    '''
+    Given an entity string and expression, extract the list of attributes from that expression.
+    Returns a list of strings.
+    '''
+    ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'growth', 'trend', 'improvement'}
+    attributes = []
+
+    for token in expr:
+        # Skip if compound (i.e. part of multi-word attribute)
+        # Compound token will be gotten together with the base token.
+        if token.dep_ == 'compound':
+            continue
+
+        # Skip if not valid attribute token.
+        if not is_valid_attribute_token(token):
+            continue
+
+        # Retrieve attribute.
+        attribute = retrieve_attribute(token)
+
+        # Skip if in blacklist.
+        if attribute in ATTR_BLACKLIST:
+            continue
+
+        attributes.append(attribute)
+
+    return attributes
+
+
+def is_valid_attribute_token(token):
+    # if token.text == 'out':
+    #     print(token, token.pos_, token.sent)
+
+    # Skip if part of entity (e.g. 'pound' is MONEY).
+    if token.ent_iob_ != 'O':
+        return False
+
+    # Skip if not noun.
+    if token.pos_ != 'NOUN':
+        return False
+
+    # Skip nouns like 'who'.
+    if token.tag_ == 'WP':
+        return False
+
+    # Skip quantifier modifier (e.g. 'times' in '5 times').
+    if token.dep_ == 'quantmod':
+        return False
+
+    return True
+
+
+def retrieve_attribute(token):
+    s = deque([token.lemma_])
+    cur = token
+
+    while True:
+        compound = next(filter(lambda x: x.dep_ == 'compound', cur.children), None)
+
+        if compound is None or not is_valid_attribute_token(compound):
+            break
+        else:
+            cur = compound
+            s.appendleft(compound.lemma_)
+
+    return " ".join(s)
+
+
 def parse_attributes(ents_to_exprs):
+    for ent in ents_to_exprs:
+        for expr in ents_to_exprs[ent]['expressions']:
+            attributes = extract_attributes(expr['expression'])
+            expr['attributes'] = attributes
     return ents_to_exprs
 
 
