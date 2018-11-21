@@ -4,7 +4,7 @@ from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
 from extractor_service.spacy_extractor import SpacyExtractor
 from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
-    DataSourceService
+    DataSourceService, Query
 from preprocessor_service.text_preprocessor import TextPreprocessor
 from query_parser.simple_parser import SimpleParser
 from sentiment_service.vader import Vader
@@ -31,11 +31,12 @@ class ABSA:
 
         doc = self.extractor_service.extract(doc)
         print("Extraction complete.")
+        print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
 
         self.data_source.process_document(doc)
         print("Document processed into data source.")
 
-    def process_query(self, input_query):
+    def process_query(self, entity, attribute):
         '''
         Process the user query and return the aggregated sentiment and related entries.
 
@@ -43,7 +44,8 @@ class ABSA:
         :rtype: (float, List[AttributeEntry])
         '''
 
-        query = self.query_parser.parse_query(input_query)
+        # query = self.query_parser.parse_query(input_query)
+        query = Query(entity, attribute)
         print("Query parsed.")
 
         relevant_entries = self.data_source.lookup(query)
