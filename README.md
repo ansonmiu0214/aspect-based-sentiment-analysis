@@ -3,7 +3,7 @@
 ## Getting started
 
 ### Prerequisites
-Python 3.7.0
+Python 3.6.x
 
 ### First-time setup
 Initialise a virtual environment and install dependencies from `requirements.txt`.
