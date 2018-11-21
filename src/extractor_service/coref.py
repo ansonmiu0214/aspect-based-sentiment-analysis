@@ -36,19 +36,6 @@ class Coreferencer:
         return "".join(processed_text)
 
 
-# def process(text):
-#     nlp = spacy.load('en_coref_sm')
-#     doc = nlp(text)
-#
-#     for token in doc:
-#         if token._.in_coref:
-#             print(token._.coref_clusters[0].main, end=" ")
-#         else:
-#             print(token, end=" ")
-#
-#     # print(doc._.coref_clusters)
-
-
 if __name__ == '__main__':
     # text = input().strip()
     text = """\ Smartphone sales and cost savings helped BT beat market expectations for first-half earnings on 
