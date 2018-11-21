@@ -14,38 +14,69 @@ def extract_entities(doc):
     Given a spaCy NLP document, return the set of valid named entities (as Span objects).
     Any filtering occurs here.
 
-    :param doc:
-    :return:
+    Returns a dictionary mapping entity names (:str) to a dict() containing the entity Span object keyed with 'span'.
     '''
 
-    ents = set()
-    ents_text = set()
+    ents = {}
     for ent in doc.ents:
-        text = ent.text.strip()
-        if not text:
+        text = ent.text
+        if not text.strip():
             continue
 
-        if text not in ents_text:
-            ents.add(ent)
-            ents_text.add(text)
+        if text not in ents:
+            ents[text] = {'span': ent}
 
     return ents
 
 
 def extract_entity_sentences(doc, entities):
-    pass
+    for sent in doc.sents:
+        is_matching_entity = False
+        entity = ""
+        for token in sent:
+            if token.ent_iob_ == 'B':
+                if is_matching_entity:
+                    # Handle previously matched entity first
+                    entity = entity.strip()
+                    if entity:
+                        if 'sentences' in entities[entity]:
+                            entities[entity]['sentences'].append(sent)
+                        else:
+                            entities[entity]['sentences'] = [sent]
+
+                        # Reset flags/variables
+                        entity = ""
+
+                is_matching_entity = True
+                entity += token.text_with_ws
+            elif token.ent_iob_ == 'I':
+                entity += token.text_with_ws
+            elif token.ent_iob_ == 'O' and is_matching_entity:
+                entity = entity.strip()
+                if 'sentences' not in entities[entity]:
+                    entities[entity]['sentences'] = set([sent])
+                elif sent not in entities[entity]['sentences']:
+                    entities[entity]['sentences'].add(sent)
+
+                # Reset flags/variables
+                is_matching_entity = False
+                entity = ""
+
+    return entities
 
 
 def parse_expressions(ents_to_sents, sentiment_service):
-    pass
+    ents_to_exprs = {}
+    return ents_to_exprs
 
 
 def parse_attributes(ents_to_exprs):
-    pass
+    return ents_to_exprs
 
 
 def reformat_dict(ents_to_exprs):
-    pass
+    ents_to_attrs = {}
+    return ents_to_attrs
 
 
 class ExpressionExtractor(ExtractorService):
@@ -74,9 +105,16 @@ class ExpressionExtractor(ExtractorService):
 
         # Extract entities
         entities = extract_entities(doc)
+        print(entities)
 
         # Extract the sentences related to each entity
         ents_to_sents = extract_entity_sentences(doc, entities)
+
+        for ent in ents_to_sents:
+            print()
+            print("Entity: {}".format(ent))
+            print(ents_to_sents[ent])
+        return
 
         # Parse the specific expressions from the sentences related to each entity
         ents_to_exprs = parse_expressions(ents_to_sents, self.sentiment_service)
@@ -86,6 +124,25 @@ class ExpressionExtractor(ExtractorService):
 
         # Reformat dictionary to index on entity/attribute rather than entity/expression
         ents_to_attrs = reformat_dict(ents_to_exprs)
+
+        '''
+        ents_to_attrs has type
+        { entity: Span -> { attr: Span -> [(expr: Span, score: float)] }
+        '''
+
+        # Update annotations
+        for ent in ents_to_attrs:
+            if ent.text not in annotations:
+                annotations[ent.text] = dict()
+
+            attrs = ents_to_attrs[ent]
+
+            for attr in attrs:
+                if attr.text not in annotations[ent.text]:
+                    annotations[ent.text][attr.text] = []
+
+                exprs_with_sentiments = attrs[attr]
+                annotations[ent.text][attr.text] += exprs_with_sentiments
 
 
 if __name__ == '__main__':
