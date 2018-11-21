@@ -41,4 +41,19 @@ def data_clean():
 
 
 if __name__ == '__main__':
-    data_clean()
+    import csv
+
+    train_data = []
+    with open('Amazon_Unlocked_Mobile.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            train_data.append(row[4])
+
+    random.shuffle(train_data)
+    train_data_ = train_data[-4000:]
+    text_cleaned = cleanup_text(train_data_)
+    text_cleaned = ' '.join(text_cleaned).split()
+    text_cleaned = [word for word in text_cleaned if word != '\'s']
+    text_counter = Counter(text_cleaned)
+    most_common = [word[0] for word in text_counter.most_common(10)]
+    print(most_common)
