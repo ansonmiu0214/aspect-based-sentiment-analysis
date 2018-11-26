@@ -1,4 +1,8 @@
 import spacy
+from gensim.models import word2vec
+import numpy as np
+from sklearn.metrics import mean_squared_error
+
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -12,6 +16,55 @@ def document_error(model_output, ground_truth):
     '''
 
     loss_score = 0
+
+    pred_entities = model_output.entities
+    ground_entities = ground_truth.enitities
+
+
+
+    ent_tp = 0
+    ent_fp = 0
+    ent_fn = 0
+
+    attr_tp = 0
+    attr_fp = 0
+    attr_fn = 0
+
+    for ent in pred_entities:
+        matched_entity = token_match(ent,ground_entities)
+        if matched_entity is not None:
+            ent_tp += 1
+            for attr in ent.attributes:
+                curr_tp = 0
+                if token_match(attr, matched_entity.attributes):
+                    curr_tp += 1
+                    for expr,sent in attr.expression:
+                        (diff,sent_score) = find_similar_phrase(expr,attr.expression)
+                        loss_score += diff + mean_squared_error(sent_score,sent)
+                attr_tp += curr_tp
+                attr_fp += len(ent.attributes) - curr_tp
+                attr_fn += len(matched_entity.attributes) - curr_tp
+
+
+    ent_fp += len(pred_entities) - ent_tp
+    ent_fn += len(ground_entities) - ent_tp
+
+    ent_precision = ent_tp / (ent_tp + ent_fp)
+    ent_recall =  ent_tp / (ent_tp + ent_fn)
+
+    ent_f1 = 2 * (ent_precision * ent_recall) / (ent_precision + ent_recall)
+
+
+    attr_precison = attr_tp / (attr_tp + attr_fp)
+    attr_recall = attr_tp / (attr_tp + attr_fn)
+
+    attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
+
+    loss_score += ent_recall + attr_recall
+
+
+
+
 
     '''
     
@@ -87,6 +140,42 @@ def document_error(model_output, ground_truth):
     '''
 
     return loss_score
+
+
+def token_match(input, target_set):
+    for token in target_set:
+        text = token.text
+        if input.text.lower() in text.lower() or text.lower() in input.lower():
+            return token
+    return None
+
+def find_similar_phrase(phrase, phrases):
+
+    word_set1 = phrase.split(' ')
+    v1 = word2vec(word_set1[0])
+    for w in word_set1[1:]:
+        v1 = np.add(v1,word2vec(w))
+    v1 /= len(word_set1)
+    min_val = 100000000
+    sent = 0
+    min_phrase = None
+
+    for (p,s) in phrases:
+        word_set2 = p.split(' ')
+        v2 = word2vec(word_set1[0])
+        for w in word_set2[1:]:
+            v2 = np.add(v2,word2vec(w))
+        v2 /= len(word_set2)
+
+        diff = np.dot(v1,v2)/((np.linalg.norm(v1)) * np.linalg.norm(v2))
+        if diff < min:
+            min = diff
+            min_phrase = p
+            sent = s
+
+    return (sent,diff)
+
+
 
 
 def find_most_similar(target, candidates, threshold):
