@@ -1,3 +1,5 @@
+import json
+
 import thinc.extra.datasets
 
 import pandas as pd
@@ -33,19 +35,9 @@ def find_n_most_frequent_word(docs, logging=True, word_count=10):
     return [word[0] for word in text_counter.most_common(word_count)]
 
 
-if __name__ == '__main__':
-
-    print("Loading data...")
-    # train_data, _ = thinc.extra.datasets.imdb()
-    # train_data = [i[0] for i in train_data]
-
-    train_data = []
-    with open('Amazon_Unlocked_Mobile.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        for row in csv_reader:
-            train_data.append(row[4])
-
-    most_common = find_n_most_frequent_word(train_data)
+def create_attr_dict(raw_texts, data_size=10000, no_attr=10):
+    random.shuffle(raw_texts)
+    most_common = find_n_most_frequent_word(raw_texts[:data_size])
 
     nlp = spacy.load("en_core_web_md")
 
@@ -54,5 +46,25 @@ if __name__ == '__main__':
         for j in range(i + 1, len(tokens)):
             if tokens[i].similarity(tokens[j]) >= 0.7:
                 most_common.pop(j)
+    return most_common
 
-    print(most_common)
+
+def save_dict(attr_dict):
+    with open('attr_dict.json', 'w') as outfile:
+        json.dump(attr_dict, outfile)
+    print("Successfully saved")
+
+
+if __name__ == '__main__':
+
+    # train_data, _ = thinc.extra.datasets.imdb()
+    # train_data = [i[0] for i in train_data]
+
+    train_data = []
+    print("Loading data...")
+    with open('Amazon_Unlocked_Mobile.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            train_data.append(row[4])
+
+    save_dict(create_attr_dict(train_data))
