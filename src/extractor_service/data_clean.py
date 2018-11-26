@@ -3,6 +3,8 @@ import thinc.extra.datasets
 import pandas as pd
 import spacy
 import random
+import csv
+
 from collections import Counter
 
 
@@ -29,19 +31,17 @@ def cleanup_text(docs, logging=True):
 
 
 def data_clean():
+    print("Loading data...")
     train_data, _ = thinc.extra.datasets.imdb()
-    random.shuffle(train_data)
     train_data = [i[0] for i in train_data]
     text_cleaned = cleanup_text(train_data)
     text_cleaned = ' '.join(text_cleaned).split()
     text_cleaned = [word for word in text_cleaned if word != '\'s']
     text_counter = Counter(text_cleaned)
-    most_common = [word[0] for word in text_counter.most_common(10)]
-    print(most_common)
+    return [word[0] for word in text_counter.most_common(10)]
 
 
 if __name__ == '__main__':
-    import csv
 
     train_data = []
     with open('Amazon_Unlocked_Mobile.csv') as csv_file:
@@ -56,4 +56,12 @@ if __name__ == '__main__':
     text_cleaned = [word for word in text_cleaned if word != '\'s']
     text_counter = Counter(text_cleaned)
     most_common = [word[0] for word in text_counter.most_common(10)]
+    # most_common = data_clean()
+    nlp = spacy.load("en_core_web_md")
+    tokens = nlp(' '.join(most_common))
+    for i in range(len(tokens)):
+        for j in range(i+1, len(tokens)):
+            if tokens[i].similarity(tokens[j]) >= 0.7:
+                # most_common.remove(tokens[j])
+                most_common.pop(j)
     print(most_common)
