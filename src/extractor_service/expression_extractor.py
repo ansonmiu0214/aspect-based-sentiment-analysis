@@ -248,6 +248,44 @@ class ExpressionExtractor(ExtractorService):
                 annotations[ent.text][attr.text] += exprs_with_sentiments
 
 
+def retrieve_expression(entity,sentences):
+    conjunctions = ['and', 'but']
+    nlp = spacy.load('en_core_web_sm')
+    res = []
+    for s in sentences:
+
+        doc = nlp(s)
+        for d in doc:
+            print(d.text)
+        idx = 0
+        while idx < len(doc):
+            token = doc[idx]
+            print(token.text)
+            if entity.lower() in token.text.lower():
+                print('here %s' % {token.text})
+                phrase = []
+                while ((not (token.text in conjunctions))):
+                    if token.text[0] == '\'':
+                        elem = phrase[-1]
+                        del phrase[-1]
+                        elem = ''.join([elem,token.text])
+                        phrase.append(elem)
+                    else:
+                        print('now %s' % {token.text})
+                        phrase.append(token.text)
+                    idx += 1
+                    if idx < len(doc):
+                        token = doc[idx]
+                    else:
+                        break
+                print(phrase)
+                res.append(' '.join(phrase))
+            else:
+                idx += 1
+
+    return res
+
+
 if __name__ == '__main__':
     extractor = ExpressionExtractor(Vader())
 

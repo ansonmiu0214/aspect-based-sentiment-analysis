@@ -170,3 +170,13 @@ def retrieve_attribute(token):
             s.appendleft(compound.lemma_)
 
     return " ".join(s)
+
+
+
+
+def check_stop(idx,doc,conjunctions, stop_words):
+    if doc[idx].text in conjunctions:
+        return doc[idx+1].pos_ not in ['Adj']
+        pass
+    else:
+        return True
