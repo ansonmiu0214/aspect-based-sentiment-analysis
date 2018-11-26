@@ -18,9 +18,12 @@ class VolatileSource(DataSourceService):
     def lookup(self, query: Query):
         entity = query.entity
         relevant_attrs = []
+        print("Entity to look up: {}".format(entity))
         for doc in self.documents:
+            print("Entities in document: {}".format([ent.name for ent in doc.entities]))
             for ent in doc.entities:
                 if ent.name == entity:
+                    print("Found.")
                     relevant_attrs += ent.attributes
 
         # Further filter by the attribute if supplied in query

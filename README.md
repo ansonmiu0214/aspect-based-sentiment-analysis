@@ -25,3 +25,21 @@ $ cd tagging_tool/
 $ python3 app.py
 ```
 Tool accessible from **localhost:5000**.
+
+### Demo
+Set up Flask by running the following:
+```
+cd src/
+export FLASK_APP=flaskapp.py
+flask run
+```
+This runs the Flask backend on **localhost:5000**.
+
+In a separate terminal, run:
+```
+  cd demo/
+  npm install
+  npm run
+```
+
+Your browser should open and point to **localhost:3000**.
