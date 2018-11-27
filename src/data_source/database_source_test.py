@@ -1,6 +1,4 @@
-import json
-
-from DatabaseSource import DatabaseSource
+from database_source import DatabaseSource
 from models import *
 
 

@@ -1,6 +1,7 @@
 import json
+
 from models import *
-import aws_database
+from data_source import aws_database
 
 
 def insert(connection, document: Document):

@@ -1,6 +1,4 @@
 import pymysql
-import time
-import datetime
 
 host = "myspicyanalysis.chywzz3l5nmu.us-east-1.rds.amazonaws.com"
 port = 3306
@@ -34,17 +32,6 @@ def create_table(cursor, table_name, attributes):
     attributes_format = attributes_format[:-2]
 
     cursor.execute("CREATE TABLE " + table_name + "(" + attributes_format + ")")
-
-    # --for EAS--
-    # entity TEXT,
-    # attribute TEXT,
-    # sentiment TEXT,
-    # sentence TEXT,
-    # document TEXT,
-    # timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-
-
-
 
 
 def close_connection(connection):
