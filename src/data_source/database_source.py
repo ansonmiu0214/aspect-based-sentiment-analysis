@@ -18,39 +18,57 @@ def insert(connection, document: Document):
         cursor.executemany(sql, list(map(lambda x: [doc_id, x.type, x.text], document.components)))
 
         for ent in document.entities:
+            # Entity
             sql = "INSERT INTO `entity` (document_id, name, metadata) VALUES (%s, %s, %s)"
             cursor.execute(sql, (doc_id, ent.name, json.dumps(ent.metadata)))
             sql = "SELECT LAST_INSERT_ID()"
             cursor.execute(sql, ())
             ent_id = cursor.fetchone()[0]
 
-            # Attributes.
-            sql = "INSERT INTO `attribute` (entity_id, attribute, expression, sentiment, metadata) VALUES (%s, %s, %s, %s, %s)"
-            cursor.executemany(sql, list(
-                map(lambda x: [ent_id, x.attribute, x.expression, x.sentiment, json.dumps(x.metadata)],
-                    ent.attributes)))
+            for attr in ent.attributes:
+                # Attribute.
+                sql = "INSERT INTO `attribute` (entity_id, attribute, sentiment, metadata) VALUES (%s, %s, %s, %s)"
+                cursor.execute(sql, (ent_id, attr.attribute, json.dumps(attr.sentiment)))
+
+                sql = "SELECT LAST_INSERT_ID()"
+                cursor.execute(sql, ())
+                attr_id = cursor.fetchone()[0]
+
+                # Expressions.
+                sql = "INSERT INTO `expression` (attribute_id, text) VALUES (%s, %s)"
+                cursor.executemany(sql, list(map(lambda x: [attr_id, x], attr.expressions)))
 
     connection.commit()
 
 
-def select(connection, entity, attribute=None):
+def selectAttributes(connection, entity, attribute=None):
     with connection.cursor() as cursor:
         if attribute is None:
-            sql = "SELECT attribute, expression, sentiment, attribute.metadata " \
+            sql = "SELECT id, attribute, sentiment, attribute.metadata " \
                   "FROM attribute JOIN entity ON entity.id = attribute.entity_id " \
                   "WHERE entity.name = %s"
             cursor.execute(sql, (entity))
         else:
-            sql = "SELECT attribute, expression, sentiment, attribute.metadata " \
+            sql = "SELECT id, attribute, sentiment, attribute.metadata " \
                   "FROM attribute JOIN entity ON entity.id = attribute.entity_id " \
                   "WHERE entity.name = %s AND attribute.attribute = %s"
             cursor.execute(sql, (entity, attribute))
 
         return cursor.fetchall()
 
+def selectExpressions(connection, attribute_id):
+    with connection.cursor() as cursor:
+        sql = "SELECT text " \
+                  "FROM expression " \
+                  "WHERE attribute_id = %s"
+        cursor.execute(sql, (attribute_id))
+        return cursor.fetchall()
+
 
 def reset(connection):
     with connection.cursor() as cursor:
+        sql = "DELETE FROM expression"
+        cursor.execute(sql, ())
         sql = "DELETE FROM attribute"
         cursor.execute(sql, ())
         sql = "DELETE FROM entity"
@@ -84,12 +102,13 @@ class DatabaseSource(DataSourceService):
         if self.connection is None:
             self.connection = aws_database.get_connection()
 
-        rows = select(self.connection, query.entity, query.attribute)
+        rows = selectAttributes(self.connection, query.entity, query.attribute)
 
         attrs = []
 
-        for (name, expr, sentiment, metadata) in rows:
-            attr = AttributeEntry(name, expr, sentiment)
+        for (id, name, sentiment, metadata) in rows:
+            expressions = selectExpressions(self.connection, id)
+            attr = AttributeEntry(name, expressions, sentiment)
             attr.metadata = json.loads(metadata)
             attrs.append(attr)
 

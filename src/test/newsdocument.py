@@ -6,9 +6,13 @@ def annotate_document(doc, tags):
     for ent in tags:
         entity = EntityEntry(ent)
         for attr in tags[ent]:
+            exprs = []
+            sents = 0
             for expr, sent in tags[ent][attr]:
-                attribute = AttributeEntry(attr, expr, sent)
-                entity.add_attribute(attribute)
+                exprs.append(expr)
+                sents += sent
+            attribute = AttributeEntry(attr, exprs, sents)
+            entity.add_attribute(attribute)
         doc.add_entity(entity)
 
 
@@ -25,6 +29,15 @@ def preprocess_tags(tags):
         processed_tags[ent][attr].append((expr, sent))
 
     return processed_tags
+
+
+def get_original_doc():
+    preprocessor = TextPreprocessor()
+
+    file = open('2286newsML.xml', 'r')
+    file.filename = '2286newsML.xml'
+    doc = preprocessor.preprocess(file)
+    return doc
 
 
 def get_doc():

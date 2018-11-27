@@ -121,7 +121,7 @@ def update_document(document, ents_to_extract):
             continue
 
         entity_entry = EntityEntry(ent)
-        for attr in attrs:
+        for attr in set(attrs):
             metadata = attrs[attr]
             attr_entry = AttributeEntry(attribute=attr, expressions=metadata['expression'],
                                         sentiment=metadata['sentiment'])

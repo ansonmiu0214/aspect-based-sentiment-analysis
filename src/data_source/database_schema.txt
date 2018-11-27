@@ -26,9 +26,16 @@ CREATE TABLE attribute (
     id int NOT NULL AUTO_INCREMENT,
 	entity_id int NOT NULL,
 	attribute TEXT NOT NULL,
-	expression TEXT NOT NULL,
 	sentiment FLOAT,
 	metadata TEXT NOT NULL,
     PRIMARY KEY (id),
 	FOREIGN KEY (entity_id) REFERENCES entity(id)
+);
+
+CREATE TABLE expression (
+    id int NOT NULL AUTO_INCREMENT,
+	attribute_id int NOT NULL,
+	text TEXT NOT NULL,
+    PRIMARY KEY (id),
+   	FOREIGN KEY (attribute_id) REFERENCES attribute_id(id)
 );
