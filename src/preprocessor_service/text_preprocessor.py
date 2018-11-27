@@ -13,6 +13,10 @@ class TextPreprocessor(PreprocessorService):
     def preprocess(self, doc):
         document = Document()
 
+        if isinstance(doc, str):
+            document.add_component(DocumentComponent('content', doc))
+            return document
+
         document.add_metadata('title', 'Imported from TextPreprocessor')
 
         if doc.filename.endswith(".xml"):

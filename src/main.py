@@ -2,6 +2,7 @@ from pprint import pprint
 
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
+from data_source.database_source import DatabaseSource
 from extractor_service.spacy_extractor import SpacyExtractor
 from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
     DataSourceService, Query
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     absa = ABSA(preprocessor=TextPreprocessor(),
                 extractor=SpacyExtractor(sentiment_service),
                 sentiment=sentiment_service,
-                datasource=VolatileSource(),
+                datasource=DatabaseSource(),
                 query_parser=SimpleParser(),
                 aggregator=AverageAggregator())
 
