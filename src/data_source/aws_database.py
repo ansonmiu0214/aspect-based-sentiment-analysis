@@ -16,23 +16,5 @@ def get_connection():
         print(e)
 
 
-def get_cursor(connection):
-    return connection.cursor()
-
-
-def drop_table(cursor, table_name):
-    cursor.execute("DROP TABLE " + table_name)
-
-
-# Takes in the table name and attributes dictionary
-def create_table(cursor, table_name, attributes):
-    attributes_format = ""
-    for key in attributes.keys():
-        attributes_format = attributes_format + key + " " + attributes[key] + ", "
-    attributes_format = attributes_format[:-2]
-
-    cursor.execute("CREATE TABLE " + table_name + "(" + attributes_format + ")")
-
-
 def close_connection(connection):
     connection.close()
