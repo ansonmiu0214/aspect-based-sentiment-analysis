@@ -28,7 +28,7 @@ def insert(connection, document: Document):
             for attr in ent.attributes:
                 # Attribute.
                 sql = "INSERT INTO `attribute` (entity_id, attribute, sentiment, metadata) VALUES (%s, %s, %s, %s)"
-                cursor.execute(sql, (ent_id, attr.attribute, json.dumps(attr.sentiment)))
+                cursor.execute(sql, (ent_id, attr.attribute, attr.sentiment, json.dumps(attr.sentiment)))
 
                 sql = "SELECT LAST_INSERT_ID()"
                 cursor.execute(sql, ())
@@ -44,17 +44,17 @@ def insert(connection, document: Document):
 def selectAttributes(connection, entity, attribute=None):
     with connection.cursor() as cursor:
         if attribute is None:
-            sql = "SELECT id, attribute, sentiment, attribute.metadata " \
+            sql = "SELECT attribute.id as id, attribute, sentiment, attribute.metadata " \
                   "FROM attribute JOIN entity ON entity.id = attribute.entity_id " \
                   "WHERE entity.name = %s"
             cursor.execute(sql, (entity))
         else:
-            sql = "SELECT id, attribute, sentiment, attribute.metadata " \
+            sql = "SELECT attribute.id as id, attribute, sentiment, attribute.metadata " \
                   "FROM attribute JOIN entity ON entity.id = attribute.entity_id " \
                   "WHERE entity.name = %s AND attribute.attribute = %s"
             cursor.execute(sql, (entity, attribute))
 
-        return cursor.fetchall()
+        return list(cursor.fetchall())
 
 def selectExpressions(connection, attribute_id):
     with connection.cursor() as cursor:
@@ -62,7 +62,7 @@ def selectExpressions(connection, attribute_id):
                   "FROM expression " \
                   "WHERE attribute_id = %s"
         cursor.execute(sql, (attribute_id))
-        return cursor.fetchall()
+        return list(cursor.fetchall())
 
 
 def reset(connection):
