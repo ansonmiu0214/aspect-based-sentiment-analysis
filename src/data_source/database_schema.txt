@@ -37,5 +37,5 @@ CREATE TABLE expression (
 	attribute_id int NOT NULL,
 	text TEXT NOT NULL,
     PRIMARY KEY (id),
-   	FOREIGN KEY (attribute_id) REFERENCES attribute_id(id)
+   	FOREIGN KEY (attribute_id) REFERENCES attribute(id)
 );
