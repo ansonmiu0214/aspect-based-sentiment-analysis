@@ -28,10 +28,8 @@ def document_error(model_output, ground_truth):
     pred_entities = model_output.entities
     ground_entities = ground_truth.entities
 
-    #print(pred_entities)
     for ent in ground_entities:
         print(ent.name)
-    #print(ground_entities)
 
 
 
@@ -49,8 +47,6 @@ def document_error(model_output, ground_truth):
             ent_tp += 1
             curr_tp = 0
             for attr in ent.attributes:
-                print("An attribute is %s" % attr.attribute)
-                #curr_tp = 0
                 matched_attribute= token_match(attr, matched_entity.attributes,"A")
 
 
@@ -59,14 +55,7 @@ def document_error(model_output, ground_truth):
 
                     for expr in attr.expressions:
                         diff = find_similar_phrase(expr,attr.expressions)
-                        #if diff != 0:
-                        print(diff)
                         loss_score += diff
-
-
-
-
-                #loss_score += calculate_error(matched_attribute,attr)
 
 
 
@@ -91,23 +80,14 @@ def document_error(model_output, ground_truth):
 
     attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
 
-    print(ent_tp)
-    print(ent_fn)
-    print(ent_fp)
 
-    print(attr_tp)
-    print(attr_fp)
-    print(attr_fn)
-
-    print(ent_precision)
-    print(ent_recall)
 
     loss_score += ent_f1 + attr_f1
 
 
 
 
-    return loss_score
+    return abs(loss_score - 2)
 
 
 def token_match(input, target_set,type):
@@ -142,54 +122,49 @@ def find_similar_phrase(phrase, phrases):
 
     word_set1 = phrase.split(" ")
     word_set1 = sorted(word_set1)
-    print(word_set1)
-    v1 = nlp(word_set1[0])[0].vector
-    offset = 0
-    for w in word_set1[1:]:
-        if w.strip() == '':
-            offset += 1
-        else:
-            v1 = np.add(v1,nlp(w)[0].vector)
-    #v1 /= len(word_set1) - offset
 
-    print(v1)
+    idx = 0
+    while word_set1[idx] == "" or word_set1[idx] == '\n':
+        idx += 1
+    word_set1 = word_set1[idx:]
+    v1 = nlp(word_set1[0])[0].vector
+    for w in word_set1[1:]:
+        if w.strip() != '':
+            v1 = np.add(v1,nlp(w)[0].vector)
+
     min_val = 100000000
-    sent = 0
-    min_phrase = None
 
     for p in phrases:
         word_set2 = p.split(' ')
         word_set2 = sorted(word_set2)
-        print(word_set2)
+        idx = 0
+        while word_set2[idx] == "" or word_set2[idx] == '\n':
+            idx += 1
+        word_set2 = word_set2[idx:]
         v2 = nlp(word_set1[0])[0].vector
 
-        offset=0
-        count = 0
+
         for w in word_set2[1:]:
 
-            if w.strip() == '':
-                offset+=1
-            else:
+            if w.strip() != '':
                 v2 = np.add(v2,nlp(w)[0].vector)
-        #v2 /= (len(word_set2) - offset)
 
-        if (count == 0):
-            print(v2)
-        #if v2 == v1:
-            #print("The same")
+        max_length = max(len(v1),len(v2))
 
-        vector_diff = len(word_set1) - len(word_set2)
+        if len(v1) > len(v2):
+            for x in range(max_length):
+                np.add(v2, 0)
+        else:
+            for x in range(max_length):
+                np.add(v1, 0)
+
         diff = np.dot(v1,v2)/((np.linalg.norm(v1)) * np.linalg.norm(v2))
 
         if diff < min_val:
             min_val = diff
-        count += 1
 
 
-
-    # print("Min val is %d" % min_val)
-    print(min_val)
-    return min_val
+    return abs(min_val - 1)
 
 
 
@@ -224,11 +199,9 @@ if __name__ == '__main__':
     original_doc = newsdocument.get_original_doc()
     model_output = extractor.extract(original_doc)
 
-    #print(document_error(model_output,newsdocument.get_doc()))
+    print(document_error(model_output,newsdocument.get_doc()))
 
 
-    #print(document_error(newsdocument.get_doc(),newsdocument.get_doc()))
-    nlp = spacy.load("en_core_web_sm")
-    print(nlp("hello")[0].vector)
+    print(document_error(newsdocument.get_doc(),newsdocument.get_doc()))
 
 
