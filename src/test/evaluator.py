@@ -1,15 +1,8 @@
-import spacy
-import numpy as np
-from sklearn.metrics import mean_squared_error
-
 import newsdocument
+import numpy as np
+import spacy
 
-from aggregator_service.average_aggregator import AverageAggregator
-from data_source.VolatileSource import VolatileSource
 from extractor_service.spacy_extractor import SpacyExtractor
-from main import ABSA
-from preprocessor_service.text_preprocessor import TextPreprocessor
-from query_parser.simple_parser import SimpleParser
 from sentiment_service.vader import Vader
 
 nlp = spacy.load('en_core_web_sm')
@@ -103,8 +96,6 @@ def calculate_error(attr1, attr2):
 
 
 def find_similar_phrase(phrase, phrases):
-    nlp = spacy.load("en_core_web_sm")
-
     word_set1 = phrase.split(" ")
     word_set1 = sorted(word_set1)
 
