@@ -69,6 +69,9 @@ class EntityEntry(HasMetadata):
         '''
         self.attributes.append(attribute)
 
+    def __repr__(self):
+        return self.name
+
 
 class AttributeEntry(HasMetadata):
     '''

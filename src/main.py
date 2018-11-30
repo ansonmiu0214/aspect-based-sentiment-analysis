@@ -31,6 +31,7 @@ class ABSA:
         print("Preprocessing complete.")
 
         doc = self.extractor_service.extract(doc)
+        print(doc.entities)
         print("Extraction complete.")
         print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
 
@@ -45,7 +46,6 @@ class ABSA:
         :rtype: (float, List[AttributeEntry])
         '''
 
-        # query = self.query_parser.parse_query(input_query)
         query = Query(entity, attribute)
         print("Query parsed.")
 
