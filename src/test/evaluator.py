@@ -21,9 +21,6 @@ def document_error(model_output, ground_truth):
     pred_entities = model_output.entities
     ground_entities = ground_truth.entities
 
-    for ent in ground_entities:
-        print(ent.name)
-
     ent_tp = 0
     ent_fp = 0
     ent_fn = 0
@@ -99,6 +96,9 @@ def find_similar_phrase(phrase, phrases):
     word_set1 = phrase.split(" ")
     word_set1 = sorted(word_set1)
 
+    #print("The original phrase is %s" % phrase)
+
+
     idx = 0
     while word_set1[idx] == "" or word_set1[idx] == '\n':
         idx += 1
@@ -108,7 +108,8 @@ def find_similar_phrase(phrase, phrases):
         if w.strip() != '':
             v1 = np.add(v1, nlp(w)[0].vector)
 
-    min_val = 100000000
+    max_val = -100000000
+    min_phrase = ""
 
     for p in phrases:
         word_set2 = p.split(' ')
@@ -135,10 +136,17 @@ def find_similar_phrase(phrase, phrases):
 
         diff = np.dot(v1, v2) / ((np.linalg.norm(v1)) * np.linalg.norm(v2))
 
-        if diff < min_val:
-            min_val = diff
+        #print("The current phrase is %s" % p)
+        #print("The error of the current phrase is %f" % diff)
 
-    return abs(min_val - 1)
+        if diff > max_val:
+            max_val = diff
+            min_phrase = p
+
+    #print("The min val is %f" % min_val)
+    #print("The min phrase is %s" % min_phrase)
+
+    return abs(max_val - 1)
 
 
 def find_most_similar(target, candidates, threshold):
