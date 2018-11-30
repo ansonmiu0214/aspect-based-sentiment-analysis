@@ -1,7 +1,8 @@
 import spacy
 from spacy import displacy
 
-nlp = spacy.load('en')
-text = input().strip()
-doc = nlp(text)
-displacy.serve(doc, style='dep')
+if __name__ == '__main__':
+    nlp = spacy.load('en_core_web_sm')
+    text = input().strip()
+    doc = nlp(text)
+    displacy.serve(doc, style='dep')

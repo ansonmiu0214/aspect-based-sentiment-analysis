@@ -2,6 +2,7 @@ from pprint import pprint
 
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
+from data_source.database_source import DatabaseSource
 from extractor_service.spacy_extractor import SpacyExtractor
 from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
     DataSourceService, Query
@@ -32,6 +33,7 @@ class ABSA:
         doc = self.extractor_service.extract(doc)
         print(doc.entities)
         print("Extraction complete.")
+        print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
 
         self.data_source.process_document(doc)
         print("Document processed into data source.")
@@ -45,6 +47,7 @@ class ABSA:
         '''
 
         query = Query(entity, attribute)
+        print("Query parsed.")
 
         relevant_entries = self.data_source.lookup(query)
         count = len(relevant_entries)
@@ -67,7 +70,7 @@ if __name__ == '__main__':
     absa = ABSA(preprocessor=TextPreprocessor(),
                 extractor=SpacyExtractor(sentiment_service),
                 sentiment=sentiment_service,
-                datasource=VolatileSource(),
+                datasource=DatabaseSource(),
                 query_parser=SimpleParser(),
                 aggregator=AverageAggregator())
 

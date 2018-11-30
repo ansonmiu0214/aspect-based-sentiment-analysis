@@ -1,6 +1,7 @@
 import spacy
 from collections import deque
 
+from extractor_service.coref import Coreferencer
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry
 
 MODEL = 'en_core_web_sm'
@@ -13,6 +14,7 @@ class SpacyExtractor(ExtractorService):
     def __init__(self, sentiment_service):
         self.nlp = spacy.load(MODEL)
         self.sentiment_service = sentiment_service  # type: SentimentService
+        self.coref = Coreferencer()
 
     def extract(self, input_doc: Document):
         ents_to_extract = {}
@@ -22,6 +24,9 @@ class SpacyExtractor(ExtractorService):
 
             if paragraph == '':
                 continue
+
+            # Coreference preprocessing
+            paragraph = self.coref.process(paragraph, verbose=True)
 
             doc = self.nlp(paragraph)
 
@@ -116,7 +121,7 @@ def update_document(document, ents_to_extract):
             continue
 
         entity_entry = EntityEntry(ent)
-        for attr in attrs:
+        for attr in set(attrs):
             metadata = attrs[attr]
             attr_entry = AttributeEntry(attribute=attr, expressions=metadata['expression'],
                                         sentiment=metadata['sentiment'])
@@ -165,3 +170,13 @@ def retrieve_attribute(token):
             s.appendleft(compound.lemma_)
 
     return " ".join(s)
+
+
+
+
+def check_stop(idx,doc,conjunctions, stop_words):
+    if doc[idx].text in conjunctions:
+        return doc[idx+1].pos_ not in ['Adj']
+        pass
+    else:
+        return True
