@@ -5,6 +5,7 @@ from data_source import aws_database
 
 
 def insert(connection, document: Document):
+    print(connection)
     with connection.cursor() as cursor:
         sql = "INSERT INTO `document` (metadata) VALUES (%s)"
         cursor.execute(sql, (json.dumps(document.metadata)))
@@ -20,6 +21,7 @@ def insert(connection, document: Document):
         for ent in document.entities:
             # Entity
             sql = "INSERT INTO `entity` (document_id, name, metadata) VALUES (%s, %s, %s)"
+
             cursor.execute(sql, (doc_id, ent.name, json.dumps(ent.metadata)))
             sql = "SELECT LAST_INSERT_ID()"
             cursor.execute(sql, ())
@@ -44,6 +46,7 @@ def insert(connection, document: Document):
 def selectAttributes(connection, entity, attribute=None):
     with connection.cursor() as cursor:
         if attribute is None:
+            print("database_source.py 57:46: Attribute is None")
             sql = "SELECT attribute.id as id, attribute, sentiment, attribute.metadata " \
                   "FROM attribute JOIN entity ON entity.id = attribute.entity_id " \
                   "WHERE entity.name = %s"
@@ -62,7 +65,7 @@ def selectExpressions(connection, attribute_id):
                   "FROM expression " \
                   "WHERE attribute_id = %s"
         cursor.execute(sql, (attribute_id))
-        return list(cursor.fetchall())
+        return list(map(lambda x: x[0], cursor.fetchall()))
 
 
 def reset(connection):

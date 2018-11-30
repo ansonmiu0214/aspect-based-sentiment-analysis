@@ -3,6 +3,7 @@ import http
 
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
+from data_source.database_source import DatabaseSource
 from extractor_service.spacy_extractor import SpacyExtractor
 from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
     DataSourceService
@@ -17,7 +18,7 @@ sentiment_service = Vader()
 absa = ABSA(preprocessor=TextPreprocessor(),
             extractor=SpacyExtractor(sentiment_service),
             sentiment=sentiment_service,
-            datasource=VolatileSource(),
+            datasource=DatabaseSource(),
             query_parser=SimpleParser(),
             aggregator=AverageAggregator())
 """
@@ -62,6 +63,7 @@ def docs():
 """
 
 def jsonify_entry(entry):
+    print(entry)
     return {
         'attribute': entry.attribute,
         'expression': "\n".join(entry.expressions),
@@ -83,7 +85,8 @@ def load():
 @app.route("/absa/query")
 def query():
     entity = request.args.get('entity')
-    attribute = request.args.get('attribute')
+    attribute = None if request.args.get('attribute').strip() == '' else request.args.get('attribute')
+
     if entity is not None:
         # query = entity
         # if attribute is not None:
