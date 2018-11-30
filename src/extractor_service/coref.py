@@ -15,6 +15,8 @@ class Coreferencer:
             return text
 
         processed_text = []
+        if verbose:
+            print("Coreferencing replacements:")
 
         # Replace tokens part of a coreference with the main token of the coreference
         for token in doc:
@@ -31,6 +33,9 @@ class Coreferencer:
                     processed_text.append(main_subj_token.text_with_ws)
             else:
                 processed_text.append(token.text_with_ws)
+
+        if verbose:
+            print()
 
         # Join tokens and return string to caller
         return "".join(processed_text)

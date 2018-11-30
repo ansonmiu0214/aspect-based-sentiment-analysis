@@ -31,8 +31,6 @@ def document_error(model_output, ground_truth):
     for ent in ground_entities:
         print(ent.name)
 
-
-
     ent_tp = 0
     ent_fp = 0
     ent_fn = 0
@@ -42,59 +40,45 @@ def document_error(model_output, ground_truth):
     attr_fn = 0
 
     for ent in pred_entities:
-        matched_entity = token_match(ent,ground_entities,"E")
+        matched_entity = token_match(ent, ground_entities, "E")
         if matched_entity is not None:
             ent_tp += 1
             curr_tp = 0
             for attr in ent.attributes:
-                matched_attribute= token_match(attr, matched_entity.attributes,"A")
-
+                matched_attribute = token_match(attr, matched_entity.attributes, "A")
 
                 if matched_attribute is not None:
                     curr_tp += 1
 
                     for expr in attr.expressions:
-                        diff = find_similar_phrase(expr,attr.expressions)
+                        diff = find_similar_phrase(expr, attr.expressions)
                         loss_score += diff
-
-
 
             attr_tp += curr_tp
             attr_fp += len(ent.attributes) - curr_tp
             attr_fn += len(matched_entity.attributes) - curr_tp
 
-
-
-
     ent_fp += len(pred_entities) - ent_tp
     ent_fn += len(ground_entities) - ent_tp
 
     ent_precision = ent_tp / (ent_tp + ent_fp)
-    ent_recall =  ent_tp / (ent_tp + ent_fn)
+    ent_recall = ent_tp / (ent_tp + ent_fn)
 
     ent_f1 = 2 * (ent_precision * ent_recall) / (ent_precision + ent_recall)
-
 
     attr_precison = attr_tp / (attr_tp + attr_fp)
     attr_recall = attr_tp / (attr_tp + attr_fn)
 
     attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
 
-
-
     loss_score += ent_f1 + attr_f1
-
-
-
 
     return abs(loss_score - 2)
 
 
-def token_match(input, target_set,type):
-
+def token_match(input, target_set, type):
     input_text = ""
     original_text = ""
-
 
     if type == 'A':
         input_text = input.attribute
@@ -110,14 +94,15 @@ def token_match(input, target_set,type):
             return token
     return None
 
+
 def calculate_error(attr1, attr2):
     if attr1 is None:
         return 2
     else:
         return abs(attr1.sentiment - attr2.sentiment)
 
-def find_similar_phrase(phrase, phrases):
 
+def find_similar_phrase(phrase, phrases):
     nlp = spacy.load("en_core_web_sm")
 
     word_set1 = phrase.split(" ")
@@ -130,7 +115,7 @@ def find_similar_phrase(phrase, phrases):
     v1 = nlp(word_set1[0])[0].vector
     for w in word_set1[1:]:
         if w.strip() != '':
-            v1 = np.add(v1,nlp(w)[0].vector)
+            v1 = np.add(v1, nlp(w)[0].vector)
 
     min_val = 100000000
 
@@ -143,13 +128,12 @@ def find_similar_phrase(phrase, phrases):
         word_set2 = word_set2[idx:]
         v2 = nlp(word_set1[0])[0].vector
 
-
         for w in word_set2[1:]:
 
             if w.strip() != '':
-                v2 = np.add(v2,nlp(w)[0].vector)
+                v2 = np.add(v2, nlp(w)[0].vector)
 
-        max_length = max(len(v1),len(v2))
+        max_length = max(len(v1), len(v2))
 
         if len(v1) > len(v2):
             for x in range(max_length):
@@ -158,15 +142,12 @@ def find_similar_phrase(phrase, phrases):
             for x in range(max_length):
                 np.add(v1, 0)
 
-        diff = np.dot(v1,v2)/((np.linalg.norm(v1)) * np.linalg.norm(v2))
+        diff = np.dot(v1, v2) / ((np.linalg.norm(v1)) * np.linalg.norm(v2))
 
         if diff < min_val:
             min_val = diff
 
-
     return abs(min_val - 1)
-
-
 
 
 def find_most_similar(target, candidates, threshold):
@@ -191,17 +172,17 @@ def sentiment_error(expr_sent, ground_sent):
 
     return 0
 
-if __name__ == '__main__':
-    newsdocument.get_doc()
-    sent_service = Vader()
 
+if __name__ == '__main__':
+    sent_service = Vader()
     extractor = SpacyExtractor(sent_service)
+
     original_doc = newsdocument.get_original_doc()
     model_output = extractor.extract(original_doc)
 
-    print(document_error(model_output,newsdocument.get_doc()))
+    ground_truth = newsdocument.get_doc()
+    print("document_error(model_output, ground_truth):")
+    print(document_error(model_output, ground_truth))
 
-
-    print(document_error(newsdocument.get_doc(),newsdocument.get_doc()))
-
-
+    print("document_error(ground_truth, ground_truth):")
+    print(document_error(ground_truth, ground_truth))
