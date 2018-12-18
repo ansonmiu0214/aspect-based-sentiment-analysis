@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="./ext_lib/bootstrap.min.css">
+    <link rel="stylesheet" href="./vendor/bootstrap.min.css">
     <link rel="stylesheet" href="./style.css">
     <title>Tagging Tool</title>
 </head>
@@ -15,9 +15,125 @@
     </div>
 </div>
 
+<div class="container-fluid">
+    <div class="accordion" id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                1. Import document (<code>.xml</code>, <code>.txt</code>)
+                </button>
+            </h5>
+            </div>
+    
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                <input type="file" class="form-control-file" name="fileUpload" id="fileUpload">
+                <br>
+                <textarea name="textArea" id="textArea" rows="10" placeholder="Or alternatively, copy the text here."></textarea>
+                <br>
+                <button class="btn btn-primary" id="loadText">Load Text</button>
+                <div class="loader" id="loaderOne"></div>
+            </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                2. Enter metadata
+                </button>
+            </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+            <div class="card-body">
+                <div class="form-group row">
+                    <label for="title" class="col-sm-2 col-form-label">Title</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="title" id="docTitle" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="date" class="col-sm-2 col-form-label">Date</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="date" id="docDate" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="meta" class="col-sm-2 col-form-label">Others</label>
+                    <div class="col-sm-10">
+                        <textarea name="meta" id="docMeta" rows="3" class="form-control" placeholder="Comma-separated key/value pairs, e.g. category=Economics"></textarea>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="saveMetadata">Next</button>
+
+            </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                3. Annotate document
+                </button>
+            </h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+            <div class="card-body">
+
+                <div class="card bg-primary">
+                    <div class="card-header text-white">Expression</div>
+                    <div class="card-body">
+                        <div id="helptext" class="alert alert-info" role="alert"></div>
+                        <div style="margin-top: 1rem; margin-bottom: 1rem;">
+                            <button class="btn btn-danger" id="btnEntity" disabled>Entity <span class="badge badge-light"></span> </button>
+                            <button class="btn btn-warning" id="btnAttr" disabled>Attribute <span class="badge badge-light"></span> </button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-text" id="annotationWindow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="card"><div class="card-body"><div class="card-text" id="mainWindow"></div></div></div>
+            </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingFour">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                4. Export tagged document
+                </button>
+            </h5>
+            </div>
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+            <div class="card-body">
+                <div class="form-group">
+                    <input class="form-control" type="text" id="exportName" placeholder="Export Name"/>
+                </div>
+                <h5><button class="btn btn-success" id="exportSpacy">Export</button> spaCy training</h5>
+                <pre class="consoleCard" id="spacyConsole"></pre>
+
+                <h5><button class="btn btn-success" id="exportSentiment">Export</button> Sentiment training</h5>
+                <div class="consoleCard" id="sentimentConsole"></div>
+
+                <h5><button class="btn btn-success" id="exportModel">Export</button> Model ABSA test set</h5>
+                <div class="consoleCard" id="modelConsole"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="container">
     <h3>Import</h3>
-    <input type="file" class="form-control-file" name="fileUpload" id="fileUpload">
+    <!-- <input type="file" class="form-control-file" name="fileUpload" id="fileUpload"> -->
     <br>
     <textarea name="textArea" id="textArea" rows="10" placeholder="Or alternatively, copy the text here."></textarea>
     <br>
@@ -25,17 +141,17 @@
     <hr>
 
     <h3>Annotation Window</h3>
-    <div id="helptext" class="alert alert-info" role="alert"></div>
+    <!-- <div id="helptext" class="alert alert-info" role="alert"></div>
 
     <div style="margin-bottom: 1rem;">
             <button class="btn btn-primary" id="btnEntity" disabled>Entity <span class="badge badge-light"></span> </button>
             <button class="btn btn-warning" id="btnAttribute" disabled>Attribute <span class="badge badge-light"></span> </button>
         <button class="btn btn-success" id="btnSentiment" disabled>Sentiment <span class="badge badge-light"></span> </button>
-    </div>
+    </div> -->
 
     <div class="card">
         <div class="card-body">
-            <div class="card-text" id="annotationWindow"></div>
+            <!-- <div class="card-text" id="annotationWindow"></div> -->
         </div>
     </div>
     <hr>
@@ -84,10 +200,15 @@
     </div>
 </div>
 
-<script src="./ext_lib/popper.min.js"></script>
-<script src="./ext_lib/jquery-3.2.1.min.js"></script>
-<script src="./ext_lib/bootstrap.min.js"></script>
+<script src="./vendor/popper.min.js"></script>
+<script src="./vendor/jquery-3.2.1.min.js"></script>
+<script src="./vendor/bootstrap.min.js"></script>
 
-<script src="./script.js"></script>
+<!-- <script src="./script.js"></script> -->
+<script src="./main.js"></script>
+<script src="./import.js"></script>
+<script src="./metadata.js"></script>
+<script src="./annotate.js"></script>
+<script src="./export.js"></script>
 </body>
 </html>
