@@ -1,4 +1,5 @@
 function initMetadata(metadata) {
+  docMeta.value = ''
   for (let key in metadata) {
     const val = metadata[key]
     if (key == 'title') {

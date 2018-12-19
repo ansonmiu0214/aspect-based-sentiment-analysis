@@ -18,34 +18,6 @@ function parseString(start, endIncl) {
   return words.join(' ')
 }
 
-function initMainWindow(words) {
-  let spaceOffset = 0
-  let space = ' '
-
-  for (let idx = 0; idx < words.length; ++idx) {
-    const word = words[idx]
-
-    // Keep track of whitespace offset
-    // to maintain proper word index for tags
-    if (word.trim().length == 0) {
-      ++spaceOffset
-      space += word
-      continue
-    }
-
-    const correctIdx = idx - spaceOffset
-    const innerText = space + word
-    const tag = new TagElement(word, innerText, correctIdx)
-    const spanElem = buildSpan(tag)
-
-    // Reset space
-    space = ' '
-
-    tags.push(tag)
-    mainWindow.appendChild(spanElem)
-  }
-}
-
 let currMode = 'entity'
 let selectedIdxs = []
 let exprIdxs = []
@@ -57,24 +29,16 @@ let sentiment = null
 
 const entityMode = {
   setup: () => {
-    helpText.innerHTML = 'Select ENTITY.'
+    helpText.innerHTML = 'Select ENTITY from DROPDOWN.'
+    btnEntity.disabled = false
   },
   btn: btnEntity,
   singleHandler: (tagIdx) => {
-    // Update tag
-    const entityTag = tags[tagIdx]
-    entityTag.setEntity()
-    entity = entityTag
-    entityString = parseString(tagIdx, tagIdx)
+    entityString = entityDropdown.value
+    entity = tags[entityEntries[entityString]['start']]
   },
   multiHandler: (startIdx, endIdx, primaryIdx) => {
-    const entityTag = tags[primaryIdx]
-    for (let idx = startIdx; idx <= endIdx; ++idx) {
-      if (idx != primaryIdx) tags[idx].setChild(entityTag)
-    }
-    entityTag.setEntity()
-    entity = entityTag
-    entityString = parseString(startIdx, endIdx)
+    entityMode[singleHandler](startIdx)
   },
   nextMode: () => {
     btnEntity.children[0].innerHTML = ''
@@ -122,6 +86,7 @@ const attrMode = {
     entityString = null
     attribute = null
     attributeString = null
+    selected.innerHTML = 'Selected: '
 
     currMode = 'entity'
   }
@@ -150,6 +115,8 @@ function updateTaggedData(sentiment) {
 
   modelEntries.push(modelEntry)
   modelConsole.innerHTML += `("${entityString}", "${attributeString}", "${expr}" ${sentiment == null ? "" : (", " + sentiment)})\n`
+
+  tagCount.innerHTML = Number(tagCount.innerHTML) + 1
 }
 
 const modes = {
@@ -171,21 +138,31 @@ function textSelected(event) {
   const startIdx = Number(range.startContainer.parentNode.getAttribute('data-idx'))
   const endIdx = Number(range.endContainer.parentNode.getAttribute('data-idx'))
 
-  if (range.startContainer.parentNode.parentNode == mainWindow) {
+  const parent = range.startContainer.parentNode.parentNode
+  const count = endIdx - startIdx + 1
+
+  if (parent == mainWindow) {
     initAnnotationWindow(startIdx, endIdx)
-  } else {
-    const count = endIdx - startIdx + 1
+  } else if (parent == entityWindow) {
+  
+    btnSelectEntity.disabled = false
+    btnSelectEntity.children[0].innerHTML = count
+
+    entityIdxs = (startIdx == endIdx) ? [startIdx] : [startIdx, endIdx]
+  } else if (currMode == 'attribute') {
 
     // Enable the corresponding button and update the badge
     modes[currMode].btn.disabled = false
     modes[currMode].btn.children[0].innerHTML = count
 
     selectedIdxs = (startIdx == endIdx) ? [startIdx] : [startIdx, endIdx]
+
+    selected.innerHTML = 'Selected: ' + parseString(startIdx, endIdx)
   }
 }
 
 function onTagClick(event) {
-  if (selectedIdxs.length == 1) {
+  if (selectedIdxs.length <= 1) {
     modes[currMode].singleHandler(selectedIdxs[0])
     modes[currMode].nextMode()
     modes[currMode].setup()

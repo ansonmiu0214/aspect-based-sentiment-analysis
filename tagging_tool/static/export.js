@@ -1,5 +1,5 @@
 function exportSpacyData(event) {
-  let name = exportName.nodeValue
+  let name = exportName.value
   if (name.trim().length == 0) {
     alert('Export name required...')
     return
@@ -10,7 +10,7 @@ function exportSpacyData(event) {
 }
 
 function exportSentimentData() {
-  let name = exportName.nodeValue
+  let name = exportName.value
   if (name.trim().length == 0) {
     alert('Export name required...')
     return
@@ -21,7 +21,7 @@ function exportSentimentData() {
 }
 
 function exportModelData() {
-  let name = exportName.nodeValue
+  let name = exportName.value
   if (name.trim().length == 0) {
     alert('Export name required...')
     return

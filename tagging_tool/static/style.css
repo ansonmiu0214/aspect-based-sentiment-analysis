@@ -28,8 +28,6 @@ textarea {
 
 #annotationWindow {
   line-height: 2rem;
-  max-height: 500px;
-  overflow-y: auto;
 }
 
 .word:hover {
@@ -46,3 +44,7 @@ textarea {
   overflow: auto;
 }
 
+.window {
+  max-height: 300px;
+  overflow: auto;
+}

@@ -57,7 +57,9 @@ function loadText(event) {
       const { data } = response
 
       if ('meta' in response) initMetadata(response['meta'])
-      initMainWindow(data)
+
+      initWindow(entityWindow, data)
+      initWindow(mainWindow, data) 
     },
     error: (error) => {
       loader.classList.remove('active')

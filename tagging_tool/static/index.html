@@ -11,7 +11,7 @@
 <body>
 <div class="jumbotron">
     <div class="container">
-        <h1>Tagging Tool</h1>
+        <h1 class="display-3">Tagging Tool</h1>
     </div>
 </div>
 
@@ -65,9 +65,7 @@
                         <textarea name="meta" id="docMeta" rows="3" class="form-control" placeholder="Comma-separated key/value pairs, e.g. category=Economics"></textarea>
                     </div>
                 </div>
-
                 <button class="btn btn-primary" id="saveMetadata">Next</button>
-
             </div>
             </div>
         </div>
@@ -75,31 +73,26 @@
             <div class="card-header" id="headingThree">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                3. Annotate document
+                3. Select entities <span class="badge badge-dark" id="entityCount">0</span>
                 </button>
             </h5>
             </div>
             <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
             <div class="card-body">
+                <div class="alert alert-info" role="alert">
+                    <button class="btn btn-danger" id="selectEntity" disabled>Entity <span class="badge badge-light"></span></button>
+                    Entities selected: <span id="selectedEntities" style="font-weight: bold;"></span>
+                </div>
 
-                <div class="card bg-primary">
-                    <div class="card-header text-white">Expression</div>
+
+                <div class="card">
                     <div class="card-body">
-                        <div id="helptext" class="alert alert-info" role="alert"></div>
-                        <div style="margin-top: 1rem; margin-bottom: 1rem;">
-                            <button class="btn btn-danger" id="btnEntity" disabled>Entity <span class="badge badge-light"></span> </button>
-                            <button class="btn btn-warning" id="btnAttr" disabled>Attribute <span class="badge badge-light"></span> </button>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-text" id="annotationWindow"></div>
-                            </div>
-                        </div>
+                        <div class="card-text window" id="entityWindow"></div>
                     </div>
                 </div>
+                
                 <br>
-                <div class="card"><div class="card-body"><div class="card-text" id="mainWindow"></div></div></div>
+                <button class="btn btn-primary" id="saveEntities">Next</button>
             </div>
             </div>
         </div>
@@ -107,11 +100,56 @@
             <div class="card-header" id="headingFour">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                4. Export tagged document
+                4. Annotate document
                 </button>
             </h5>
             </div>
             <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+            <div class="card-body">
+                <ol>
+                    <li>Highlight the text for the expression.</li>
+                    <li>Select the relevant entity from the dropdown.</li>
+                    <li>Highlight the text for the attribute <strong>in the expression window</strong>.</li>
+                    <li>Enter sentiment score (or leave it blank).</li>
+                    <li>Rinse and repeat.</li>
+                </ol>
+
+                <div class="card bg-primary">
+                    <div class="card-header text-white">Expression</div>
+                    <div class="card-body">
+                        <div id="helptext" class="alert alert-info" role="alert"></div>
+                        <p class="text-white" style="font-style: italic;" id="selected">Selected: </p>
+                        <div class="row" style="margin-top: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group col-9">
+                                <select class="form-control" id="entitySelection" ></select>
+                            </div>
+                            <div class="form-group col-3">
+                                <button class="btn btn-danger" id="btnEntity" disabled>Entity <span class="badge badge-light"></span> </button>
+                                <button class="btn btn-warning" id="btnAttr" disabled>Attribute <span class="badge badge-light"></span> </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-text window" id="annotationWindow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="card"><div class="card-body"><div class="card-text window" id="mainWindow"></div></div></div>
+            </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingFive">
+            <h5 class="mb-0">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                5. Export tagged document <span class="badge badge-dark" id="tagCount">0</span>
+                </button>
+            </h5>
+            </div>
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
             <div class="card-body">
                 <div class="form-group">
                     <input class="form-control" type="text" id="exportName" placeholder="Export Name"/>
@@ -119,62 +157,17 @@
                 <h5><button class="btn btn-success" id="exportSpacy">Export</button> spaCy training</h5>
                 <pre class="consoleCard" id="spacyConsole"></pre>
 
+                <hr>
                 <h5><button class="btn btn-success" id="exportSentiment">Export</button> Sentiment training</h5>
                 <div class="consoleCard" id="sentimentConsole"></div>
 
+                <hr>
                 <h5><button class="btn btn-success" id="exportModel">Export</button> Model ABSA test set</h5>
                 <div class="consoleCard" id="modelConsole"></div>
             </div>
             </div>
         </div>
     </div>
-</div>
-
-
-<div class="container">
-    <h3>Import</h3>
-    <!-- <input type="file" class="form-control-file" name="fileUpload" id="fileUpload"> -->
-    <br>
-    <textarea name="textArea" id="textArea" rows="10" placeholder="Or alternatively, copy the text here."></textarea>
-    <br>
-    <button class="btn btn-primary" id="loadDocument" onclick="loadText()">Load into Annotation Window</button>
-    <hr>
-
-    <h3>Annotation Window</h3>
-    <!-- <div id="helptext" class="alert alert-info" role="alert"></div>
-
-    <div style="margin-bottom: 1rem;">
-            <button class="btn btn-primary" id="btnEntity" disabled>Entity <span class="badge badge-light"></span> </button>
-            <button class="btn btn-warning" id="btnAttribute" disabled>Attribute <span class="badge badge-light"></span> </button>
-        <button class="btn btn-success" id="btnSentiment" disabled>Sentiment <span class="badge badge-light"></span> </button>
-    </div> -->
-
-    <div class="card">
-        <div class="card-body">
-            <!-- <div class="card-text" id="annotationWindow"></div> -->
-        </div>
-    </div>
-    <hr>
-
-    <h3>Console</h3>
-    <div class="card" id="consoleCard">
-        <div class="card-body">
-            <pre class="card-text" id="console"></pre>
-        </div>
-    </div>
-    <hr>
-
-    <h3>Export</h3>
-    <form>
-        <div class="form-group">
-            <input class="form-control" type="text" id="exportName" placeholder="Export Name"/>
-        </div>
-
-        <div class="form-group">
-            <button class="btn btn-success" id="exportJSON">Export</button>
-        </div>
-    </form>
-
 </div>
 
 <div class="modal fade" id="multiSelectModal" tabindex="-1" role="dialog" aria-labelledby="multiSelect" aria-hidden="true">
@@ -208,6 +201,7 @@
 <script src="./main.js"></script>
 <script src="./import.js"></script>
 <script src="./metadata.js"></script>
+<script src="./entities.js"></script>
 <script src="./annotate.js"></script>
 <script src="./export.js"></script>
 </body>
