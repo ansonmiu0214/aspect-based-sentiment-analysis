@@ -3,6 +3,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 class Vader(SentimentService):
+    def __init__(self):
+        self.analyzer = SentimentIntensityAnalyzer()
+
     def compute_sentiment(self, text):
-        analyzer = SentimentIntensityAnalyzer()
-        return analyzer.polarity_scores(text)['compound']
+        return self.analyzer.polarity_scores(text)['compound']
