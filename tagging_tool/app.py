@@ -35,6 +35,7 @@ def tokenise():
 def static_file(path):
     return app.send_static_file(path)
 
+
 def extract_xml(text):
     root = ET.fromstring(text)
 
