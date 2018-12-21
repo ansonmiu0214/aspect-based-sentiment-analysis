@@ -13,13 +13,15 @@ class TextPreprocessor(PreprocessorService):
     def preprocess(self, doc):
         document = Document()
 
+        # For plaintext input
         if isinstance(doc, str):
             document.add_component(DocumentComponent('content', doc))
             return document
 
         document.add_metadata('title', 'Imported from TextPreprocessor')
 
-        if doc.filename.endswith(".xml"):
+        # Check if FileStorage or File object
+        if (hasattr(doc, 'filename') and doc.filename.endswith(".xml")) or (hasattr(doc, 'name') and doc.name.endswith(".xml")):
             tree = ET.parse(doc)
             root = tree.getroot()
 

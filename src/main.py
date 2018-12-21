@@ -31,12 +31,12 @@ class ABSA:
         print("Preprocessing complete.")
 
         doc = self.extractor_service.extract(doc)
-        print(doc.entities)
         print("Extraction complete.")
         print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
 
         self.data_source.process_document(doc)
         print("Document processed into data source.")
+        return doc
 
     def process_query(self, entity, attribute):
         '''
