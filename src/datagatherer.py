@@ -76,13 +76,14 @@ def adjust_heads(heads, deps):
 
 
 def label(t):
-    ent = format_for_matching(t['entity'])
-    attr = format_for_matching(t['attribute'])
+    ent = t['entity'].split()
+    attr = t['attribute'].split()
     exp = t['expression']
     sep = format_for_matching(exp)
     length = len(sep)
     heads = [0] * length
     deps = ['-'] * length
+    print(ent, attr, sep)
 
     ent_start = find_sublist(ent, sep)
 
