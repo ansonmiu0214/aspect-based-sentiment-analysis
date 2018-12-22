@@ -58,6 +58,23 @@ def format_for_matching(s):
     return list(map(lambda t: t.text.lower(), sent))
 
 
+def adjust_heads(heads, deps):
+    start = 0
+    end = start
+    while end < len(heads):
+        if deps[end] == '-':
+            end += 1
+        else:
+            for i in range(start, end):
+                heads[i] = i + 1
+            start = end + 1
+            end = start
+
+    if start != end:
+        for i in range(start, end):
+            heads[i] = i - 1
+
+
 def label(t):
     ent = format_for_matching(t['entity'])
     attr = format_for_matching(t['attribute'])
@@ -88,6 +105,7 @@ def label(t):
             heads[i] = i - 1
             deps[i] = 'ATTRIBUTE_ADD'
 
+    adjust_heads(heads, deps)
     return {'expression': exp, 'heads': heads, 'deps' : deps}
 
 

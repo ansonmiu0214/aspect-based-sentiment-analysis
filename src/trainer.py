@@ -2,6 +2,7 @@ import random
 from pathlib import Path
 import spacy
 from spacy.util import minibatch, compounding
+from spacy import displacy
 import csv
 from pprint import pprint
 import ast
@@ -58,7 +59,7 @@ def main():
 
 
 def test_model(nlp):
-    texts = ["Australian imports are suffering due to a lower than expected price.", "The BHP found support from troops all over Africa."]
+    texts = ["The Australian share market headed higher at the open on Tuesday with a rebound on Wall Street providing enough motivation to ensure a firmer tone."]
     docs = nlp.pipe(texts)
     for doc in docs:
         print(doc.text)
