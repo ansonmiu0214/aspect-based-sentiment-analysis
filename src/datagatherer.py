@@ -1,5 +1,7 @@
 import csv
 import sys
+import string
+import spacy
 from pprint import pprint
 
 from aggregator_service.average_aggregator import AverageAggregator
@@ -13,6 +15,7 @@ from query_parser.simple_parser import SimpleParser
 from sentiment_service.vader import Vader
 from main import ABSA
 
+nlp = spacy.load('en_core_web_sm')
 
 def extract_all_tuples(doc):
     all_tuples = list()
@@ -49,16 +52,27 @@ def find_sublist(s, l):
     return -1
 
 
+def format_for_matching(s):
+    doc = nlp(s)
+    sent = list(doc.sents)[0]
+    return list(map(lambda t: t.text.lower(), sent))
+
+
 def label(t):
-    ent = t['entity'].split()
-    attr = t['attribute'].split()
+    ent = format_for_matching(t['entity'])
+    attr = format_for_matching(t['attribute'])
     exp = t['expression']
-    sep = exp.split()
+    sep = format_for_matching(exp)
     length = len(sep)
     heads = [0] * length
     deps = ['-'] * length
 
     ent_start = find_sublist(ent, sep)
+
+    # Ignore coreferencing instances
+    if ent_start == -1:
+        return None
+
     heads[ent_start] = ent_start
     deps[ent_start] = 'ENTITY'
     for i in range(ent_start + 1, ent_start + len(ent)):
@@ -66,11 +80,13 @@ def label(t):
         deps[i] = 'ENTITY_ADD'
 
     attr_start = find_sublist(attr, sep)
-    heads[attr_start] = ent_start
-    deps[attr_start] = 'ATTRIBUTE'
-    for i in range(attr_start + 1, attr_start + len(attr)):
-        heads[i] = i - 1
-        deps[i] = 'ATTRIBUTE_ADD'
+    # Allow possibility of no attribute
+    if attr_start != -1:
+        heads[attr_start] = ent_start
+        deps[attr_start] = 'ATTRIBUTE'
+        for i in range(attr_start + 1, attr_start + len(attr)):
+            heads[i] = i - 1
+            deps[i] = 'ATTRIBUTE_ADD'
 
     return {'expression': exp, 'heads': heads, 'deps' : deps}
 
@@ -94,6 +110,9 @@ def main(sourcefile):
 
     all_tuples = extract_all_tuples(doc)
     labelled = label_all_tuples(all_tuples)
+
+    # Remove coreferencing artifacts
+    labelled = filter(lambda x: x is not None, labelled)
 
 
     with open('training.csv', 'w', newline='') as csvfile:
