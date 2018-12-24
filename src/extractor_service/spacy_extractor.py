@@ -26,7 +26,7 @@ class SpacyExtractor(ExtractorService):
                 continue
 
             # Coreference preprocessing
-            paragraph = self.coref.process(paragraph, verbose=True)
+            paragraph = self.coref.process(paragraph)
 
             doc = self.nlp(paragraph)
 

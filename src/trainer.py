@@ -13,7 +13,16 @@ def main():
         trainingdata.readline()
         reader = csv.reader(trainingdata)
         for row in reader:
-            data.append((row[0], {'heads': ast.literal_eval(row[1]), 'deps': ast.literal_eval(row[2])}))
+            data.append(
+                    (
+                        row[0],
+                        {
+                            'words': ast.literal_eval(row[1]),
+                            'heads': ast.literal_eval(row[2]),
+                            'deps': ast.literal_eval(row[3])
+                        }
+                    )
+            )
 
     nlp = spacy.blank('en')  # create blank Language class
     print("Created blank 'en' model")
@@ -32,7 +41,7 @@ def main():
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
     with nlp.disable_pipes(*other_pipes):  # only train parser
         optimizer = nlp.begin_training()
-        for itn in range(5):
+        for itn in range(15):
             random.shuffle(data)
             losses = {}
             # batch up the examples using spaCy's minibatch
@@ -53,13 +62,15 @@ def main():
     print("Saved model to", output_dir)
 
     # test the saved model
+    """
     print("Loading from", output_dir)
     nlp2 = spacy.load(output_dir)
     test_model(nlp2)
+    """
 
 
 def test_model(nlp):
-    texts = ["The Australian share market headed higher at the open on Tuesday with a rebound on Wall Street providing enough motivation to ensure a firmer tone."]
+    texts = ["Eastern also announced that it has completed the acquisition of Waste X, a collection company in Miami which provides collection services to commercial and residential customers in Miami and Fort Lauderdale, Fla. It also has annual revenues of about $6 million."]
     docs = nlp.pipe(texts)
     for doc in docs:
         print(doc.text)

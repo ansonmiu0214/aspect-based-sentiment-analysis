@@ -20,7 +20,7 @@ class ABSA:
         self.query_parser = query_parser  # type: QueryParser
         self.aggregator_service = aggregator  # type: AggregatorService
 
-    def load_document(self, input_document):
+    def load_document(self, input_document, verbose=False):
         '''
         Load and process a document of any form.
 
@@ -28,17 +28,22 @@ class ABSA:
         :return: void
         '''
         doc = self.preprocessor_service.preprocess(input_document)
-        print("Preprocessing complete.")
+        if verbose:
+            print("Preprocessing complete.")
 
         doc = self.extractor_service.extract(doc)
-        print("Extraction complete.")
-        print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
+        if verbose:
+            print("Extraction complete.")
+            print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
 
-        self.data_source.process_document(doc)
-        print("Document processed into data source.")
+        if self.data_source is not None:
+            self.data_source.process_document(doc)
+            if verbose:
+                print("Document processed into data source.")
+
         return doc
 
-    def process_query(self, entity, attribute):
+    def process_query(self, entity, attribute, verbose=False):
         '''
         Process the user query and return the aggregated sentiment and related entries.
 
@@ -46,19 +51,26 @@ class ABSA:
         :rtype: (float, List[AttributeEntry])
         '''
 
+        if self.data_source is None:
+            print("Quering is not enabled for this instance.")
+            return None, []
+
         query = Query(entity, attribute)
-        print("Query parsed.")
+        if verbose:
+            print("Query parsed.")
 
         relevant_entries = self.data_source.lookup(query)
         count = len(relevant_entries)
-        print("{} relevant entr{} found.".format(count, "y" if count == 1 else "ies"))
+        if verbose:
+            print("{} relevant entr{} found.".format(count, "y" if count == 1 else "ies"))
 
         if count == 0:
             return None, []
 
         sentiments = list(map(lambda x: x.sentiment, relevant_entries))
         score = self.aggregator_service.aggregate_sentiment(sentiments)
-        print("Sentiment scores aggregated.")
+        if verbose:
+            print("Sentiment scores aggregated.")
 
         return score, relevant_entries
 

@@ -2,11 +2,12 @@ import csv
 import sys
 import string
 import spacy
+import os
+import pathlib
+from fnmatch import fnmatch
 from pprint import pprint
 
 from aggregator_service.average_aggregator import AverageAggregator
-from data_source.VolatileSource import VolatileSource
-from data_source.database_source import DatabaseSource
 from extractor_service.spacy_extractor import SpacyExtractor
 from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
     DataSourceService
@@ -16,6 +17,7 @@ from sentiment_service.vader import Vader
 from main import ABSA
 
 nlp = spacy.load('en_core_web_sm')
+PATTERN = '*.xml'
 
 def extract_all_tuples(doc):
     all_tuples = list()
@@ -39,7 +41,7 @@ def find_sublist(s, l):
         if matched == len(s):
             break
 
-        if s[matched] == word:
+        if s[matched].lower() == word.lower():
             matched += 1
             if start == -1:
                 start = i
@@ -55,7 +57,7 @@ def find_sublist(s, l):
 def format_for_matching(s):
     doc = nlp(s)
     sent = list(doc.sents)[0]
-    return list(map(lambda t: t.text.lower(), sent))
+    return list(map(lambda t: t.text, sent))
 
 
 def adjust_heads(heads, deps):
@@ -76,14 +78,13 @@ def adjust_heads(heads, deps):
 
 
 def label(t):
-    ent = t['entity'].split()
-    attr = t['attribute'].split()
+    ent = t['entity'].lower().split()
+    attr = t['attribute'].lower().split()
     exp = t['expression']
     sep = format_for_matching(exp)
     length = len(sep)
     heads = [0] * length
     deps = ['-'] * length
-    print(ent, attr, sep)
 
     ent_start = find_sublist(ent, sep)
 
@@ -107,40 +108,50 @@ def label(t):
             deps[i] = 'ATTRIBUTE_ADD'
 
     adjust_heads(heads, deps)
-    return {'expression': exp, 'heads': heads, 'deps' : deps}
+    return {'expression': exp, 'words': sep, 'heads': heads, 'deps' : deps}
 
 
 def label_all_tuples(tuples):
     return map(label, tuples)
 
 
-def main(sourcefile):
+def extract_data(absa, writer, filename):
+    with open(filename) as file:
+        doc = absa.load_document(file)
+        all_tuples = extract_all_tuples(doc)
+        labelled = label_all_tuples(all_tuples)
+
+        # Remove coreferencing artifacts
+        labelled = filter(lambda x: x is not None, labelled)
+        for data in labelled:
+            writer.writerow(data)
+
+
+def main(directory):
     sentiment_service = Vader()
     absa = ABSA(preprocessor=TextPreprocessor(),
                 extractor=SpacyExtractor(sentiment_service),
                 sentiment=sentiment_service,
-                datasource=VolatileSource(),
+                datasource=None,
                 query_parser=SimpleParser(),
                 aggregator=AverageAggregator())
 
-    doc = None
-    with open(sourcefile) as file:
-        doc = absa.load_document(file)
-
-    all_tuples = extract_all_tuples(doc)
-    labelled = label_all_tuples(all_tuples)
-
-    # Remove coreferencing artifacts
-    labelled = filter(lambda x: x is not None, labelled)
-
-
+    i = 0
     with open('training.csv', 'w', newline='') as csvfile:
-        fieldnames = ['expression', 'heads', 'deps']
+        fieldnames = ['expression', 'words', 'heads', 'deps']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
-        for data in labelled:
-            writer.writerow(data)
+
+        for path, subdirs, files in os.walk(directory):
+            for name in files:
+                if fnmatch(name, PATTERN):
+                    extract_data(absa, writer, pathlib.PurePath(path, name))
+                    i += 1
+                    print("{} document processed.".format(i))
+                    if i == 100:
+                        return
+
 
 if __name__ == '__main__':
     main(sys.argv[1])
