@@ -1,16 +1,15 @@
-from flask import Flask, jsonify, request
 import http
+
+from flask import Flask, jsonify, request
 
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
 from data_source.database_source import DatabaseSource
 from extractor_service.spacy_extractor import SpacyExtractor
-from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
-    DataSourceService
+from main import ABSA
 from preprocessor_service.text_preprocessor import TextPreprocessor
 from query_parser.simple_parser import SimpleParser
 from sentiment_service.vader import Vader
-from main import ABSA
 
 app = Flask(__name__)
 
@@ -18,7 +17,8 @@ sentiment_service = Vader()
 absa = ABSA(preprocessor=TextPreprocessor(),
             extractor=SpacyExtractor(sentiment_service),
             sentiment=sentiment_service,
-            datasource=DatabaseSource(),
+            datasource=VolatileSource(),
+            # datasource=DatabaseSource(),
             query_parser=SimpleParser(),
             aggregator=AverageAggregator())
 """
@@ -62,24 +62,28 @@ def docs():
     return jsonify(list(filter(lambda d: check_document(request.args, d), all_docs)))
 """
 
+
 def jsonify_entry(entry):
     print(entry)
     return {
-        'attribute': entry.attribute,
-        'expression': "\n".join(entry.expressions),
-        'sentiment': entry.sentiment
+        'attribute': entry.text,
+        'expression': ",\n\n ".join(map(str, entry.expressions)),
+        'sentiment': sum([expr.sentiment if expr.sentiment else 0 for expr in entry.expressions])
+                     / len(entry.expressions)
     }
+
 
 def jsonify_entries(entries):
     return list(map(jsonify_entry, entries))
+
 
 @app.route("/absa/load", methods=['POST'])
 def load():
     document = request.files.get('file')
     if document is not None:
         absa.load_document(document)
-        return ('', http.HTTPStatus.NO_CONTENT)
-    return ('', http.HTTPStatus.BAD_REQUEST)
+        return '', http.HTTPStatus.NO_CONTENT
+    return '', http.HTTPStatus.BAD_REQUEST
 
 
 @app.route("/absa/query")
@@ -93,4 +97,4 @@ def query():
         #     query +=  " " + attribute
         (score, relevant_entries) = absa.process_query(entity, attribute)
         return jsonify({'score': score, 'entries': jsonify_entries(relevant_entries)})
-    return ('', http.HTTPStatus.NO_CONTENT)
+    return '', http.HTTPStatus.NO_CONTENT
