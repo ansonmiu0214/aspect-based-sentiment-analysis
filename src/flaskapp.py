@@ -17,8 +17,8 @@ sentiment_service = Vader()
 absa = ABSA(preprocessor=TextPreprocessor(),
             extractor=SpacyExtractor(sentiment_service),
             sentiment=sentiment_service,
-            datasource=VolatileSource(),
-            # datasource=DatabaseSource(),
+            # datasource=VolatileSource(),
+            datasource=DatabaseSource(),
             query_parser=SimpleParser(),
             aggregator=AverageAggregator())
 """
