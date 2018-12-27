@@ -6,6 +6,7 @@ from data_source import aws_database
 
 def insert(connection, document: Document):
     print(connection)
+    doc_id = None
     with connection.cursor() as cursor:
         sql = "INSERT INTO `document` (metadata) VALUES (%s)"
         cursor.execute(sql, (json.dumps(document.metadata)))
@@ -43,6 +44,7 @@ def insert(connection, document: Document):
                 cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id], attr.expressions)))
 
     connection.commit()
+    return doc_id
 
 
 def selectAttributes(connection, entity, attribute=None):
@@ -103,7 +105,16 @@ class DatabaseSource(DataSourceService):
         if self.connection is None:
             self.connection = aws_database.get_connection()
 
-        insert(self.connection, document)
+        doc_id = insert(self.connection, document)
+        if not doc_id:
+            print("Error: cannot get document ID from insertion")
+            return
+
+        for ent in document.entities:
+            for attr in ent.attributes:
+                for expr in attr.expressions:
+                    expr.document_id = doc_id
+
 
     def lookup(self, query: Query):
         # Set up connection.

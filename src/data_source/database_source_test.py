@@ -32,6 +32,7 @@ def select_test(db_source):
     query = Query(ent, None, None)
     res = db_source.lookup(query)
     print('-----')
+    print("Querying all related to ent 1 name")
     for row in res:
         print((row.text, row.expressions, row.metadata))
     print('-----')
@@ -39,6 +40,7 @@ def select_test(db_source):
     query = Query(ent, attr, None)
     res = db_source.lookup(query)
     print('-----')
+    print("Querying all related to ent 1 name AND attr1")
     for row in res:
         print((row.text, row.expressions, row.metadata))
     print('-----')
