@@ -70,7 +70,7 @@ if __name__ == '__main__':
     absa = ABSA(preprocessor=TextPreprocessor(),
                 extractor=SpacyExtractor(sentiment_service),
                 sentiment=sentiment_service,
-                datasource=DatabaseSource(),
+                datasource=VolatileSource(),
                 query_parser=SimpleParser(),
                 aggregator=AverageAggregator())
 
@@ -113,6 +113,19 @@ if __name__ == '__main__':
     absa.load_document(text)
 
     while True:
+        print('============')
+        print('Enter entity to query: ', end='')
+        entity = input().strip()
+        if entity == '':
+            break
+        print('Enter attribute to query (can leave blank): ', end='')
+        attribute = input().strip()
+
+        score, entry = absa.process_query(entity, attribute)
+        print(score)
+        pprint(entry)
+
+        """
         print("============")
         print("Enter query of format <entity> <attribute?>: ", end="")
         query = input().strip()
@@ -122,3 +135,4 @@ if __name__ == '__main__':
         score, entry = absa.process_query(query)
         print(score)
         pprint(entry)
+        """
