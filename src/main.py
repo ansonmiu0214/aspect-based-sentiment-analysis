@@ -1,4 +1,5 @@
 from pprint import pprint
+import sys
 
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.VolatileSource import VolatileSource
@@ -115,7 +116,11 @@ if __name__ == '__main__':
     BT's shares rose to 266 pence, their highest since January, but are well off a high of 5 pounds during 
     Patterson's tenure and trade on only around a nine times forward earnings multiple. """
 
-    absa.load_document(text, verbose=True)
+    if len(sys.argv) == 2:
+        with open(sys.argv[1]) as file:
+            absa.load_document(file, verbose=True)
+    else:
+        absa.load_document(text, verbose=True)
 
     while True:
         print('============')

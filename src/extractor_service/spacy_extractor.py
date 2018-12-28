@@ -46,6 +46,7 @@ class SpacyExtractor(ExtractorService):
             for ent in filter(lambda x: x.label_ not in ENT_WITH_ATTR_BLACKLIST and x.lemma_ != '', doc.ents):
                 para_ents_with_attr[ent[0].i] = ent
 
+
             # Extract attributes and add sentiments.
             cur_entity = None
             cur_sent_polar = None
