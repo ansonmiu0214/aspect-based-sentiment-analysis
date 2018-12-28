@@ -20,7 +20,7 @@ class ABSA:
         self.query_parser = query_parser  # type: QueryParser
         self.aggregator_service = aggregator  # type: AggregatorService
 
-    def load_document(self, input_document):
+    def load_document(self, input_document, verbose=False):
         '''
         Load and process a document of any form.
 
@@ -28,17 +28,19 @@ class ABSA:
         :return: void
         '''
         doc = self.preprocessor_service.preprocess(input_document)
-        print("Preprocessing complete.")
+        if verbose:
+            print("Preprocessing complete.")
 
         doc = self.extractor_service.extract(doc)
-        print(doc.entities)
-        print("Extraction complete.")
-        print("Entities found: {}".format(list(map(lambda ent: ent.text, doc.entities))))
+        if verbose:
+            print("Extraction complete.")
+            print("Entities found: {}".format(", ".join(map(lambda ent: ent.text, doc.entities))))
 
         self.data_source.process_document(doc)
-        print("Document processed into data source.")
+        if verbose:
+            print("Document processed into data source.")
 
-    def process_query(self, entity, attribute):
+    def process_query(self, entity, attribute, verbose=False):
         '''
         Process the user query and return the aggregated sentiment and related entries.
 
@@ -47,18 +49,21 @@ class ABSA:
         '''
 
         query = Query(entity, attribute)
-        print("Query parsed.")
+        if verbose:
+            print("Query parsed.")
 
         relevant_entries = self.data_source.lookup(query)
         count = len(relevant_entries)
-        print("{} relevant entr{} found.".format(count, "y" if count == 1 else "ies"))
+        if verbose:
+            print("{} relevant entr{} found.".format(count, "y" if count == 1 else "ies"))
 
         if count == 0:
             return None, []
 
         sentiments = [expr.sentiment for entry in relevant_entries for expr in entry.expressions]
         score = self.aggregator_service.aggregate_sentiment(sentiments)
-        print("Sentiment scores aggregated.")
+        if verbose:
+            print("Sentiment scores aggregated.")
 
         return score, relevant_entries
 
@@ -110,7 +115,7 @@ if __name__ == '__main__':
     BT’s shares rose to 266 pence, their highest since January, but are well off a high of 5 pounds during 
     Patterson’s tenure and trade on only around a nine times forward earnings multiple. """
 
-    absa.load_document(text)
+    absa.load_document(text, verbose=True)
 
     while True:
         print('============')
@@ -121,18 +126,6 @@ if __name__ == '__main__':
         print('Enter attribute to query (can leave blank): ', end='')
         attribute = input().strip()
 
-        score, entry = absa.process_query(entity, attribute)
+        score, entry = absa.process_query(entity, attribute, verbose=True)
         print(score)
         pprint(entry)
-
-        """
-        print("============")
-        print("Enter query of format <entity> <attribute?>: ", end="")
-        query = input().strip()
-        if query == '':
-            break
-
-        score, entry = absa.process_query(query)
-        print(score)
-        pprint(entry)
-        """

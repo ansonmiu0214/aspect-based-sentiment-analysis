@@ -84,7 +84,7 @@ class EntityEntry(HasMetadata, HasText):
         self.attributes.append(attribute)
 
     def __repr__(self):
-        return self.text
+        return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
 
 
 class AttributeEntry(HasMetadata, HasText):
@@ -101,7 +101,7 @@ class AttributeEntry(HasMetadata, HasText):
         self.expressions.append(expression)
 
     def __repr__(self):
-        return self.text
+        return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.expressions)))
 
 
 class ExpressionEntry(HasMetadata, HasText):
