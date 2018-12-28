@@ -24,16 +24,28 @@ class HasMetadata(abc.ABC):
         return self.metadata[key]
 
 
+class HasText(abc.ABC):
+    '''
+    An abstract base class that stores the text of a token.
+    '''
+
+    def __init__(self, text):
+        self.text = text
+
+
 class Document(HasMetadata):
     '''
     A Document is built with a list of DocumentComponent objects.
     The extractor_service will annotate the Document with EntityEntry objects.
     A Document can also contain metadata (e.g. name, author, source).
     '''
-    def __init__(self):
+
+    def __init__(self, text="", identifier=None):
         super().__init__()
+        self.text = text  # type: str
         self.components = []  # type: List[DocumentComponent]
         self.entities = []  # type: List[EntityEntry]
+        self.idenfitier = identifier  # type: int
 
     def add_component(self, component):
         self.components.append(component)
@@ -47,19 +59,21 @@ class DocumentComponent:
     A wrapper around the actual document content.
     The `type` field allows you to store structural information (e.g. heading, table).
     '''
+
     def __init__(self, type, text):
         self.type = type  # type: str
         self.text = text  # type: str
 
 
-class EntityEntry(HasMetadata):
+class EntityEntry(HasMetadata, HasText):
     '''
     Each entity has a name (e.g. Apple) and a list of AttributeEntry objects.
     An EntityEntry can also contain metadata (e.g. child entities?)
     '''
-    def __init__(self, name):
-        super().__init__()
-        self.name = name
+
+    def __init__(self, entity):
+        HasMetadata.__init__(self)
+        HasText.__init__(self, entity)
         self.attributes = []  # type: List[AttributeEntry]
 
     def add_attribute(self, attribute):
@@ -70,33 +84,47 @@ class EntityEntry(HasMetadata):
         self.attributes.append(attribute)
 
     def __repr__(self):
-        return self.name
+        return self.text
 
 
-class AttributeEntry(HasMetadata):
+class AttributeEntry(HasMetadata, HasText):
     '''
-    Each AttributeEntry must contain the attribute name and the linguistic expression.
-    Sentiment values can be optionally added (depending on the approach).
-    An AttributeEntry can also contain metadata (e.g. the document it is from).
+    Each AttributeEntry must contain the attribute name and a list of ExpressionEntry objects
     '''
-    def __init__(self, attribute, expressions, sentiment=None):
-        super().__init__()
-        self.attribute = attribute  # type: str
-        self.expressions = expressions  # type: List[str]
-        self.sentiment = sentiment  # type: float
+
+    def __init__(self, attribute, expressions=[]):
+        HasMetadata.__init__(self)
+        HasText.__init__(self, attribute)
+        self.expressions = expressions  # type: List[ExpressionEntry]
+
+    def add_expression(self, expression):
+        self.expressions.append(expression)
 
     def __repr__(self):
-        truncate = lambda n, x: x[:n] + "..."
-        max_length = 10
-        return "Attr={} Exprs={} Sent={}".format(self.attribute,
-                                                 list(map(lambda x: truncate(max_length, x), self.expressions)),
-                                                 self.sentiment)
+        return self.text
+
+
+class ExpressionEntry(HasMetadata, HasText):
+    '''
+    Each ExpressionEntry must contain the text of the expression and the id of the originating document.
+    Sentiment values can be optionally added (depending on the approach).
+    '''
+
+    def __init__(self, expression, sentiment=None, document_id=None):
+        HasMetadata.__init__(self)
+        HasText.__init__(self, expression)
+        self.sentiment = sentiment
+        self.document_id = document_id
+
+    def __repr__(self):
+        return '("{}", {})'.format(self.text, self.sentiment)
 
 
 class Query:
     '''
     A wrapper class for user queries into the ABSA service.
     '''
+
     def __init__(self, entity, attribute, positive_sentiment=None):
         self.entity = entity
         self.attribute = attribute
