@@ -1,7 +1,8 @@
 import spacy
 from collections import deque
 
-from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry
+from extractor_service.coref import Coreferencer
+from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry
 
 MODEL = 'en_core_web_sm'
 ENT_WITH_ATTR_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
@@ -13,6 +14,7 @@ class SpacyExtractor(ExtractorService):
     def __init__(self, sentiment_service):
         self.nlp = spacy.load(MODEL)
         self.sentiment_service = sentiment_service  # type: SentimentService
+        self.coref = Coreferencer()
 
     def extract(self, input_doc: Document):
         ents_to_extract = {}
@@ -22,6 +24,9 @@ class SpacyExtractor(ExtractorService):
 
             if paragraph == '':
                 continue
+
+            # Coreference preprocessing
+            paragraph = self.coref.process(paragraph, verbose=True)
 
             doc = self.nlp(paragraph)
 
@@ -94,11 +99,9 @@ class SpacyExtractor(ExtractorService):
                 ent_attributes = ents_to_extract[cur_entity.lemma_]['attributes']
                 if attribute in ent_attributes:
                     ent_attributes[attribute]['count'] += 1
-                    ent_attributes[attribute]['sentiment'] += cur_sent_polar
-                    ent_attributes[attribute]['expression'].append(token.sent.text)
+                    ent_attributes[attribute]['expression'].append((token.sent.text, cur_sent_polar))
                 else:
-                    ent_attributes[attribute] = {'count': 1, 'sentiment': cur_sent_polar,
-                                                 'expression': [token.sent.text]}
+                    ent_attributes[attribute] = {'count': 1, 'expression': [(token.sent.text, cur_sent_polar)]}
 
         input_doc = update_document(input_doc, ents_to_extract)
 
@@ -116,22 +119,23 @@ def update_document(document, ents_to_extract):
             continue
 
         entity_entry = EntityEntry(ent)
-        for attr in attrs:
+        for attr in set(attrs):
             metadata = attrs[attr]
-            attr_entry = AttributeEntry(attribute=attr, expressions=metadata['expression'],
-                                        sentiment=metadata['sentiment'])
+
+            expressions = []
+            for expr, sentiment in metadata['expression']:
+                expr_entry = ExpressionEntry(expression=expr, sentiment=sentiment)
+                expressions.append(expr_entry)
+
+            attr_entry = AttributeEntry(attribute=attr, expressions=expressions)
             entity_entry.add_attribute(attr_entry)
 
         document.add_entity(entity_entry)
 
-    # pprint(ents_to_extract)
     return document
 
 
 def is_valid_attribute_token(token):
-    # if token.text == 'out':
-    #     print(token, token.pos_, token.sent)
-
     # Skip if part of entity (e.g. 'pound' is MONEY).
     if token.ent_iob_ != 'O':
         return False

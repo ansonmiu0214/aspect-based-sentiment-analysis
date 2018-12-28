@@ -1,0 +1,41 @@
+CREATE TABLE document (
+    id int NOT NULL AUTO_INCREMENT,
+    metadata TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE component (
+    id int NOT NULL AUTO_INCREMENT,
+    document_id int NOT NULL,
+    type TEXT NOT NULL,
+    text MEDIUMTEXT NOT NULL,
+    PRIMARY KEY (id),
+  	FOREIGN KEY (document_id) REFERENCES document(id)
+);
+
+CREATE TABLE entity (
+    id int NOT NULL AUTO_INCREMENT,
+    name TEXT NOT NULL,
+    metadata TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE attribute (
+    id int NOT NULL AUTO_INCREMENT,
+    entity_id int NOT NULL,
+    attribute TEXT NOT NULL,
+    metadata TEXT NOT NULL,
+    PRIMARY KEY (id),
+	  FOREIGN KEY (entity_id) REFERENCES entity(id)
+);
+
+CREATE TABLE expression (
+    id int NOT NULL AUTO_INCREMENT,
+  	attribute_id int NOT NULL,
+    text TEXT NOT NULL,
+    sentiment FLOAT,
+    document_id int NOT NULL,
+    PRIMARY KEY (id),
+   	FOREIGN KEY (attribute_id) REFERENCES attribute(id),
+    FOREIGN KEY (document_id) REFERENCES document(id)
+);
