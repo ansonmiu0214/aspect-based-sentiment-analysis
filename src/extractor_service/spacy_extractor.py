@@ -16,7 +16,7 @@ class SpacyExtractor(ExtractorService):
         self.sentiment_service = sentiment_service  # type: SentimentService
         self.coref = Coreferencer()
 
-    def extract(self, input_doc: Document):
+    def extract(self, input_doc: Document, verbose=False):
         ents_to_extract = {}
 
         for component in input_doc.components:
@@ -26,7 +26,7 @@ class SpacyExtractor(ExtractorService):
                 continue
 
             # Coreference preprocessing
-            paragraph = self.coref.process(paragraph, verbose=True)
+            paragraph = self.coref.process(paragraph, verbose)
 
             doc = self.nlp(paragraph)
 
@@ -39,7 +39,7 @@ class SpacyExtractor(ExtractorService):
             para_ents_with_attr = {}
 
             # Extract entities and add sentiments.
-            for ent in set(filter(lambda x: x.label_ not in ENT_TO_EXTRACT_BLACKLIST and x.lemma_ != '', doc.ents)):
+            for ent in filter(lambda x: x.label_ not in ENT_TO_EXTRACT_BLACKLIST and x.lemma_ != '', doc.ents):
                 ents_to_extract[ent.lemma_] = {}
 
             # Map indices to entities.

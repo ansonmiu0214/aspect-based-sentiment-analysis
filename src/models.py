@@ -149,7 +149,7 @@ class PreprocessorService(abc.ABC):
 
 class ExtractorService(abc.ABC):
     @abc.abstractmethod
-    def extract(self, doc: Document) -> Document:
+    def extract(self, doc: Document, verbose: bool) -> Document:
         '''
         Extracts the entity/attribute pairs from the Document object.
         Performs sentiment analysis using the embedded service.

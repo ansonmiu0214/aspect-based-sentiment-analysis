@@ -31,7 +31,7 @@ class ABSA:
         if verbose:
             print("Preprocessing complete.")
 
-        doc = self.extractor_service.extract(doc)
+        doc = self.extractor_service.extract(doc, verbose=True)
         if verbose:
             print("Extraction complete.")
             print("Entities found: {}".format(", ".join(map(lambda ent: ent.text, doc.entities))))
