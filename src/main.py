@@ -33,7 +33,7 @@ class ABSA:
         doc = self.extractor_service.extract(doc)
         print(doc.entities)
         print("Extraction complete.")
-        print("Entities found: {}".format(list(map(lambda ent: ent.name, doc.entities))))
+        print("Entities found: {}".format(list(map(lambda ent: ent.text, doc.entities))))
 
         self.data_source.process_document(doc)
         print("Document processed into data source.")
@@ -56,7 +56,7 @@ class ABSA:
         if count == 0:
             return None, []
 
-        sentiments = list(map(lambda x: x.sentiment, relevant_entries))
+        sentiments = [expr.sentiment for entry in relevant_entries for expr in entry.expressions]
         score = self.aggregator_service.aggregate_sentiment(sentiments)
         print("Sentiment scores aggregated.")
 
