@@ -1,181 +1,177 @@
-import newsdocument
-import numpy as np
-import spacy
+import json
 
+from data_source.database_source import DatabaseSource
+from metric import document_error
 from extractor_service.spacy_extractor import SpacyExtractor
+from models import *
+from preprocessor_service.text_preprocessor import TextPreprocessor
 from sentiment_service.vader import Vader
 
-nlp = spacy.load('en_core_web_sm')
+
+def json_to_dict(entries):
+    entities = {}
+
+    for entry in entries:
+        entity = entry['entity']
+        attribute = entry['attribute']
+        expression = entry['expression']
+        sentiment = entry['sentiment']
+
+        if entity not in entities:
+            entities[entity] = {}
+
+        if attribute not in entities[entity]:
+            entities[entity][attribute] = []
+
+        entities[entity][attribute].append(ExpressionEntry(expression, sentiment))
+
+    return entities
 
 
-def document_error(model_output, ground_truth):
+def json_to_entities(json_string: str) -> List[EntityEntry]:
+    entries = json.loads(json_string)
+    entities = json_to_dict(entries)
+
+    entity_entries = []
+    for entity in entities:
+        entity_entry = EntityEntry(entity)
+
+        attributes = entities[entity]
+        for attribute in attributes:
+            expr_entries = attributes[attribute]
+            attr_entry = AttributeEntry(attribute, expr_entries)
+            entity_entry.add_attribute(attr_entry)
+        entity_entries.append(entity_entry)
+    return entity_entries
+
+
+def update_tags_from_json(document: Document, json_string: str) -> Document:
+    '''
+    Given a Document object that has already been preprocessed with the DocumentComponents
+    and a well-formatted JSON string of the ground truth tags, returns the annotated Document.
     '''
 
-    :param model_output:
-    :param ground_truth:
-    :return:
-    '''
-
-    loss_score = 0
-
-    pred_entities = model_output.entities
-    ground_entities = ground_truth.entities
-
-    ent_tp = 0
-    ent_fp = 0
-    ent_fn = 0
-
-    attr_tp = 0
-    attr_fp = 0
-    attr_fn = 0
-
-    for ent in pred_entities:
-        matched_entity = token_match(ent, ground_entities, "E")
-        if matched_entity is not None:
-            ent_tp += 1
-            curr_tp = 0
-            for attr in ent.attributes:
-                matched_attribute = token_match(attr, matched_entity.attributes, "A")
-
-                if matched_attribute is not None:
-                    curr_tp += 1
-
-                    for expr in attr.expressions:
-                        diff = find_similar_phrase(expr, attr.expressions)
-                        loss_score += diff
-
-            attr_tp += curr_tp
-            attr_fp += len(ent.attributes) - curr_tp
-            attr_fn += len(matched_entity.attributes) - curr_tp
-
-    ent_fp += len(pred_entities) - ent_tp
-    ent_fn += len(ground_entities) - ent_tp
-
-    ent_precision = ent_tp / (ent_tp + ent_fp)
-    ent_recall = ent_tp / (ent_tp + ent_fn)
-
-    ent_f1 = 2 * (ent_precision * ent_recall) / (ent_precision + ent_recall)
-
-    attr_precison = attr_tp / (attr_tp + attr_fp)
-    attr_recall = attr_tp / (attr_tp + attr_fn)
-
-    attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
-
-    loss_score += ent_f1 + attr_f1
-
-    return abs(loss_score - 2)
+    entities = json_to_entities(json_string)
+    for entity in entities:
+        document.add_entity(entity)
+    return document
 
 
-def token_match(input, target_set, type):
-    input_text = ""
-    original_text = ""
+class Evaluator:
+    def __init__(self):
+        self.preprocessor = TextPreprocessor()
+        self.sentiment_service = Vader()
+        self.extractor = SpacyExtractor(self.sentiment_service)
+        self.db = DatabaseSource(is_production=False)
+        pass
 
-    input_text = input.text
+    def load_test_document(self, doc_string: str, ground_truth_json: str):
+        document = self.preprocessor.preprocess(doc_string)
+        document = update_tags_from_json(document, ground_truth_json)
 
-    for token in target_set:
-        original_text = token.text
-        if input_text.lower() in original_text.lower() or original_text.lower() in input_text.lower():
-            return token
-    return None
+        self.db.process_document(document)
 
+    def reset_all_test_documents(self):
+        self.db.reset()
 
-def calculate_error(attr1, attr2):
-    if attr1 is None:
-        return 2
-    else:
-        return abs(attr1.sentiment - attr2.sentiment)
+    def run_evaluator(self):
+        # Get all documents
+        all_docs = self.db.list_all_documents()
 
+        doc_count = len(all_docs)
+        if doc_count == 0:
+            return 0
 
-def find_similar_phrase(phrase, phrases):
-    word_set1 = phrase.text.split(" ")
-    word_set1 = sorted(word_set1)
+        total_score = 0
 
-    # print("The original phrase is %s" % phrase)
+        for id in all_docs:
+            doc = self.db.retrieve_document(id)
+            print(doc.components)
 
+            ground_truth = list(doc.entities)
 
-    idx = 0
-    while word_set1[idx] == "" or word_set1[idx] == '\n':
-        idx += 1
-    word_set1 = word_set1[idx:]
-    v1 = nlp(word_set1[0])[0].vector
-    for w in word_set1[1:]:
-        if w.strip() != '':
-            v1 = np.add(v1, nlp(w)[0].vector)
+            doc.entities = []
+            doc = self.extractor.extract(doc)
 
-    max_val = -100000000
-    min_phrase = ""
+            print(doc.entities)
 
-    for p in phrases:
-        word_set2 = p.text.split(' ')
-        word_set2 = sorted(word_set2)
-        idx = 0
-        while word_set2[idx] == "" or word_set2[idx] == '\n':
-            idx += 1
-        word_set2 = word_set2[idx:]
-        v2 = nlp(word_set1[0])[0].vector
+            # score = document_error(doc.entities, ground_truth)
+            # total_score += score
 
-        for w in word_set2[1:]:
-
-            if w.strip() != '':
-                v2 = np.add(v2, nlp(w)[0].vector)
-
-        max_length = max(len(v1), len(v2))
-
-        if len(v1) > len(v2):
-            for x in range(max_length):
-                np.add(v2, 0)
-        else:
-            for x in range(max_length):
-                np.add(v1, 0)
-
-        diff = np.dot(v1, v2) / ((np.linalg.norm(v1)) * np.linalg.norm(v2))
-
-        # print("The current phrase is %s" % p)
-        # print("The error of the current phrase is %f" % diff)
-
-        if diff > max_val:
-            max_val = diff
-            min_phrase = p
-
-    # print("The min val is %f" % min_val)
-    # print("The min phrase is %s" % min_phrase)
-
-    return abs(max_val - 1)
+        avg_score = total_score / doc_count
+        return avg_score
 
 
-def find_most_similar(target, candidates, threshold):
-    # Compute similarities
-    similarities = sorted(map(lambda cand: (target.similarity(cand), cand), candidates), reverse=True)
+# if __name__ == '__main__':
 
-    score, cand = similarities[0]
-    if score < threshold:
-        return None, score
+xml_text = """<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="2286" id="root" date="1996-08-20" xml:lang="en">
+<title>MEXICO: Recovery excitement brings Mexican markets to life.</title>
+<headline>Recovery excitement brings Mexican markets to life.</headline>
+<byline>Henry Tricks</byline>
+<dateline>MEXICO CITY</dateline>
+<text>
+<p>Emerging evidence that Mexico's economy was back on the recovery track sent Mexican markets into a buzz of excitement Tuesday, with stocks closing at record highs and interest rates at 19-month lows.</p>
+<p>&quot;Mexico has been trying to stage a recovery since the beginning of this year and it's always been getting ahead of itself in terms of fundamentals,&quot; said Matthew Hickman of Lehman Brothers in New York.</p>
+<p>&quot;Now we're at the point where the fundamentals are with us. The history is now falling out of view.&quot;</p>
+<p>That history is one etched into the minds of all investors in Mexico: an economy in crisis since December 1994, a free-falling peso and stubbornly high interest rates.</p>
+<p>This week, however, second-quarter gross domestic product was reported up 7.2 percent, much stronger than most analysts had expected. Interest rates on governent Treasury bills, or Cetes, in the secondary market fell on Tuesday to 23.90 percent, their lowest level since Jan. 25, 1995.</p>
+<p>The stock market's main price index rallied 77.12 points, or 2.32 percent, to a record 3,401.79 points, with volume at a frenzied 159.89 million shares.</p>
+<p>Confounding all expectations has been the strength of the peso, which ended higher in its longer-term contracts on Tuesday despite the secondary Cetes drop and expectations of lower benchmark rates in Tuesday's weekly auction.</p>
+<p>With U.S. long-term interest rates expected to remain steady after the Federal Reserve refrained from raising short-term rates on Tuesday, the attraction of Mexico, analysts say, is that it offers robust returns for foreigners and growing confidence that they will not fall victim to a crumbling peso.</p>
+<p>&quot;The focus is back on Mexican fundamentals,&quot; said Lars Schonander, head of researcher at Santander in Mexico City. &quot;You have a continuing decline in inflation, a stronger-than-expected GDP growth figure and the lack of any upward move in U.S. rates.&quot;</p>
+<p>Other factors were also at play, said Felix Boni, head of research at James Capel in Mexico City, such as positive technicals and economic uncertainty in Argentina, which has put it and neighbouring Brazil's markets at risk.</p>
+<p>&quot;There's a movement out of South American markets into Mexico,&quot; he said. But Boni was also wary of what he said could be &quot;a lot of hype.&quot;</p>
+<p>The economic recovery was still export-led, and evidence was patchy that the domestic consumer was back with a vengeance. Also, corporate earnings need to grow strongly to justify the run-up in the stock market, he said.</p>
+</text>
+<copyright>(c) Reuters Limited 1996</copyright>
+<metadata>
+<codes class="bip:countries:1.0">
+  <code code="MEX">
+    <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+  </code>
+</codes>
+<codes class="bip:topics:1.0">
+  <code code="E11">
+    <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+  </code>
+  <code code="ECAT">
+    <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+  </code>
+  <code code="M11">
+    <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+  </code>
+  <code code="M12">
+    <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+  </code>
+  <code code="MCAT">
+    <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+  </code>
+</codes>
+<dc element="dc.publisher" value="Reuters Holdings Plc"/>
+<dc element="dc.date.published" value="1996-08-20"/>
+<dc element="dc.source" value="Reuters"/>
+<dc element="dc.creator.location" value="MEXICO CITY"/>
+<dc element="dc.creator.location.country.name" value="MEXICO"/>
+<dc element="dc.source" value="Reuters"/>
+</metadata>
+</newsitem>
+"""
 
-    # TODO handle the case if there is a tiebreaker
-    return cand, score
+# json_string = """[{"entity":"Mexico","attribute":"economy","expression":"Emerging evidence that Mexico 's economy was back on the recovery track sent Mexican markets into a buzz of excitement Tuesday , with stocks closing at record highs and interest rates at 19-month lows","sentiment":0.6}]
+# """
 
+json_string="""[{"entity":"Mexico","attribute":"economy","expression":"Emerging evidence that Mexico's economy was back on the recovery track sent Mexican markets into a buzz of excitement Tuesday, with stocks closing at record highs and interest rates at 19-month lows.","sentiment":0.9}, {"entity":"Mexico","attribute":"gross domestic product","expression":"second-quarter gross domestic product was reported up 7.2 percent, much stronger than most  analysts had expected","sentiment":0.8}, {"entity":"Mexico","attribute":"economy","expression":"an economy in crisis  since December 1994, a free-falling peso and stubbornly high interest rates.","sentiment":-0.5}]"""
 
-def sentiment_error(expr_sent, ground_sent):
-    '''
+evaluator = Evaluator()
+evaluator.reset_all_test_documents()
+evaluator.load_test_document(doc_string=xml_text, ground_truth_json=json_string)
+print(evaluator.run_evaluator())
 
-    :param expr_sent:
-    :param ground_sent:
-    :return:
-    '''
-
-    return 0
-
-
-if __name__ == '__main__':
-    sent_service = Vader()
-    extractor = SpacyExtractor(sent_service)
-
-    original_doc = newsdocument.get_original_doc()
-    model_output = extractor.extract(original_doc)
-
-    ground_truth = newsdocument.get_doc()
-    print("document_error(model_output, ground_truth):")
-    print(document_error(model_output, ground_truth))
-
-    print("document_error(ground_truth, ground_truth):")
-    print(document_error(ground_truth, ground_truth))
+# entities = json_to_entities(json_string)
+# for entity in entities:
+#     print(entity)
+#
+#     for attr in entity.attributes:
+#         print(attr)
+#         print(attr.expressions)
