@@ -70,16 +70,10 @@ def token_match(input, target_set, type):
     input_text = ""
     original_text = ""
 
-    if type == 'A':
-        input_text = input.attribute
-    else:
-        input_text = input.name
+    input_text = input.text
 
     for token in target_set:
-        if type == "A":
-            original_text = token.attribute
-        else:
-            original_text = token.name
+        original_text = token.text
         if input_text.lower() in original_text.lower() or original_text.lower() in input_text.lower():
             return token
     return None
@@ -93,10 +87,10 @@ def calculate_error(attr1, attr2):
 
 
 def find_similar_phrase(phrase, phrases):
-    word_set1 = phrase.split(" ")
+    word_set1 = phrase.text.split(" ")
     word_set1 = sorted(word_set1)
 
-    #print("The original phrase is %s" % phrase)
+    # print("The original phrase is %s" % phrase)
 
 
     idx = 0
@@ -112,7 +106,7 @@ def find_similar_phrase(phrase, phrases):
     min_phrase = ""
 
     for p in phrases:
-        word_set2 = p.split(' ')
+        word_set2 = p.text.split(' ')
         word_set2 = sorted(word_set2)
         idx = 0
         while word_set2[idx] == "" or word_set2[idx] == '\n':
@@ -136,15 +130,15 @@ def find_similar_phrase(phrase, phrases):
 
         diff = np.dot(v1, v2) / ((np.linalg.norm(v1)) * np.linalg.norm(v2))
 
-        #print("The current phrase is %s" % p)
-        #print("The error of the current phrase is %f" % diff)
+        # print("The current phrase is %s" % p)
+        # print("The error of the current phrase is %f" % diff)
 
         if diff > max_val:
             max_val = diff
             min_phrase = p
 
-    #print("The min val is %f" % min_val)
-    #print("The min phrase is %s" % min_phrase)
+    # print("The min val is %f" % min_val)
+    # print("The min phrase is %s" % min_phrase)
 
     return abs(max_val - 1)
 
