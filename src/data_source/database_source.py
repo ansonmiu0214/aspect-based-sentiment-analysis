@@ -90,20 +90,21 @@ def reset(connection):
 
 
 class DatabaseSource(DataSourceService):
-    def __init__(self):
+    def __init__(self, is_production=True):
         self.connection = None
+        self.is_production = is_production
 
     def reset(self):
         # Set up connection.
         if self.connection is None:
-            self.connection = aws_database.get_connection()
+            self.connection = aws_database.get_connection(self.is_production)
 
         reset(self.connection)
 
     def process_document(self, document: Document):
         # Set up connection.
         if self.connection is None:
-            self.connection = aws_database.get_connection()
+            self.connection = aws_database.get_connection(self.is_production)
 
         doc_id = insert(self.connection, document)
         if not doc_id:
@@ -115,11 +116,10 @@ class DatabaseSource(DataSourceService):
                 for expr in attr.expressions:
                     expr.document_id = doc_id
 
-
     def lookup(self, query: Query):
         # Set up connection.
         if self.connection is None:
-            self.connection = aws_database.get_connection()
+            self.connection = aws_database.get_connection(self.is_production)
 
         rows = selectAttributes(self.connection, query.entity, query.attribute)
 
