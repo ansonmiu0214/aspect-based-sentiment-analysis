@@ -37,7 +37,7 @@ def insert(connection, document: Document):
 
                 sql = "SELECT LAST_INSERT_ID()"
                 cursor.execute(sql, ())
-                attr_id = cursor.fetchone()[0]
+                attr_id, *_ = cursor.fetchone()
 
                 # Expressions.
                 sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id) VALUES (%s, %s, %s, %s)"
@@ -89,6 +89,34 @@ def reset(connection):
         print("All deleted.")
 
 
+def selectDocuments(connection):
+    with connection.cursor() as cursor:
+        sql = "SELECT * FROM document"
+        cursor.execute(sql, ())
+        return list(cursor.fetchall())
+
+
+def composeDocument(connection, document_id: int) -> Document:
+    document = Document(identifier=document_id)
+    with connection.cursor() as cursor:
+        # Select metadata
+        sql = ""
+
+        # Select document components
+        sql = "SELECT type, text FROM component WHERE document_id = %s"
+        cursor.execute(sql, (document_id))
+
+        components = cursor.fetchall()
+        all_text = []
+        for type, text in components:
+            document.add_component(DocumentComponent(type, text))
+            all_text.append(text)
+
+        document.text = " ".join(all_text)
+
+    return document
+
+
 class DatabaseSource(DataSourceService):
     def __init__(self, is_production=True):
         self.connection = None
@@ -96,15 +124,13 @@ class DatabaseSource(DataSourceService):
 
     def reset(self):
         # Set up connection.
-        if self.connection is None:
-            self.connection = aws_database.get_connection(self.is_production)
+        self.setup_connection()
 
         reset(self.connection)
 
     def process_document(self, document: Document):
         # Set up connection.
-        if self.connection is None:
-            self.connection = aws_database.get_connection(self.is_production)
+        self.setup_connection()
 
         doc_id = insert(self.connection, document)
         if not doc_id:
@@ -118,8 +144,7 @@ class DatabaseSource(DataSourceService):
 
     def lookup(self, query: Query):
         # Set up connection.
-        if self.connection is None:
-            self.connection = aws_database.get_connection(self.is_production)
+        self.setup_connection()
 
         rows = selectAttributes(self.connection, query.entity, query.attribute)
 
@@ -133,3 +158,23 @@ class DatabaseSource(DataSourceService):
             attrs.append(attr)
 
         return attrs
+
+    def list_all_documents(self):
+        self.setup_connection()
+
+        # Select documents
+        rows = selectDocuments(self.connection)
+
+        docs = {}
+        for id, metadata in rows:
+            docs[id] = json.loads(metadata)
+
+        return docs
+
+    def retrieve_document(self, document_id: int) -> Document:
+        self.setup_connection()
+        return composeDocument(self.connection, document_id)
+
+    def setup_connection(self):
+        if self.connection is None:
+            self.connection = aws_database.get_connection(self.is_production)
