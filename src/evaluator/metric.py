@@ -8,11 +8,11 @@ from sentiment_service.vader import Vader
 nlp = spacy.load('en_core_web_sm')
 
 
-def document_error(pred_entities, ground_entities):
+def document_error(model_output, ground_truth):
     '''
 
-    :param pred_entities:
-    :param ground_entities:
+    :param model_output:
+    :param ground_truth:
     :return:
     '''
     loss_score = 0
@@ -25,8 +25,8 @@ def document_error(pred_entities, ground_entities):
     attr_fp = 0
     attr_fn = 0
 
-    for ent in pred_entities:
-        matched_entity = token_match(ent, ground_entities, "E")
+    for ent in model_output:
+        matched_entity = token_match(ent, ground_truth, "E")
         if matched_entity is not None:
             ent_tp += 1
             curr_tp = 0
@@ -44,8 +44,8 @@ def document_error(pred_entities, ground_entities):
             attr_fp += len(ent.attributes) - curr_tp
             attr_fn += len(matched_entity.attributes) - curr_tp
 
-    ent_fp += len(pred_entities) - ent_tp
-    ent_fn += len(ground_entities) - ent_tp
+    ent_fp += len(model_output) - ent_tp
+    ent_fn += len(ground_truth) - ent_tp
 
     ent_precision = ent_tp / (ent_tp + ent_fp)
     ent_recall = ent_tp / (ent_tp + ent_fn)

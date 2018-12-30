@@ -93,7 +93,7 @@ class Evaluator:
             doc.entities = []
             doc = self.extractor.extract(doc)
 
-            score = document_error(doc.entities, ground_truth)
+            score = document_error(model_output=doc.entities, ground_truth=ground_truth)
             total_score += score
 
         avg_score = total_score / doc_count
