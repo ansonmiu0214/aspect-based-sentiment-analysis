@@ -4,6 +4,7 @@ import spacy
 SUBJ_BLACKLIST = {'it', 'we'}
 SUBJ_POSSESSION = {'its', 'their'}
 
+
 class Coreferencer:
     def __init__(self):
         self.nlp = spacy.load('en_coref_sm')
@@ -53,7 +54,7 @@ class Coreferencer:
 
 if __name__ == '__main__':
     # text = input().strip()
-    text = """\ Smartphone sales and cost savings helped BT beat market expectations for first-half earnings on 
+    text = """Smartphone sales and cost savings helped BT beat market expectations for first-half earnings on 
         Thursday, with its departing chief executive saying his recovery plan was working. 
 
         Gavin Patterson, who is being replaced as CEO by Worldpay’s Philip Jansen in February, said BT was improving 
