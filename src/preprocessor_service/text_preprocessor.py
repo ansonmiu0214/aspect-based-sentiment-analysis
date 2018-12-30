@@ -10,6 +10,13 @@ class TextPreprocessor(PreprocessorService):
     def concat_elements(root, tag):
         return ' '.join(map(lambda i: i.text, root.findall(tag)))
 
+    @staticmethod
+    def get_filename(doc):
+        try:
+            return doc.filename
+        except AttributeError:
+            return doc.name
+
     def preprocess(self, doc):
         document = Document()
 
@@ -20,8 +27,7 @@ class TextPreprocessor(PreprocessorService):
 
         document.add_metadata('title', 'Imported from TextPreprocessor')
 
-        # Check if FileStorage or File object
-        if (hasattr(doc, 'filename') and doc.filename.endswith(".xml")) or (hasattr(doc, 'name') and doc.name.endswith(".xml")):
+        if self.get_filename(doc).endswith(".xml"):
             tree = ET.parse(doc)
             root = tree.getroot()
 

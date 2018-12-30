@@ -6,6 +6,7 @@ from spacy import displacy
 import csv
 from pprint import pprint
 import ast
+import os
 
 def main():
     data = list()
@@ -23,9 +24,13 @@ def main():
                         }
                     )
             )
-
-    nlp = spacy.blank('en')  # create blank Language class
-    print("Created blank 'en' model")
+    
+    if os.path.isdir('trained_model'):
+      nlp = spacy.load('trained_model')
+      print('Loaded trained_model')
+    else:
+      nlp = spacy.blank('en')  # create blank Language class
+      print("Created blank 'en' model")
 
     # We'll use the built-in dependency parser class, but we want to create a
     # fresh instance – just in case.
@@ -41,7 +46,7 @@ def main():
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
     with nlp.disable_pipes(*other_pipes):  # only train parser
         optimizer = nlp.begin_training(device=0)
-        for itn in range(50):
+        for itn in range(10):
             print("Iteration {}".format(itn))
             random.shuffle(data)
             losses = {}

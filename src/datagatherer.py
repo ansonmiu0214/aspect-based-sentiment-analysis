@@ -26,9 +26,9 @@ def extract_all_tuples(doc):
             for exp in attr.expressions:
                 all_tuples.append(
                         {
-                            'entity': ent.name,
-                            'attribute': attr.attribute,
-                            'expression': exp
+                            'entity': ent.text,
+                            'attribute': attr.text,
+                            'expression': exp.text
                         }
                 )
     return all_tuples
