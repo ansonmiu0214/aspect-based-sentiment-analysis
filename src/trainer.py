@@ -40,8 +40,9 @@ def main():
 
     other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'parser']
     with nlp.disable_pipes(*other_pipes):  # only train parser
-        optimizer = nlp.begin_training()
-        for itn in range(15):
+        optimizer = nlp.begin_training(device=0)
+        for itn in range(50):
+            print("Iteration {}".format(itn))
             random.shuffle(data)
             losses = {}
             # batch up the examples using spaCy's minibatch
