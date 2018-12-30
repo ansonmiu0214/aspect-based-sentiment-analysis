@@ -66,7 +66,8 @@ class Evaluator:
         pass
 
     def load_test_document(self, doc_string: str, ground_truth_json: str):
-        document = self.preprocessor.preprocess(doc_string)
+        # TODO generalise the preprocess function to be applied on strings only
+        document = self.preprocessor.preprocess_xml_text(doc_string)
         document = update_tags_from_json(document, ground_truth_json)
 
         self.db.process_document(document)
@@ -80,23 +81,20 @@ class Evaluator:
 
         doc_count = len(all_docs)
         if doc_count == 0:
-            return 0
+            return None
 
         total_score = 0
 
         for id in all_docs:
             doc = self.db.retrieve_document(id)
-            print(doc.components)
 
             ground_truth = list(doc.entities)
 
             doc.entities = []
             doc = self.extractor.extract(doc)
 
-            print(doc.entities)
-
-            # score = document_error(doc.entities, ground_truth)
-            # total_score += score
+            score = document_error(doc.entities, ground_truth)
+            total_score += score
 
         avg_score = total_score / doc_count
         return avg_score
@@ -161,11 +159,11 @@ xml_text = """<?xml version="1.0" encoding="iso-8859-1" ?>
 # json_string = """[{"entity":"Mexico","attribute":"economy","expression":"Emerging evidence that Mexico 's economy was back on the recovery track sent Mexican markets into a buzz of excitement Tuesday , with stocks closing at record highs and interest rates at 19-month lows","sentiment":0.6}]
 # """
 
-json_string="""[{"entity":"Mexico","attribute":"economy","expression":"Emerging evidence that Mexico's economy was back on the recovery track sent Mexican markets into a buzz of excitement Tuesday, with stocks closing at record highs and interest rates at 19-month lows.","sentiment":0.9}, {"entity":"Mexico","attribute":"gross domestic product","expression":"second-quarter gross domestic product was reported up 7.2 percent, much stronger than most  analysts had expected","sentiment":0.8}, {"entity":"Mexico","attribute":"economy","expression":"an economy in crisis  since December 1994, a free-falling peso and stubbornly high interest rates.","sentiment":-0.5}]"""
+json_string = """[{"entity":"Mexico","attribute":"economy","expression":"Emerging evidence that Mexico's economy was back on the recovery track sent Mexican markets into a buzz of excitement Tuesday, with stocks closing at record highs and interest rates at 19-month lows.","sentiment":0.9}, {"entity":"Mexico","attribute":"gross domestic product","expression":"second-quarter gross domestic product was reported up 7.2 percent, much stronger than most  analysts had expected","sentiment":0.8}, {"entity":"Mexico","attribute":"economy","expression":"an economy in crisis  since December 1994, a free-falling peso and stubbornly high interest rates.","sentiment":-0.5}]"""
 
 evaluator = Evaluator()
-evaluator.reset_all_test_documents()
-evaluator.load_test_document(doc_string=xml_text, ground_truth_json=json_string)
+# evaluator.reset_all_test_documents()
+# evaluator.load_test_document(doc_string=xml_text, ground_truth_json=json_string)
 print(evaluator.run_evaluator())
 
 # entities = json_to_entities(json_string)
