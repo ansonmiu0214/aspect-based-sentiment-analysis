@@ -114,6 +114,43 @@ def composeDocument(connection, document_id: int) -> Document:
 
         document.text = " ".join(all_text)
 
+        # Select expressions
+        sql = "SELECT attribute_id, text, sentiment FROM expression WHERE document_id = %s"
+        cursor.execute(sql, (document_id))
+
+        expressions = cursor.fetchall()
+        attributes = {}
+
+        for attr_id, text, sentiment in expressions:
+            if attr_id not in attributes:
+                attributes[attr_id] = []
+            attributes[attr_id].append(ExpressionEntry(text, sentiment))
+
+        entities = {}
+        for attr_id in attributes:
+            sql = "SELECT entity_id, attribute FROM attribute WHERE id = %s"
+            cursor.execute(sql, (attr_id))
+
+            attrs = cursor.fetchall()
+            for entity_id, attr_text in attrs:
+                if entity_id not in entities:
+                    entities[entity_id] = []
+
+                entities[entity_id].append(AttributeEntry(attr_text, attributes[attr_id]))
+
+        for ent_id in entities:
+            sql = "SELECT name, metadata FROM entity WHERE id = %s"
+            cursor.execute(sql, ent_id)
+
+            entity_name, metadata = cursor.fetchone()
+
+            entity_entry = EntityEntry(entity_name)
+            entity_entry.metadata = json.loads(metadata)
+            for attr_entry in entities[ent_id]:
+                entity_entry.add_attribute(attr_entry)
+
+            document.add_entity(entity_entry)
+
     return document
 
 
