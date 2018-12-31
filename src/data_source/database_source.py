@@ -108,13 +108,20 @@ def composeDocument(connection, document_id: int) -> Document:
     document = Document(identifier=document_id)
     with connection.cursor() as cursor:
         # Select metadata
-        sql = ""
+        sql = "SELECT metadata FROM document WHERE id = %s"
+        cursor.execute(sql, (document_id))
+
+        metadata = cursor.fetchone()[0]
+        document.metadata = json.loads(metadata)
 
         # Select document components
         sql = "SELECT type, text FROM component WHERE document_id = %s"
         cursor.execute(sql, (document_id))
 
         components = cursor.fetchall()
+        if not components:
+            return None
+
         all_text = []
         for type, text in components:
             document.add_component(DocumentComponent(type, text))
@@ -154,6 +161,7 @@ def composeDocument(connection, document_id: int) -> Document:
 
             entity_entry = EntityEntry(entity_name)
             entity_entry.metadata = json.loads(metadata)
+
             for attr_entry in entities[ent_id]:
                 entity_entry.add_attribute(attr_entry)
 
@@ -161,6 +169,11 @@ def composeDocument(connection, document_id: int) -> Document:
 
         cursor.close()
     return document
+
+
+def delete(connection, document_id):
+    # TODO
+    return True
 
 
 class DatabaseSource(DataSourceService):
@@ -187,6 +200,7 @@ class DatabaseSource(DataSourceService):
             for attr in ent.attributes:
                 for expr in attr.expressions:
                     expr.document_id = doc_id
+        return doc_id
 
     def lookup(self, query: Query):
         # Set up connection.
@@ -224,3 +238,7 @@ class DatabaseSource(DataSourceService):
     def setup_connection(self):
         if self.connection is None:
             self.connection = aws_database.get_connection(self.is_production)
+
+    def delete_document(self, document_id):
+        self.setup_connection()
+        return delete(self.connection, document_id)
