@@ -1,4 +1,4 @@
-from models import EntityEntry, AttributeEntry
+from models import EntityEntry, AttributeEntry, ExpressionEntry
 from preprocessor_service.text_preprocessor import TextPreprocessor
 
 
@@ -7,11 +7,9 @@ def annotate_document(doc, tags):
         entity = EntityEntry(ent)
         for attr in tags[ent]:
             exprs = []
-            sents = 0
             for expr, sent in tags[ent][attr]:
-                exprs.append(expr)
-                sents += sent
-            attribute = AttributeEntry(attr, exprs, sents)
+                exprs.append(ExpressionEntry(expr, sent))
+            attribute = AttributeEntry(attr, exprs)
             entity.add_attribute(attribute)
         doc.add_entity(entity)
 
