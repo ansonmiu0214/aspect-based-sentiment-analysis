@@ -30,6 +30,7 @@ def document_error(model_output, ground_truth):
         if matched_entity is not None:
             ent_tp += 1
             curr_tp = 0
+            curr_fp = 0
             for attr in ent.attributes:
                 matched_attribute = token_match(attr, matched_entity.attributes, "A")
 
@@ -39,12 +40,16 @@ def document_error(model_output, ground_truth):
                     for expr in attr.expressions:
                         diff = find_similar_phrase(expr, attr.expressions)
                         loss_score += diff
+                else:
+                    curr_fp += 1
 
             attr_tp += curr_tp
-            attr_fp += len(ent.attributes) - curr_tp
+            attr_fp += curr_fp
             attr_fn += len(matched_entity.attributes) - curr_tp
+        else:
+            ent_fp += 1
 
-    ent_fp += len(model_output) - ent_tp
+
     ent_fn += len(ground_truth) - ent_tp
 
     ent_precision = ent_recall = ent_f1 = 0
