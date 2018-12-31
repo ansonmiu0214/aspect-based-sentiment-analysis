@@ -47,15 +47,27 @@ def document_error(model_output, ground_truth):
     ent_fp += len(model_output) - ent_tp
     ent_fn += len(ground_truth) - ent_tp
 
-    ent_precision = ent_tp / (ent_tp + ent_fp)
-    ent_recall = ent_tp / (ent_tp + ent_fn)
+    ent_precision = ent_recall = ent_f1 = 0
 
-    ent_f1 = 2 * (ent_precision * ent_recall) / (ent_precision + ent_recall)
+    if ent_tp == ent_fp == ent_fn == 0:
+        ent_precision = ent_recall = ent_f1 = 1
+    elif ent_tp == 0:
+        ent_precision = ent_recall = ent_f1 = 0
+    else:
+        ent_precision = ent_tp / (ent_tp + ent_fp)
+        ent_recall = ent_tp / (ent_tp + ent_fn)
+        ent_f1 = 2 * (ent_precision * ent_recall) / (ent_precision + ent_recall)
 
-    attr_precison = attr_tp / (attr_tp + attr_fp)
-    attr_recall = attr_tp / (attr_tp + attr_fn)
+    attr_precision = attr_recall = attr_f1 = 0
+    if attr_tp == attr_fp == attr_fn == 0:
+        attr_precision = attr_recall = attr_f1 = 1
+    elif attr_tp == 0:
+        attr_precision = attr_recall = attr_f1 = 0
+    else:
+        attr_precison = attr_tp / (attr_tp + attr_fp)
+        attr_recall = attr_tp / (attr_tp + attr_fn)
 
-    attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
+        attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
 
     loss_score += ent_f1 + attr_f1
 
