@@ -1,4 +1,4 @@
-import newsdocument
+# import newsdocument
 import numpy as np
 import spacy
 
@@ -161,17 +161,16 @@ def sentiment_error(expr_sent, ground_sent):
 
     return 0
 
-
-if __name__ == '__main__':
-    sent_service = Vader()
-    extractor = SpacyExtractor(sent_service)
-
-    original_doc = newsdocument.get_original_doc()
-    model_output = extractor.extract(original_doc)
-
-    ground_truth = newsdocument.get_doc()
-    print("document_error(model_output, ground_truth):")
-    print("%f" % document_error(model_output.entities, ground_truth.entities))
-
-    print("document_error(ground_truth, ground_truth):")
-    print("%f" % document_error(ground_truth.entities, ground_truth.entities))
+# if __name__ == '__main__':
+#     sent_service = Vader()
+#     extractor = SpacyExtractor(sent_service)
+#
+#     original_doc = newsdocument.get_original_doc()
+#     model_output = extractor.extract(original_doc)
+#
+#     ground_truth = newsdocument.get_doc()
+#     print("document_error(model_output, ground_truth):")
+#     print("%f" % document_error(model_output.entities, ground_truth.entities))
+#
+#     print("document_error(ground_truth, ground_truth):")
+#     print("%f" % document_error(ground_truth.entities, ground_truth.entities))
