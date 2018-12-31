@@ -44,6 +44,7 @@ def insert(connection, document: Document):
                 cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id], attr.expressions)))
 
     connection.commit()
+    cursor.close()
     return doc_id
 
 
@@ -60,7 +61,9 @@ def selectAttributes(connection, entity, attribute=None):
                   "WHERE entity.name = %s AND attribute.attribute = %s"
             cursor.execute(sql, (entity, attribute))
 
-        return list(cursor.fetchall())
+        results = list(cursor.fetchall())
+        cursor.close()
+        return results
 
 
 def selectExpressions(connection, attribute_id):
@@ -69,7 +72,9 @@ def selectExpressions(connection, attribute_id):
               "FROM expression " \
               "WHERE attribute_id = %s"
         cursor.execute(sql, (attribute_id))
-        return list(cursor.fetchall())
+        results = list(cursor.fetchall())
+        cursor.close()
+        return results
         # return list(map(lambda x: x[0], cursor.fetchall()))
 
 
@@ -87,13 +92,16 @@ def reset(connection):
         cursor.execute(sql, ())
         connection.commit()
         print("All deleted.")
+        cursor.close()
 
 
 def selectDocuments(connection):
     with connection.cursor() as cursor:
         sql = "SELECT * FROM document"
         cursor.execute(sql, ())
-        return list(cursor.fetchall())
+        results = list(cursor.fetchall())
+        cursor.close()
+        return results
 
 
 def composeDocument(connection, document_id: int) -> Document:
@@ -151,6 +159,7 @@ def composeDocument(connection, document_id: int) -> Document:
 
             document.add_entity(entity_entry)
 
+        cursor.close()
     return document
 
 
