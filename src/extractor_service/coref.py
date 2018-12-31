@@ -2,7 +2,7 @@ import spacy
 
 # TODO replace with a proper pronoun check
 SUBJ_BLACKLIST = {'it', 'we'}
-
+SUBJ_POSSESSION = {'its', 'their'}
 
 class Coreferencer:
     def __init__(self):
@@ -30,7 +30,17 @@ class Coreferencer:
                 else:
                     if verbose:
                         print("*{}*".format(main_subj_token.text))
-                    processed_text.append(main_subj_token.text_with_ws)
+
+                    # Include a possession mark if originally a possessive.
+                    replacement = main_subj_text
+                    if token.text.lower() in SUBJ_POSSESSION:
+                        replacement += "'s"
+
+                    # Correct for whitespace
+                    if token.text_with_ws.endswith(' '):
+                        replacement += ' '
+
+                    processed_text.append(replacement)
             else:
                 processed_text.append(token.text_with_ws)
 

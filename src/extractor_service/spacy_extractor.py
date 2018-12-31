@@ -16,7 +16,7 @@ class SpacyExtractor(ExtractorService):
         self.sentiment_service = sentiment_service  # type: SentimentService
         self.coref = Coreferencer()
 
-    def extract(self, input_doc: Document):
+    def extract(self, input_doc: Document, verbose=False):
         ents_to_extract = {}
 
         for component in input_doc.components:
@@ -26,7 +26,7 @@ class SpacyExtractor(ExtractorService):
                 continue
 
             # Coreference preprocessing
-            paragraph = self.coref.process(paragraph, verbose=True)
+            paragraph = self.coref.process(paragraph, verbose)
 
             doc = self.nlp(paragraph)
 
@@ -40,15 +40,12 @@ class SpacyExtractor(ExtractorService):
 
             # Extract entities and add sentiments.
             for ent in filter(lambda x: x.label_ not in ENT_TO_EXTRACT_BLACKLIST and x.lemma_ != '', doc.ents):
-                if ent.lemma_ in ents_to_extract:
-                    ents_to_extract[ent.lemma_]['count'] += 1
-                    ents_to_extract[ent.lemma_]['sentiment'] += para_polar
-                else:
-                    ents_to_extract[ent.lemma_] = {'count': 1, 'sentiment': para_polar, 'attributes': {}}
+                ents_to_extract[ent.lemma_] = {}
 
             # Map indices to entities.
             for ent in filter(lambda x: x.label_ not in ENT_WITH_ATTR_BLACKLIST and x.lemma_ != '', doc.ents):
                 para_ents_with_attr[ent[0].i] = ent
+
 
             # Extract attributes and add sentiments.
             cur_entity = None
@@ -96,12 +93,11 @@ class SpacyExtractor(ExtractorService):
                 if cur_sent_polar == 0:
                     continue
 
-                ent_attributes = ents_to_extract[cur_entity.lemma_]['attributes']
+                ent_attributes = ents_to_extract[cur_entity.lemma_]
                 if attribute in ent_attributes:
-                    ent_attributes[attribute]['count'] += 1
-                    ent_attributes[attribute]['expression'].append((token.sent.text, cur_sent_polar))
+                    ent_attributes[attribute].append((token.sent.text, cur_sent_polar))
                 else:
-                    ent_attributes[attribute] = {'count': 1, 'expression': [(token.sent.text, cur_sent_polar)]}
+                    ent_attributes[attribute] = [(token.sent.text, cur_sent_polar)]
 
         input_doc = update_document(input_doc, ents_to_extract)
 
@@ -114,16 +110,14 @@ def update_document(document, ents_to_extract):
     '''
 
     for ent in ents_to_extract:
-        attrs = ents_to_extract[ent]['attributes']
+        attrs = ents_to_extract[ent]
         if len(attrs) == 0:
             continue
 
         entity_entry = EntityEntry(ent)
         for attr in set(attrs):
-            metadata = attrs[attr]
-
             expressions = []
-            for expr, sentiment in metadata['expression']:
+            for expr, sentiment in attrs[attr]:
                 expr_entry = ExpressionEntry(expression=expr, sentiment=sentiment)
                 expressions.append(expr_entry)
 
