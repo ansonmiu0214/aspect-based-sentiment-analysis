@@ -79,10 +79,7 @@ class DocumentList extends Component {
   deleteAll(event) {
     this.setState({ loading: true })
     axios.delete("/test/documents")
-      .then(_ => {
-        this.setState({ loading: false })
-        this.updateDocuments()
-      })
+      .then(_ => this.updateDocuments())
       .catch(error => {
         this.setState({ loading: false })
         console.error(error)
