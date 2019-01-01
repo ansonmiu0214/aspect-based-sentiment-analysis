@@ -32,7 +32,6 @@ class TestAdder extends Component {
         'Content-Type': 'multipart/form-data'
       }
     }).then(({ data }) => {
-      this.props.toggleLoading()
       console.log(data)
       this.props.requestDocument(data.documentId)
     }).catch(error => {
@@ -117,7 +116,7 @@ class DocumentAdder extends Component {
     axios.get(`/test/document?id=${documentId}`)
       .then(response => {
         console.log(response)
-        this.setState({ document: response.data })
+        this.setState({ document: response.data, loading: false })
       })
       .catch(error => {
         console.error(error)
@@ -132,11 +131,11 @@ class DocumentAdder extends Component {
       {loading && <Loader />}
       {!loading && 
         <Grid container direction="row" justify="center" spacing={24}>
-          <Grid style={{ padding: "0 5% 0 5%" }} item xs={4}>
+          <Grid style={{ padding: "0 5% 10% 5%" }} item xs={4}>
             <TestAdder toggleLoading={this.toggleLoading} requestDocument={this.requestDocument} />
           </Grid>
-          <Grid style={{ padding: "0 5% 0 5%" }} item xs={8}>
-            {(document !== null) && <Document document={document} />}
+          <Grid style={{ padding: "0 5% 10% 5%" }} item xs={8}>
+            {(document !== null) && <Document document={document} notModal/>}
           </Grid>
         </Grid>
       }

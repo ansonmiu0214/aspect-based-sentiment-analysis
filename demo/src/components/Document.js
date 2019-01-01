@@ -7,32 +7,19 @@ import DocumentBody from './DocumentBody'
 import TagTable from './TagTable'
 import { withStyles } from '@material-ui/core';
 
-const styles = theme => ({
-  root: {
-    width: '100%',
-    // marginTop: theme.spacing.unit * 3,
-    marginTop: '20px',
-    overflowX: 'auto',
-  },
-  table: {
-    minWidth: 700,
-  },
-})
-
 class Document extends Component {
 
   constructor(props) {
     super(props)
+    this.notModal = 'notModal' in props
   }
 
   render() {
-    const { classes, document } = this.props
-    const { id, components, entities, metadata } = document
-    console.log(metadata)
-    const { date, headline, title } = metadata
+    const { document } = this.props
+    const { id, entities } = document
     
     return (
-      <Card key={id} style={{maxHeight: '50vh', overflowY: 'auto'}}>
+      <Card key={id} style={this.notModal ? {} : {maxHeight: '50vh', overflowY: 'auto'}}>
         <CardContent>
           <DocumentBody document={document} />
           <Divider />
@@ -43,4 +30,4 @@ class Document extends Component {
   }
 }
 
-export default withStyles(styles)(Document)
+export default Document

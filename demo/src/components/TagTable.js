@@ -51,7 +51,7 @@ class TagTable extends Component {
                       <TableCell>{entity}</TableCell>
                       <TableCell>{attribute}</TableCell>
                       <TableCell>{expression}</TableCell>
-                      <TableCell>{sentiment}</TableCell>
+                      <TableCell align="right">{sentiment}</TableCell>
                     </TableRow>
                   )
                 })
