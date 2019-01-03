@@ -44,7 +44,7 @@ class TagTable extends Component {
                   const threeLength = expressions.length
                   const twoLength = attributes.length + threeLength
                   const oneLength = entities.length + twoLength
-                  const idx = idOne * oneLength + idTwo * twoLength + idThree * this.UNSAFE_componentWillMount
+                  const idx = idOne * oneLength + idTwo * twoLength + idThree * threeLength
                   
                   return (
                     <TableRow key={idx}>
