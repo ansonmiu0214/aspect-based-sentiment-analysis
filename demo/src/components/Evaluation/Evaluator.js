@@ -22,6 +22,12 @@ const panelStyle = theme => ({
     flexShrink: 0,
     color: theme.palette.text.secondary,
   },
+  numberHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    flexBasis: '20%',
+    flexShrink: 0,
+    color: theme.palette.text.secondary,
+  }
 });
 
 function LabelledTagTable(props) {
@@ -44,14 +50,14 @@ class Entry extends Component {
 
   render() {
     const { breakdown, handleChange, expanded, classes, dp } = this.props
-    const { id, score, model, truth } = breakdown
+    const { id, score, ent_f1, attr_f1, model, truth } = breakdown
     return (
       <ExpansionPanel expanded={expanded === id} onChange={handleChange(id)}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Typography className={classes.heading}>Document #{id}</Typography>
           <Typography className={classes.secondaryHeading}>Total F1 Score: {Number(score).toFixed(dp)}</Typography>
-          <Typography className={classes.secondaryHeading}>Entity F1 Score: #TODO</Typography>
-          <Typography className={classes.secondaryHeading}>Attribute F1 Score: #TODO</Typography>
+          <Typography className={classes.numberHeading}>Entity F1 Score: {Number(ent_f1).toFixed(dp)}</Typography>
+          <Typography className={classes.numberHeading}>Attribute F1 Score: {Number(attr_f1).toFixed(dp)}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Grid container spacing={24}>
