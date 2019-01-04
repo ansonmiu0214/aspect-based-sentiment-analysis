@@ -7,9 +7,17 @@ import Grid from "@material-ui/core/Grid";
 import Heading from "../Heading";
 
 class ProductionInterface extends Component {
+  constructor(props) {
+    super(props);
+    this.updateResults = this.updateResults.bind(this);
+  }
 
   state = {
-    results: { entity: null, score: null, entries: [] },
+    results: { entity: null, score: null, entries: [] }
+  };
+
+  updateResults(results) {
+    this.setState({ results });
   }
 
   render() {
@@ -25,9 +33,8 @@ class ProductionInterface extends Component {
           </Grid>
         </Grid>
       </div>
-    ); 
+    );
   }
-
 }
 
-export default ProductionInterface
+export default ProductionInterface;

@@ -18,13 +18,9 @@ function Results(props) {
           {results.entity ? (results.score ? results.score : "?") : ""}
         </Typography>
       </div>
-      {results.entries.map((e, i) => (
-        <div key={i}>
-          <Entry
-            attribute={e.attribute}
-            expression={e.expression}
-            sentiment={e.sentiment}
-          />
+      {results.entries.map(e => (
+        <div key={e.attribute}>
+          <Entry attribute={e.attribute} score={e.score} entries={e.entries} />
           <br />
         </div>
       ))}
@@ -37,8 +33,13 @@ function Entry(props) {
     <Card style={{ textAlign: "left" }}>
       <CardContent>
         <Typography variant="h5">{props.attribute}</Typography>
-        <Typography>Sentiment: {props.sentiment}</Typography>
-        <Typography>{props.expression}</Typography>
+        <Typography>Score: {props.score}</Typography>
+        {props.entries.map(e => (
+          <Typography key={e.expression}>
+            "{e.expression}
+            ", ({e.sentiment}){" "}
+          </Typography>
+        ))}
       </CardContent>
     </Card>
   );

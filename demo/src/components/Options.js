@@ -22,7 +22,7 @@ class ABSALoad extends Component {
     let formData = new FormData();
     formData.append("file", this.fileInput.current.files[0]);
     axios
-      .post("/absa/load", formData, {
+      .post("http://localhost:5000/absa/load", formData, {
         headers: {
           "Content-Type": "multipart/form-data"
         }
@@ -97,7 +97,9 @@ class ABSAQuery extends Component {
     }
     const attribute = this.state.attribute;
     axios
-      .get("/absa/query", { params: { entity, attribute } })
+      .get("http://localhost:5000/absa/query", {
+        params: { entity, attribute }
+      })
       .then(r => this.props.updateResults({ entity, attribute, ...r.data }))
       .catch(e => console.log(e));
   }
