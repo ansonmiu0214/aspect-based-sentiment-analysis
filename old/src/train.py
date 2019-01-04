@@ -37,13 +37,34 @@ TRAIN_DATA = [
     })
 ]
 
+TRAIN_DATA = [
+    ('The economy of Mexico is back on track', {
+        'heads': [0, 3, 0, 3, 0, 0, 0, 0],  # index of token head
+        'deps': ['-', 'ATTRIBUTE', '-', 'ENTITY', '-', '-', '-', '-']
+    }),
+    ('Argentina stocks closed at record high with interest rates at 19 month lows', {
+        'heads': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        'deps': ['ENTITY', 'ATTRIBUTE', '-', '-', '-', '-', '-', 'ATTRIBUTE', 'ATTRIBUTE', '-', '-', '-', '-']
+    }),
+    ('The company Chrysler is having record high profits over last year', {
+        'heads': [0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0],
+        'deps': ['-', '-', 'ENTITY', '-', '-', '-', '-', 'ATTRIBUTE', '-', '-', '-']
+    }),
+    ('Mexico has a bright future for their economy', {
+        'heads': [0, 0, 0, 0, 0, 0, 0, 0],
+        'deps': ['ENTITY', '-', '-', '-', '-', '-', '-', 'ATTRIBUTE']
+    })
+]
+
 
 def create_training_data():
-    file = open(sys.argv[1])
-    json_text = json.load(file)
-
     train_data = []
-    train_data.append((json_text["text"], {'heads': json_text["heads"], 'deps': json_text["deps"]}))
+
+    _, *args = sys.argv
+    for arg in args:
+        file = open(arg)
+        json_text = json.load(file)
+        train_data.append((json_text["text"], {'heads': json_text["heads"], 'deps': json_text["deps"]}))
 
     return train_data
 
@@ -95,8 +116,8 @@ def test_model(model):
 
 
 def start_training(model=None, output=None, epoch=15):
-    # train_data = create_training_data_sentence()
-    train_data = create_training_data()
+    train_data = TRAIN_DATA
+    # train_data = create_training_data()
     print(train_data)
 
     # Loading or create an empty model.
@@ -147,5 +168,7 @@ def test_model(nlp, text):
 
 if __name__ == '__main__':
     model = start_training()
-    doc = model(u'The food is bad but the service is good')
-    print([t.tag_ for t in doc])
+
+    print("Enter sentence: ", end="")
+    doc = model(input().strip())
+    print([(t.text, t.dep_, t.head.text) for t in doc if t.dep_ != '-'])

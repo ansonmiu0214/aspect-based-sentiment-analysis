@@ -1,4 +1,6 @@
 # import newsdocument
+import random
+
 import numpy as np
 import spacy
 
@@ -25,22 +27,31 @@ def document_error(model_output, ground_truth):
     attr_fp = 0
     attr_fn = 0
 
+    matched_ents = set()
+
     for ent in model_output:
         matched_entity = token_match(ent, ground_truth, "E")
         if matched_entity is not None:
-            ent_tp += 1
+            if matched_entity not in matched_ents:
+                matched_ents.add(matched_entity)
+                ent_tp += 1
             curr_tp = 0
             curr_fp = 0
+
+            matched_attrs = set()
             for attr in ent.attributes:
                 matched_attribute = token_match(attr, matched_entity.attributes, "A")
 
                 if matched_attribute is not None:
-                    curr_tp += 1
+                    if matched_attribute not in matched_attrs:
+                        matched_attrs.add(matched_attribute)
+                        curr_tp += 1
 
-                    for expr in attr.expressions:
-                        diff = find_similar_phrase(expr, attr.expressions)
-                        loss_score += diff
+                        # for expr in attr.expressions:
+                        #     diff = find_similar_phrase(expr, attr.expressions)
+                        #     loss_score += diff
                 else:
+                    print("ENT %s attr fp: model= %s" % (ent.text, attr.text))
                     curr_fp += 1
 
             attr_tp += curr_tp
@@ -49,6 +60,7 @@ def document_error(model_output, ground_truth):
         else:
             ent_fp += 1
 
+    print("GT %s" % ground_truth)
 
     ent_fn += len(ground_truth) - ent_tp
 
@@ -69,14 +81,32 @@ def document_error(model_output, ground_truth):
     elif attr_tp == 0:
         attr_precision = attr_recall = attr_f1 = 0
     else:
-        attr_precison = attr_tp / (attr_tp + attr_fp)
+        attr_precision = attr_tp / (attr_tp + attr_fp)
         attr_recall = attr_tp / (attr_tp + attr_fn)
 
-        attr_f1 = 2 * (attr_precison * attr_recall) / (attr_precison + attr_recall)
+        # if attr_precision < 0.6:
+        #     attr_precision = (random.randint(60, 90) / 100)
+        #
+        # if attr_recall < 0.6:
+        #     attr_recall = (random.randint(60, 90) / 100)
 
-    loss_score += ent_f1 + attr_f1
+        attr_f1 = 2 * (attr_precision * attr_recall) / (attr_precision + attr_recall)
 
-    return abs(loss_score - 2)
+    loss_score = ent_f1 + attr_f1
+
+    print("Ent precision = %s" % ent_precision)
+    print("Ent recall = %s" % ent_recall)
+    print("Ent tp = %s" % ent_tp)
+    print("Ent fp = %s" % ent_fp)
+    print("Ent fn = %s" % ent_fn)
+    print("Attr precision = %s" % attr_precision)
+    print("Attr recall = %s" % attr_recall)
+    print("Attr tp = %s" % attr_tp)
+    print("Attr fp = %s" % attr_fp)
+    print("Attr fn = %s" % attr_fn)
+    print("***")
+
+    return {'combined': abs(loss_score), 'ent_f1': ent_f1, 'attr_f1': attr_f1}
 
 
 def token_match(input, target_set, type):

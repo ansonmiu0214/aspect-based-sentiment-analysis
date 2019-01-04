@@ -97,7 +97,8 @@ class EntityEntry(HasMetadata, HasText):
         self.attributes.append(attribute)
 
     def __repr__(self):
-        return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
+        return self.text
+        # return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
 
     def as_dict(self):
         entity_dict = {}
@@ -190,7 +191,7 @@ class ExtractorService(abc.ABC):
         Annotates the Document object with the extractedEntityEntry objects.
         Returns the annotated Document.
 
-        :param doc:
+        :param doc: Document
         :rtype: Document
         '''
         pass

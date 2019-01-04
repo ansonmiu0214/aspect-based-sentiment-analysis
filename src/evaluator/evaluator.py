@@ -97,12 +97,14 @@ class Evaluator:
             doc.entities = []
             doc = self.extractor.extract(doc)
 
-            score = document_error(model_output=doc.entities, ground_truth=ground_truth)
+            scores = document_error(model_output=doc.entities, ground_truth=ground_truth)
+            score = scores['combined']
 
             model_entities = list(map(lambda ent: ent.as_dict(), doc.entities))
             truth_entities = list(map(lambda ent: ent.as_dict(), ground_truth))
 
-            id_to_score.append({'id': id, 'score': score, 'model': model_entities, 'truth': truth_entities})
+            id_to_score.append({'id': id, 'score': score, 'ent_f1': scores['ent_f1'], 'attr_f1': scores['attr_f1'],
+                                'model': model_entities, 'truth': truth_entities})
             total_score += score
 
         avg_score = total_score / doc_count

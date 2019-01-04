@@ -53,6 +53,8 @@ class TextPreprocessor(PreprocessorService):
         content = self.concat_elements(root, './text/p')
         document.add_component(DocumentComponent('content', content))
 
+        document.add_component(DocumentComponent('title', self.concat_elements(root, './title')))
+
         document.add_metadata('title', self.concat_elements(root, './title'))
         document.add_metadata('headline', self.concat_elements(root, './headline'))
         document.add_metadata('date', root.attrib['date'])
