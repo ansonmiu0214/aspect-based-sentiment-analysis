@@ -15,7 +15,11 @@ function Results(props) {
         </Typography>
         <Typography variant="h3" gutterBottom>
           {scoreTitle}
-          {results.entity ? (results.score ? results.score : "?") : ""}
+          {results.entity
+            ? results.score
+              ? results.score.toFixed(4)
+              : "?"
+            : ""}
         </Typography>
       </div>
       {results.entries.map(e => (
@@ -33,11 +37,11 @@ function Entry(props) {
     <Card style={{ textAlign: "left" }}>
       <CardContent>
         <Typography variant="h5">{props.attribute}</Typography>
-        <Typography>Score: {props.score}</Typography>
-        {props.entries.map(e => (
-          <Typography key={e.expression}>
+        <Typography>Score: {props.score.toFixed(4)}</Typography>
+        {props.entries.map((e, i) => (
+          <Typography key={i}>
             "{e.expression}
-            ", ({e.sentiment}){" "}
+            ", ({e.sentiment.toFixed(4)})
           </Typography>
         ))}
       </CardContent>

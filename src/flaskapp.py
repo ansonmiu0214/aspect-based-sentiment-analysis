@@ -32,7 +32,7 @@ def jsonify_entry(entry):
     return {
         'attribute': entry.text,
         'entries': list(map(lambda e: {'expression': str(e.text), 'sentiment': e.sentiment}, entry.expressions)),
-        'score': sum(map(lambda e: e.sentiment, entry.expressions))
+        'score': sum(map(lambda e: e.sentiment, entry.expressions)) / len(entry.expressions)
     }
 
 
