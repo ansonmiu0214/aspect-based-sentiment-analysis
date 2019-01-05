@@ -110,14 +110,15 @@ class ExpressionEntry(HasMetadata, HasText):
     Sentiment values can be optionally added (depending on the approach).
     '''
 
-    def __init__(self, expression, sentiment=None, document_id=None):
+    def __init__(self, expression, sentiment=None, document_id=None, is_header=None):
         HasMetadata.__init__(self)
         HasText.__init__(self, expression)
         self.sentiment = sentiment
         self.document_id = document_id
+        self.is_header = is_header
 
     def __repr__(self):
-        return '("{}", {})'.format(self.text, self.sentiment)
+        return '("{}", {}, {})'.format(self.text, self.sentiment, self.is_header)
 
 
 class Query:
@@ -149,7 +150,7 @@ class PreprocessorService(abc.ABC):
 
 class ExtractorService(abc.ABC):
     @abc.abstractmethod
-    def extract(self, doc: Document, verbose: bool) -> Document:
+    def extract(self, doc, verbose: bool) -> Document:
         '''
         Extracts the entity/attribute pairs from the Document object.
         Performs sentiment analysis using the embedded service.

@@ -40,8 +40,9 @@ def insert(connection, document: Document):
                 attr_id = cursor.fetchone()[0]
 
                 # Expressions.
-                sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id) VALUES (%s, %s, %s, %s)"
-                cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id], attr.expressions)))
+                sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id, is_header) VALUES (%s, %s, %s, %s, %s)"
+                cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id, x.is_header],
+                                                 attr.expressions)))
 
     connection.commit()
     return doc_id
@@ -65,7 +66,7 @@ def selectAttributes(connection, entity, attribute=None):
 
 def selectExpressions(connection, attribute_id):
     with connection.cursor() as cursor:
-        sql = "SELECT text, sentiment, document_id as doc_id " \
+        sql = "SELECT text, sentiment, document_id, is_header as doc_id " \
               "FROM expression " \
               "WHERE attribute_id = %s"
         cursor.execute(sql, (attribute_id))
@@ -115,7 +116,6 @@ class DatabaseSource(DataSourceService):
                 for expr in attr.expressions:
                     expr.document_id = doc_id
 
-
     def lookup(self, query: Query):
         # Set up connection.
         if self.connection is None:
@@ -127,7 +127,7 @@ class DatabaseSource(DataSourceService):
 
         for (id, name, metadata) in rows:
             expressions = selectExpressions(self.connection, id)
-            exprs = [ExpressionEntry(text, sentiment, doc_id) for text, sentiment, doc_id in expressions]
+            exprs = [ExpressionEntry(text, sentiment, doc_id, is_header) for text, sentiment, doc_id, is_header in expressions]
             attr = AttributeEntry(name, exprs)
             attr.metadata = json.loads(metadata)
             attrs.append(attr)
