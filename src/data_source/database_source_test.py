@@ -12,13 +12,14 @@ def insert_test(db_source):
     doc.add_component(comp2)
 
     ent1 = EntityEntry('ent 1 name')
-    attr1 = AttributeEntry('attr1', [ExpressionEntry('attr expr 1'), ExpressionEntry('attr expr 1.2')])
+    attr1 = AttributeEntry('attr1', [ExpressionEntry('attr expr 1', is_header=False),
+                                     ExpressionEntry('attr expr 1.2', is_header=False)])
     attr1.add_metadata('key1', 'value1')
     attr1.add_metadata('key2', 'value2')
     ent1.add_attribute(attr1)
-    ent1.add_attribute(AttributeEntry('attr2', [ExpressionEntry('attr expr 2', 0.5)]))
+    ent1.add_attribute(AttributeEntry('attr2', [ExpressionEntry('attr expr 2', sentiment=0.5, is_header=True)]))
     ent2 = EntityEntry('ent 2 name')
-    ent1.add_attribute(AttributeEntry('attr1', [ExpressionEntry('attr expr 3', 0.75)]))
+    ent1.add_attribute(AttributeEntry('attr1', [ExpressionEntry('attr expr 3', sentiment=0.75, is_header=False)]))
     doc.add_entity(ent1)
     doc.add_entity(ent2)
 
@@ -52,5 +53,5 @@ def reset_database(db_source):
 
 db_source = DatabaseSource(is_production=False)
 reset_database(db_source)
-# insert_test(db_source)
-# select_test(db_source)
+insert_test(db_source)
+select_test(db_source)
