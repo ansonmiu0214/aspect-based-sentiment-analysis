@@ -4,13 +4,13 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core';
+import { withStyles, Grid } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios'
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep'
-import Heading from '../Heading'
-import Loader from '../Loader'
-import DocumentModal from '../DocumentModal';
+import Heading from './Heading'
+import Loader from './Loader'
+import DocumentModal from './DocumentModal';
 
 const styles = theme => ({
   title: {
@@ -47,7 +47,7 @@ class DocumentList extends Component {
   }
 
   updateDocuments() {
-    axios.get("/test/documents")
+    axios.get(this.props.apiAll)
     .then(({ data }) => {
       this.setState({ loading: false })
       this.handleDocuments(data)
@@ -63,7 +63,7 @@ class DocumentList extends Component {
   }
 
   showDocument(event, documentId) {
-    axios.get(`/test/document?id=${documentId}`)
+    axios.get(`${this.props.apiOne}?id=${documentId}`)
       .then(({ data }) => {
         this.setState({ showDocument: data })
       })
@@ -78,7 +78,7 @@ class DocumentList extends Component {
 
   deleteAll(event) {
     this.setState({ loading: true })
-    axios.delete("/test/documents")
+    axios.delete(this.props.apiAll)
       .then(_ => this.updateDocuments())
       .catch(error => {
         this.setState({ loading: false })
@@ -91,33 +91,35 @@ class DocumentList extends Component {
     const { documents, loading, showDocument } = this.state
     return (
       <>
-      <Heading text="Test Set Documents" />
+      <Heading text={this.props.heading} />
       {loading && <Loader classes={this.classes} />}
       {!loading && 
-        <div>
+        <Grid container spacing={24}>
           {documents.map(element => {
             const { id, metadata } = element
             const { date, title, headline } = metadata
             return (
-              <Card key={id}>
-                <CardContent>
-                <Typography className={classes.title} color="textSecondary" gutterBottom>
-                  {date}
-                </Typography>
-                <Typography variant="h5" component="h2">
-                  {title}
-                </Typography>
-                {/* <Typography className={classes.pos} color="textSecondary">
-                  {Object.keys(others).map(key => `${key}: ${others[key]}`).join('<br />')}
-                </Typography> */}
-                <Typography component="p">
-                  {headline}
-                </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" onClick={event => this.showDocument(event, id)}>Preview</Button>
-                </CardActions>
-              </Card>
+              <Grid item xs={12} lg={6}>
+                <Card key={id}>
+                  <CardContent>
+                  <Typography className={classes.title} color="textSecondary" gutterBottom>
+                    {date}
+                  </Typography>
+                  <Typography variant="h5" component="h2">
+                    {title}
+                  </Typography>
+                  {/* <Typography className={classes.pos} color="textSecondary">
+                    {Object.keys(others).map(key => `${key}: ${others[key]}`).join('<br />')}
+                  </Typography> */}
+                  <Typography component="p">
+                    {headline}
+                  </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button size="small" onClick={event => this.showDocument(event, id)}>Preview</Button>
+                  </CardActions>
+                </Card>
+              </Grid> 
             )
           })}
           {
@@ -126,7 +128,7 @@ class DocumentList extends Component {
           <Button variant="fab" color="secondary" aria-label="Add" className={classes.fab} onClick={this.deleteAll}>
             <DeleteSweepIcon />
           </Button>
-        </div>
+        </Grid>
       }
       </>
     )

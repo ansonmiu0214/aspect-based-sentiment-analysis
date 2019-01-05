@@ -18,7 +18,10 @@ class TextPreprocessor(PreprocessorService):
         except AttributeError:
             return doc.name
 
-    def preprocess(self, doc):
+    def preprocess(self, doc, ext):
+        if ext == 'xml':
+            return self.preprocess_xml_text(doc)
+
         document = Document()
 
         if isinstance(doc, str):
@@ -52,8 +55,6 @@ class TextPreprocessor(PreprocessorService):
 
         content = self.concat_elements(root, './text/p')
         document.add_component(DocumentComponent('content', content))
-
-        document.add_component(DocumentComponent('title', self.concat_elements(root, './title')))
 
         document.add_metadata('title', self.concat_elements(root, './title'))
         document.add_metadata('headline', self.concat_elements(root, './headline'))

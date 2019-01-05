@@ -16,12 +16,12 @@ const panelStyle = theme => ({
     flexBasis: '33.33%',
     flexShrink: 0,
   },
-  secondaryHeading: {
-    fontSize: theme.typography.pxToRem(15),
-    flexBasis: '10%',
-    flexShrink: 0,
-    color: theme.palette.text.secondary,
-  },
+  // secondaryHeading: {
+  //   fontSize: theme.typography.pxToRem(15),
+  //   flexBasis: '10%',
+  //   flexShrink: 0,
+  //   color: theme.palette.text.secondary,
+  // },
   numberHeading: {
     fontSize: theme.typography.pxToRem(15),
     flexBasis: '20%',
@@ -32,12 +32,13 @@ const panelStyle = theme => ({
 
 function LabelledTagTable(props) {
   const { title, entities } = props
+  const tp = 'tp' in props ? props.tp : {}
   return (
     <>
-      <Typography variant="h5" component="h5" gutterBottom>
+      <Typography style={{textAlign: 'center'}} variant="h5" component="h5" gutterBottom>
         {title}
       </Typography>
-      <TagTable entities={entities}/>
+      <TagTable entities={entities} tp={tp} />
     </>
   )
 }
@@ -50,19 +51,20 @@ class Entry extends Component {
 
   render() {
     const { breakdown, handleChange, expanded, classes, dp } = this.props
-    const { id, score, ent_f1, attr_f1, model, truth } = breakdown
+    const { id, score, ent_f1, attr_f1, model, truth, tp } = breakdown
+    console.log(Object.keys(tp))
     return (
       <ExpansionPanel expanded={expanded === id} onChange={handleChange(id)}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Typography className={classes.heading}>Document #{id}</Typography>
-          <Typography className={classes.secondaryHeading}>Total F1 Score: {Number(score).toFixed(dp)}</Typography>
-          <Typography className={classes.numberHeading}>Entity F1 Score: {Number(ent_f1).toFixed(dp)}</Typography>
-          <Typography className={classes.numberHeading}>Attribute F1 Score: {Number(attr_f1).toFixed(dp)}</Typography>
+          <Typography className={classes.numberHeading}>Combined F-Score: {Number(score).toFixed(dp)}</Typography>
+          <Typography className={classes.numberHeading}>Entity F-Score: {Number(ent_f1).toFixed(dp)}</Typography>
+          <Typography className={classes.numberHeading}>Attribute F-Score: {Number(attr_f1).toFixed(dp)}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Grid container spacing={24}>
             <Grid item xs={12} lg={6}>
-              <LabelledTagTable title="Model Output" entities={model} />
+              <LabelledTagTable title="Model Output" entities={model} tp={tp} />
             </Grid>
             <Grid item xs={12} lg={6}>
               <LabelledTagTable title="Ground Truth" entities={truth} />
@@ -108,22 +110,43 @@ class Breakdown extends Component {
 }
 
 class Scores extends Component {
-  
-  constructor(props) {
-    super(props)
-  }
 
   render() {
-    const { result, dp } = this.props
+    const { result, ent_f1, attr_f1, dp } = this.props
     return (
-      <Paper style={{padding: '20px', marginBottom: '40px'}}>
-        <Typography color="textSecondary" gutterBottom>
-          Average F1 Score
-        </Typography>
-        <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
-          {Number(result).toFixed(dp)}
-        </Typography>
-      </Paper>
+      <Grid container spacing={24}>
+        <Grid item lg={4}>
+          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
+            <Typography color="textSecondary" gutterBottom>
+              Average Combined F-Score
+            </Typography>
+            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
+              {Number(result).toFixed(dp)}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item lg={4}>
+          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
+            <Typography color="textSecondary" gutterBottom>
+              Average Entity F-Score
+            </Typography>
+            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
+              {Number(ent_f1).toFixed(dp)}
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item lg={4}>
+          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
+            <Typography color="textSecondary" gutterBottom>
+              Average Attribute F-Score
+            </Typography>
+            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
+              {Number(attr_f1).toFixed(dp)}
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+
     )
   }
 }
@@ -144,21 +167,22 @@ class Evaluator extends Component {
   componentWillMount() {
     axios.get('/test')
       .then(({ data }) => {
-        const { result, breakdown } = data
-        this.setState({ loading: false, result: result, breakdown: breakdown })
+        console.log(data)
+        const { result, ent_f1, attr_f1, breakdown } = data
+        this.setState({ loading: false, result: result, ent_f1: ent_f1, attr_f1: attr_f1, breakdown: breakdown })
       })
   }
 
   render() {
     const dp = this.dp
-    const { result, breakdown, loading } = this.state
+    const { result, ent_f1, attr_f1, breakdown, loading } = this.state
     return (
       <>
       <Heading text="Model Evaluation" />
       {loading && <Loader />}
       {!loading && 
         <>
-        <Scores result={result} dp={dp}/>
+        <Scores result={result} ent_f1={ent_f1} attr_f1={attr_f1} dp={dp}/>
         <Breakdown breakdownList={breakdown} dp={dp}/>
         </>
       }

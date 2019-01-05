@@ -19,7 +19,7 @@ class Document extends Component {
     const { id, entities } = document
     
     return (
-      <Card key={id} style={this.notModal ? {} : {maxHeight: '50vh', overflowY: 'auto'}}>
+      <Card key={id} style={this.notModal ? {} : {maxHeight: '80vh', overflowY: 'auto'}}>
         <CardContent>
           <DocumentBody document={document} />
           <Divider />

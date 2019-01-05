@@ -4,6 +4,7 @@ from collections import deque
 from extractor_service.coref import Coreferencer
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
     DocumentComponent
+from sentiment_service.vader import Vader
 
 MODEL = 'en_core_web_sm'
 ENT_WITH_ATTR_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
@@ -49,7 +50,6 @@ class SpacyExtractor(ExtractorService):
             # Map indices to entities.
             for ent in filter(lambda x: x.label_ not in ENT_WITH_ATTR_BLACKLIST and x.lemma_ != '', doc.ents):
                 para_ents_with_attr[ent[0].i] = ent
-
 
             # Extract attributes and add sentiments.
             cur_entity = None
@@ -142,7 +142,6 @@ def is_valid_attribute_token(token):
     # Skip if not noun.
     if token.pos_ != 'NOUN':
         return False
-
     # Skip nouns like 'who'.
     if token.tag_ == 'WP':
         return False

@@ -96,12 +96,20 @@ class ABSAQuery extends Component {
       return;
     }
     const attribute = this.state.attribute;
+
+    this.props.setLoading(true)
     axios
-      .get("http://localhost:5000/absa/query", {
+      .get("/absa/query", {
         params: { entity, attribute }
       })
-      .then(r => this.props.updateResults({ entity, attribute, ...r.data }))
-      .catch(e => console.log(e));
+      .then(r => {
+        this.props.setLoading(false)
+        this.props.updateResults({ entity, attribute, ...r.data })
+      })
+      .catch(e => {
+        this.props.setLoading(false)
+        console.log(e)
+      });
   }
 
   handleKeyPress(e) {
@@ -154,13 +162,14 @@ class ABSAQuery extends Component {
 class Options extends Component {
   render() {
     return (
-      <div>
-        <ABSALoad />
-        <br />
-        <Divider />
-        <br />
-        <ABSAQuery updateResults={this.props.updateResults} />
-      </div>
+      <ABSAQuery setLoading={this.props.setLoading} updateResults={this.props.updateResults} />
+      // <div>
+      //   <ABSALoad />
+      //   <br />
+      //   <Divider />
+      //   <br />
+      //   <ABSAQuery updateResults={this.props.updateResults} />
+      // </div>
     );
   }
 }

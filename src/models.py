@@ -172,11 +172,12 @@ class Query:
 
 class PreprocessorService(abc.ABC):
     @abc.abstractmethod
-    def preprocess(self, doc):
+    def preprocess(self, document_string, extension):
         '''
         Given a document (of any kind), adapts it to a Document object.
 
-        :param doc:
+        :param document_string:
+        :param extension
         :rtype: Document
         '''
         pass

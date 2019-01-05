@@ -27,14 +27,20 @@ def document_error(model_output, ground_truth):
     attr_fp = 0
     attr_fn = 0
 
+    tp_dict = {}
+
     matched_ents = set()
 
     for ent in model_output:
         matched_entity = token_match(ent, ground_truth, "E")
         if matched_entity is not None:
-            if matched_entity not in matched_ents:
-                matched_ents.add(matched_entity)
+            if matched_entity.text not in tp_dict:
+                tp_dict[matched_entity.text] = {}
                 ent_tp += 1
+
+            # if matched_entity not in matched_ents:
+            #     matched_ents.add(matched_entity)
+            #     ent_tp += 1
             curr_tp = 0
             curr_fp = 0
 
@@ -43,9 +49,13 @@ def document_error(model_output, ground_truth):
                 matched_attribute = token_match(attr, matched_entity.attributes, "A")
 
                 if matched_attribute is not None:
-                    if matched_attribute not in matched_attrs:
-                        matched_attrs.add(matched_attribute)
+                    if matched_attribute.text not in tp_dict[matched_entity.text]:
+                        tp_dict[matched_entity.text][matched_attribute.text] = True
                         curr_tp += 1
+
+                        # if matched_attribute not in matched_attrs:
+                        #     matched_attrs.add(matched_attribute)
+                        #     curr_tp += 1
 
                         # for expr in attr.expressions:
                         #     diff = find_similar_phrase(expr, attr.expressions)
@@ -84,29 +94,29 @@ def document_error(model_output, ground_truth):
         attr_precision = attr_tp / (attr_tp + attr_fp)
         attr_recall = attr_tp / (attr_tp + attr_fn)
 
-        # if attr_precision < 0.6:
-        #     attr_precision = (random.randint(60, 90) / 100)
-        #
-        # if attr_recall < 0.6:
-        #     attr_recall = (random.randint(60, 90) / 100)
-
         attr_f1 = 2 * (attr_precision * attr_recall) / (attr_precision + attr_recall)
 
     loss_score = ent_f1 + attr_f1
 
-    print("Ent precision = %s" % ent_precision)
-    print("Ent recall = %s" % ent_recall)
-    print("Ent tp = %s" % ent_tp)
-    print("Ent fp = %s" % ent_fp)
-    print("Ent fn = %s" % ent_fn)
-    print("Attr precision = %s" % attr_precision)
-    print("Attr recall = %s" % attr_recall)
-    print("Attr tp = %s" % attr_tp)
-    print("Attr fp = %s" % attr_fp)
-    print("Attr fn = %s" % attr_fn)
-    print("***")
+    # print("Ent precision = %s" % ent_precision)
+    # print("Ent recall = %s" % ent_recall)
+    # print("Ent tp = %s" % ent_tp)
+    # print("Ent fp = %s" % ent_fp)
+    # print("Ent fn = %s" % ent_fn)
+    # print("Attr precision = %s" % attr_precision)
+    # print("Attr recall = %s" % attr_recall)
+    # print("Attr tp = %s" % attr_tp)
+    # print("Attr fp = %s" % attr_fp)
+    # print("Attr fn = %s" % attr_fn)
+    # print("***")
 
-    return {'combined': abs(loss_score), 'ent_f1': ent_f1, 'attr_f1': attr_f1}
+    return {'score': abs(loss_score),
+            'ent_f1': ent_f1,
+            'attr_f1': attr_f1,
+            'ent_precision': ent_precision,
+            'ent_recall': ent_recall,
+            'tp': tp_dict
+            }
 
 
 def token_match(input, target_set, type):
