@@ -65,8 +65,9 @@ class ABSA:
         if count == 0:
             return None, []
 
-        sentiments = [expr.sentiment for entry in relevant_entries for expr in entry.expressions]
-        score = self.aggregator_service.aggregate_sentiment(sentiments)
+        aggregateData = [{'sentiment': expr.sentiment, 'is_header': expr.is_header}
+                         for entry in relevant_entries for expr in entry.expressions]
+        score = self.aggregator_service.aggregate_sentiment(aggregateData)
         if verbose:
             print("Sentiment scores aggregated.")
 

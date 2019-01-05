@@ -7,45 +7,66 @@ from models import ExtractorService, SentimentService, Document, EntityEntry, At
 from sentiment_service.vader import Vader
 
 MODEL = 'en_core_web_sm'
-ENT_WITH_ATTR_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
-ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
+ENT_WITH_ATTR_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL',
+                           'PRODUCT'}
+ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL',
+                            'PRODUCT'}
+# ENT_TO_EXTRACT_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
 
 
 # ADDITIONS = {'focus','return','foreigner','buzz','point','mind','drop','strength','play','lack','move'}
 
 
-class SpacyExtractor(ExtractorService):
+def find_most_generic_entity(cur_entity):
+    generic = cur_entity
+    token = cur_entity
+
+    while token.head != token:
+        token = token.head
+        if token.ent_iob_ == 'B' or token.ent_iob_ == 'I':
+            generic = token
+
+    return generic
+
+
+def find_most_generic_attribute(cur_attr):
+    generic = cur_attr
+    token = cur_attr
+
+    while token.head != token:
+        if token.dep_ == 'conj':
+            return generic
+
+        token = token.head
+        if is_valid_attribute_token(token):
+            generic = token
+
+    return generic
+
+
+class RuleBasedExtractor(ExtractorService):
     def __init__(self, sentiment_service):
         self.nlp = spacy.load(MODEL)
         self.sentiment_service = sentiment_service  # type: SentimentService
-        self.coref = Coreferencer()
 
     def extract(self, input_doc: Document, verbose=False):
         ents_to_extract = {}
 
         for component in input_doc.components:
-            is_header = component.type == 'headline'
             paragraph = component.text.strip()
 
             if paragraph == '':
                 continue
 
-            # Coreference preprocessing
-            paragraph = self.coref.process(paragraph, verbose)
-
             doc = self.nlp(paragraph)
 
-            # Calculate polarity of paragraph.
-            para_polar = sum(map(lambda sent: self.sentiment_service.compute_sentiment(sent.text), doc.sents))
-
-            # if para_polar == 0:
-            #     continue
-
+            # Map of token index to entity Span token
             para_ents_with_attr = {}
 
             # Extract entities and add sentiments.
             for ent in filter(lambda x: x.label_ not in ENT_TO_EXTRACT_BLACKLIST and x.lemma_ != '', doc.ents):
+                print(ent, ent.label_)
                 ents_to_extract[ent.lemma_] = {}
 
             # Map indices to entities.
@@ -61,20 +82,22 @@ class SpacyExtractor(ExtractorService):
                 if is_sent_start:
                     cur_sent_polar = None
 
-                # Skip if current sentence has 0 polarity.
-                # if cur_sent_polar == 0:
-                #     continue
-
                 # Set current entity.
                 if token.ent_iob_ == 'B' and token.i in para_ents_with_attr:
-                    cur_entity = para_ents_with_attr[token.i]
-                    if cur_entity.label_ in ENT_TO_EXTRACT_BLACKLIST:
-                        cur_entity = None
+                    temp_entity = para_ents_with_attr[token.i]
+                    if temp_entity.label_ in ENT_TO_EXTRACT_BLACKLIST:
+                        temp_entity = None
+                        cur_entity = temp_entity
+                    else:
+                        # Check if it is the most generic entity
+                        generic_entity = find_most_generic_entity(token)
+                        print("curr=%s generic=%s" % (token, generic_entity))
 
-                # Skip if no attached entity.
-                if cur_entity is None:
-                    # TODO "of" check
-                    continue
+                        is_same = generic_entity == token
+                        is_part_of_same_entity = generic_entity.text in temp_entity.text
+                        if is_same or is_part_of_same_entity or generic_entity.i in para_ents_with_attr:
+                            temp_entity = para_ents_with_attr[token.i]
+                            cur_entity = temp_entity
 
                 # Skip if compound (i.e. part of multi-word attribute)
                 # Compound token will be gotten together with the base token.
@@ -85,7 +108,16 @@ class SpacyExtractor(ExtractorService):
                 if not is_valid_attribute_token(token):
                     continue
 
+                # # Skip if no attached entity.
+                # if cur_entity is None:
+                #     ent_token = of_check(token)
+                #     if ent_token is None:
+                #         continue
+                #
+                #     temp_entity = para_ents_with_attr[ent_token.i]
+
                 # Retrieve attribute.
+                # token = find_most_generic_attribute(token)
                 attribute = retrieve_attribute(token)
 
                 # Skip if in blacklist.
@@ -100,17 +132,53 @@ class SpacyExtractor(ExtractorService):
                 #     continue
 
                 # TODO "of" check to override if required
+                ent_token = of_check(token)
 
-                ent_attributes = ents_to_extract[cur_entity.lemma_]
-                if attribute in ent_attributes:
-                    ent_attributes[attribute].append((token.sent.text, cur_sent_polar, is_header))
+                entity_to_use = None
+
+                print("attr=%s ent_token=%s" % (attribute, ent_token))
+
+                if ent_token is not None and ent_token.i in para_ents_with_attr:
+                    entity_to_use = para_ents_with_attr[ent_token.i]
                 else:
-                    ent_attributes[attribute] = [(token.sent.text, cur_sent_polar, is_header)]
+                    # No entity in descendant
+                    if cur_entity is not None:
+                        entity_to_use = cur_entity
+                    else:
+                        # No live range
+                        continue
+
+                ent_attributes = ents_to_extract[entity_to_use.lemma_]
+                if attribute in ent_attributes:
+                    ent_attributes[attribute].append((token.sent.text, cur_sent_polar))
+                else:
+                    ent_attributes[attribute] = [(token.sent.text, cur_sent_polar)]
 
         input_doc = update_document(input_doc, ents_to_extract)
-        print([key for key in input_doc.entities])
 
         return input_doc
+
+
+def path_contains_another_valid_attr(entity, token):
+    curr = entity.head
+    while curr != token:
+        if is_valid_attribute_token(curr):
+            return True
+        curr = curr.head
+    return False
+
+
+def of_check(token):
+    all_descendants = [descendant for descendant in token.subtree]
+    for desc in all_descendants:
+        if desc.ent_iob_ == "B":
+            # Check whether the path from ENT to TOKEN contains another valid attribute token
+            if path_contains_another_valid_attr(entity=desc, token=token):
+                return None
+
+            return desc
+
+    return None
 
 
 def update_document(document, ents_to_extract):
@@ -126,8 +194,8 @@ def update_document(document, ents_to_extract):
         entity_entry = EntityEntry(ent)
         for attr in set(attrs):
             expressions = []
-            for expr, sentiment, is_header in attrs[attr]:
-                expr_entry = ExpressionEntry(expression=expr, sentiment=sentiment, is_header=is_header)
+            for expr, sentiment in attrs[attr]:
+                expr_entry = ExpressionEntry(expression=expr, sentiment=sentiment)
                 expressions.append(expr_entry)
 
             attr_entry = AttributeEntry(attribute=attr, expressions=expressions)
@@ -171,3 +239,15 @@ def retrieve_attribute(token):
             s.appendleft(compound.lemma_)
 
     return " ".join(s)
+
+
+if __name__ == '__main__':
+    vader = Vader()
+    extractor = RuleBasedExtractor(vader)
+
+    doc = Document()
+    doc.add_component(DocumentComponent(type="text", text=input().strip()))
+
+    doc = extractor.extract(doc)
+    for ent in doc.entities:
+        print(ent.text, [attr.text for attr in ent.attributes])
