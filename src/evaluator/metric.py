@@ -98,17 +98,17 @@ def document_error(model_output, ground_truth):
 
     loss_score = ent_f1 + attr_f1
 
-    # print("Ent precision = %s" % ent_precision)
-    # print("Ent recall = %s" % ent_recall)
-    # print("Ent tp = %s" % ent_tp)
-    # print("Ent fp = %s" % ent_fp)
-    # print("Ent fn = %s" % ent_fn)
-    # print("Attr precision = %s" % attr_precision)
-    # print("Attr recall = %s" % attr_recall)
-    # print("Attr tp = %s" % attr_tp)
-    # print("Attr fp = %s" % attr_fp)
-    # print("Attr fn = %s" % attr_fn)
-    # print("***")
+    print("Ent precision = %s" % ent_precision)
+    print("Ent recall = %s" % ent_recall)
+    print("Ent tp = %s" % ent_tp)
+    print("Ent fp = %s" % ent_fp)
+    print("Ent fn = %s" % ent_fn)
+    print("Attr precision = %s" % attr_precision)
+    print("Attr recall = %s" % attr_recall)
+    print("Attr tp = %s" % attr_tp)
+    print("Attr fp = %s" % attr_fp)
+    print("Attr fn = %s" % attr_fn)
+    print("***")
 
     return {'score': abs(loss_score),
             'ent_f1': ent_f1,

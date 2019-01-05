@@ -75,9 +75,13 @@ class TagTable extends Component {
                   const idx = idOne * oneLength + idTwo * twoLength + idThree * threeLength
 
                   const isTruePositive = entity in tp && attribute in tp[entity]
-                  return (
-                    <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
-                  )
+                  return isTruePositive 
+                    ? (
+                      <TPRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
+                    )
+                    : (
+                      <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
+                    )
                 })
               )
             )

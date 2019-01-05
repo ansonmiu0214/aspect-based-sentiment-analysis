@@ -2,6 +2,7 @@ import json
 
 from data_source.database_source import DatabaseSource
 from evaluator.metric import document_error
+from extractor_service.rule_based_extractor import RuleBasedExtractor
 from extractor_service.spacy_extractor import SpacyExtractor
 from models import *
 from preprocessor_service.text_preprocessor import TextPreprocessor
@@ -61,7 +62,8 @@ class Evaluator:
     def __init__(self):
         self.preprocessor = TextPreprocessor()
         self.sentiment_service = Vader()
-        self.extractor = SpacyExtractor(self.sentiment_service)
+        # self.extractor = SpacyExtractor(self.sentiment_service)
+        self.extractor = RuleBasedExtractor(self.sentiment_service)
         self.db = DatabaseSource(is_production=False)
         pass
 
@@ -100,6 +102,7 @@ class Evaluator:
             doc = self.extractor.extract(doc)
 
             scores_dict = document_error(model_output=doc.entities, ground_truth=ground_truth)
+            print(scores_dict['tp'])
 
             model_entities = list(map(lambda ent: ent.as_dict(), doc.entities))
             truth_entities = list(map(lambda ent: ent.as_dict(), ground_truth))
