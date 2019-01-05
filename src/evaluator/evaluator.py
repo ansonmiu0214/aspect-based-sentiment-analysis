@@ -24,7 +24,7 @@ def json_to_dict(entries):
         if attribute not in entities[entity]:
             entities[entity][attribute] = []
 
-        entities[entity][attribute].append(ExpressionEntry(expression, sentiment))
+        entities[entity][attribute].append(ExpressionEntry(expression, sentiment, is_header=False))
 
     return entities
 

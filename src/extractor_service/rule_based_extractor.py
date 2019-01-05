@@ -54,6 +54,7 @@ class RuleBasedExtractor(ExtractorService):
         ents_to_extract = {}
 
         for component in input_doc.components:
+            is_header = component.type == 'headline'
             paragraph = component.text.strip()
 
             if paragraph == '':
@@ -150,9 +151,9 @@ class RuleBasedExtractor(ExtractorService):
 
                 ent_attributes = ents_to_extract[entity_to_use.lemma_]
                 if attribute in ent_attributes:
-                    ent_attributes[attribute].append((token.sent.text, cur_sent_polar))
+                    ent_attributes[attribute].append((token.sent.text, cur_sent_polar, is_header))
                 else:
-                    ent_attributes[attribute] = [(token.sent.text, cur_sent_polar)]
+                    ent_attributes[attribute] = [(token.sent.text, cur_sent_polar, is_header)]
 
         input_doc = update_document(input_doc, ents_to_extract)
 
@@ -194,8 +195,8 @@ def update_document(document, ents_to_extract):
         entity_entry = EntityEntry(ent)
         for attr in set(attrs):
             expressions = []
-            for expr, sentiment in attrs[attr]:
-                expr_entry = ExpressionEntry(expression=expr, sentiment=sentiment)
+            for expr, sentiment, is_header in attrs[attr]:
+                expr_entry = ExpressionEntry(expression=expr, sentiment=sentiment, is_header=is_header)
                 expressions.append(expr_entry)
 
             attr_entry = AttributeEntry(attribute=attr, expressions=expressions)
