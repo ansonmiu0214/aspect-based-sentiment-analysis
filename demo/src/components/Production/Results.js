@@ -68,7 +68,7 @@ class AttributePanel extends Component {
         <ExpansionPanelDetails>
           <Grid container spacing={24}>
             {entries.map(({ expression, sentiment, documentId }, idx) => 
-              <Grid item xs={6} lg={12}>
+              <Grid item xs={12} lg={6}>
                 <Card key={idx}>
                   <CardContent>
                     <Grid container spacing={24}>
