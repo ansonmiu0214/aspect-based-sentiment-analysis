@@ -97,7 +97,8 @@ class EntityEntry(HasMetadata, HasText):
         self.attributes.append(attribute)
 
     def __repr__(self):
-        return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
+        return self.text
+        # return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
 
     def as_dict(self):
         entity_dict = {}
@@ -171,11 +172,12 @@ class Query:
 
 class PreprocessorService(abc.ABC):
     @abc.abstractmethod
-    def preprocess(self, doc):
+    def preprocess(self, document_string, extension):
         '''
         Given a document (of any kind), adapts it to a Document object.
 
-        :param doc:
+        :param document_string:
+        :param extension
         :rtype: Document
         '''
         pass
@@ -190,7 +192,7 @@ class ExtractorService(abc.ABC):
         Annotates the Document object with the extractedEntityEntry objects.
         Returns the annotated Document.
 
-        :param doc:
+        :param doc: Document
         :rtype: Document
         '''
         pass

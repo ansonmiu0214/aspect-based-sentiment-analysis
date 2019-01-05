@@ -17,7 +17,7 @@ class BottomBar extends Component {
   }
 
   render() {
-    const { value, classes } = this.props
+    const { value, classes, actions } = this.props
     return (
       <BottomNavigation
         value={value}
@@ -25,9 +25,13 @@ class BottomBar extends Component {
         showLabels
         className={classes.root}
       >
-        <BottomNavigationAction label="Documents" icon={<FileCopy />} />
-        <BottomNavigationAction label="Add" icon={<LibraryAdd />} />
-        <BottomNavigationAction label="Evaluate Model" icon={<PlayCircleFilled />} />
+        {
+          Object.keys(actions).map(label => {
+            return (
+              <BottomNavigationAction label={label} icon={actions[label]} />
+            )
+          })
+        }
       </BottomNavigation>
     )
   }

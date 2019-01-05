@@ -5,7 +5,7 @@ import { Modal, withStyles } from "@material-ui/core";
 const styles = theme => ({
   paper: {
     position: 'relative',
-    width: '75vw',
+    width: '80vw',
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing.unit * 4,
@@ -33,7 +33,7 @@ class DocumentModal extends Component {
         open={this.state.open}
         onClose={this.props.handleClose}  
       >
-        <div style={{top: '25%', margin: 'auto'}} className={classes.paper}>
+        <div style={{top: '10%', margin: 'auto'}} className={classes.paper}>
           <Document  document={document} />
         </div>
       </Modal>

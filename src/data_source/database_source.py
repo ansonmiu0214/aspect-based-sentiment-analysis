@@ -23,21 +23,37 @@ def insert(connection, document: Document):
         print("Inserted document components.")
         for ent in document.entities:
             # Entity
-            sql = "INSERT INTO `entity` (name, metadata) VALUES (%s, %s)"
+            ent_id = None
+            sql = "SELECT id FROM `entity` WHERE name = %s"
+            cursor.execute(sql, (ent.text))
 
-            cursor.execute(sql, (ent.text, json.dumps(ent.metadata)))
-            sql = "SELECT LAST_INSERT_ID()"
-            cursor.execute(sql, ())
-            ent_id = cursor.fetchone()[0]
+            if cursor.rowcount > 0:
+                ent_id = cursor.fetchone()[0]
+            else:
+
+                sql = "INSERT INTO `entity` (name, metadata) VALUES (%s, %s)"
+
+                cursor.execute(sql, (ent.text, json.dumps(ent.metadata)))
+                sql = "SELECT LAST_INSERT_ID()"
+                cursor.execute(sql, ())
+                ent_id = cursor.fetchone()[0]
 
             for attr in ent.attributes:
                 # Attribute.
-                sql = "INSERT INTO `attribute` (entity_id, attribute, metadata) VALUES (%s, %s, %s)"
-                cursor.execute(sql, (ent_id, attr.text, json.dumps(attr.metadata)))
+                attr_id = None
 
-                sql = "SELECT LAST_INSERT_ID()"
-                cursor.execute(sql, ())
-                attr_id, *_ = cursor.fetchone()
+                sql = "SELECT id FROM `attribute` WHERE attribute = %s AND entity_id = %s"
+                cursor.execute(sql, (attr.text, ent_id))
+
+                if cursor.rowcount > 0:
+                    attr_id = cursor.fetchone()[0]
+                else:
+                    sql = "INSERT INTO `attribute` (entity_id, attribute, metadata) VALUES (%s, %s, %s)"
+                    cursor.execute(sql, (ent_id, attr.text, json.dumps(attr.metadata)))
+
+                    sql = "SELECT LAST_INSERT_ID()"
+                    cursor.execute(sql, ())
+                    attr_id = cursor.fetchone()[0]
 
                 # Expressions.
                 sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id) VALUES (%s, %s, %s, %s)"

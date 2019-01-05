@@ -34,12 +34,12 @@ def json_to_entities(json_string: str) -> List[EntityEntry]:
 
     entity_entries = []
     for entity in entities:
-        entity_entry = EntityEntry(entity)
+        entity_entry = EntityEntry(entity.lower())
 
         attributes = entities[entity]
         for attribute in attributes:
             expr_entries = attributes[attribute]
-            attr_entry = AttributeEntry(attribute, expr_entries)
+            attr_entry = AttributeEntry(attribute.lower(), expr_entries)
             entity_entry.add_attribute(attr_entry)
         entity_entries.append(entity_entry)
     return entity_entries
@@ -65,9 +65,9 @@ class Evaluator:
         self.db = DatabaseSource(is_production=False)
         pass
 
-    def load_test_document(self, doc_string: str, ground_truth_json: str):
-        # TODO generalise the preprocess function to be applied on strings only
-        document = self.preprocessor.preprocess_xml_text(doc_string)
+    def load_test_document(self, doc, ground_truth_json: str):
+        doc_string, ext = doc
+        document = self.preprocessor.preprocess(doc_string, ext)
         document = update_tags_from_json(document, ground_truth_json)
 
         return self.db.process_document(document)
@@ -87,6 +87,8 @@ class Evaluator:
             return None
 
         total_score = 0
+        total_entity_score = 0
+        total_attribute_score = 0
         id_to_score = []
 
         for id in all_docs:
@@ -97,12 +99,31 @@ class Evaluator:
             doc.entities = []
             doc = self.extractor.extract(doc)
 
-            score = document_error(model_output=doc.entities, ground_truth=ground_truth)
-            id_to_score.append({'id': id, 'score': score})
-            total_score += score
+            scores_dict = document_error(model_output=doc.entities, ground_truth=ground_truth)
+
+            model_entities = list(map(lambda ent: ent.as_dict(), doc.entities))
+            truth_entities = list(map(lambda ent: ent.as_dict(), ground_truth))
+
+            scores_dict['id'] = id
+            scores_dict['model'] = model_entities
+            scores_dict['truth'] = truth_entities
+
+            # id_to_score.append({'id': id,
+            #                     'score': score,
+            #                     'ent_f1': scores_dict['ent_f1'],
+            #                     'attr_f1': scores_dict['attr_f1'],
+            #                     'model': model_entities,
+            #                     'truth': truth_entities
+            #                     })
+            id_to_score.append(scores_dict)
+            total_score += scores_dict['score']
+            total_entity_score += scores_dict['ent_f1']
+            total_attribute_score += scores_dict['attr_f1']
 
         avg_score = total_score / doc_count
-        return avg_score, id_to_score
+        avg_entity_f1 = total_entity_score / doc_count
+        avg_attribute_f1 = total_attribute_score / doc_count
+        return avg_score, avg_entity_f1, avg_attribute_f1, id_to_score
 
     def get_document(self, document_id):
         document = self.db.retrieve_document(document_id)

@@ -18,7 +18,10 @@ class TextPreprocessor(PreprocessorService):
         except AttributeError:
             return doc.name
 
-    def preprocess(self, doc):
+    def preprocess(self, doc, ext):
+        if ext == 'xml':
+            return self.preprocess_xml_text(doc)
+
         document = Document()
 
         if isinstance(doc, str):

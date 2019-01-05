@@ -2,12 +2,17 @@ import spacy
 from collections import deque
 
 from extractor_service.coref import Coreferencer
-from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry
+from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
+    DocumentComponent
+from sentiment_service.vader import Vader
 
 MODEL = 'en_core_web_sm'
 ENT_WITH_ATTR_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
-ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'growth', 'trend', 'improvement'}
+ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
+
+
+# ADDITIONS = {'focus','return','foreigner','buzz','point','mind','drop','strength','play','lack','move'}
 
 
 class SpacyExtractor(ExtractorService):
@@ -33,8 +38,8 @@ class SpacyExtractor(ExtractorService):
             # Calculate polarity of paragraph.
             para_polar = sum(map(lambda sent: self.sentiment_service.compute_sentiment(sent.text), doc.sents))
 
-            if para_polar == 0:
-                continue
+            # if para_polar == 0:
+            #     continue
 
             para_ents_with_attr = {}
 
@@ -46,7 +51,6 @@ class SpacyExtractor(ExtractorService):
             for ent in filter(lambda x: x.label_ not in ENT_WITH_ATTR_BLACKLIST and x.lemma_ != '', doc.ents):
                 para_ents_with_attr[ent[0].i] = ent
 
-
             # Extract attributes and add sentiments.
             cur_entity = None
             cur_sent_polar = None
@@ -57,8 +61,8 @@ class SpacyExtractor(ExtractorService):
                     cur_sent_polar = None
 
                 # Skip if current sentence has 0 polarity.
-                if cur_sent_polar == 0:
-                    continue
+                # if cur_sent_polar == 0:
+                #     continue
 
                 # Set current entity.
                 if token.ent_iob_ == 'B' and token.i in para_ents_with_attr:
@@ -90,8 +94,8 @@ class SpacyExtractor(ExtractorService):
                     cur_sent_polar = self.sentiment_service.compute_sentiment(token.sent.text)
 
                 # Skip if current sentence has 0 polarity.
-                if cur_sent_polar == 0:
-                    continue
+                # if cur_sent_polar == 0:
+                #     continue
 
                 ent_attributes = ents_to_extract[cur_entity.lemma_]
                 if attribute in ent_attributes:
@@ -100,6 +104,7 @@ class SpacyExtractor(ExtractorService):
                     ent_attributes[attribute] = [(token.sent.text, cur_sent_polar)]
 
         input_doc = update_document(input_doc, ents_to_extract)
+        print([key for key in input_doc.entities])
 
         return input_doc
 
@@ -137,7 +142,6 @@ def is_valid_attribute_token(token):
     # Skip if not noun.
     if token.pos_ != 'NOUN':
         return False
-
     # Skip nouns like 'who'.
     if token.tag_ == 'WP':
         return False

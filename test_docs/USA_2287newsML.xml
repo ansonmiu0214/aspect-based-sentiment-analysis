@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="2287" id="root" date="1996-08-20" xml:lang="en">
+    <title>USA: Chrysler plans new investments in Latin America.</title>
+    <headline>Chrysler plans new investments in Latin America.</headline>
+    <byline>David Lawder</byline>
+    <dateline>AUBURN HILLS, Mich. 1996-08-20</dateline>
+    <text>
+        <p>Chrysler Corp. Tuesday announced $380 million in new investments for South America, including assembly plants
+            for pickup trucks and diesel engines in Brazil and the expansion of a Jeep plant now being built in
+            Argentina.
+        </p>
+        <p>Chrysler, which is cautiously trying to rebuild its international presence, said the projects in Brazil were
+            worth about $315 million, and the expansion in Argentina was worth about $65 million.
+        </p>
+        <p>Roughly one third of the total investment, or about $126.6 million, will come from Chrysler's suppliers, who
+            will play a major role in the automaker's low-risk global growth strategy, Chrysler Chairman Robert Eaton
+            said.
+        </p>
+        <p>&quot;We don't intend to make risky investments just to be a major player in emerging markets,&quot; added
+            Thomas Gale, Chrysler's executive vice president of international operations. &quot;We're quite content to
+            grow at a steady pace in regions where we see solid opportunities.&quot;
+        </p>
+        <p>Eaton said the investments will boost Chrysler's sales in the Mercosur free-trade zone, which groups
+            Argentina, Brazil, Paraguay and Uruguay.
+        </p>
+        <p>But the company's limited production capacity will allow it only to grab a small portion of the Mercosur
+            market away from rivals General Motors Corp., Ford Motor Co. and Volkswagen AG, he said.
+        </p>
+        <p>&quot;We are targeting very specific market segments,&quot; he said. &quot;We don't have any interest or
+            desire to offer a vehicle for every possible application.&quot;
+        </p>
+        <p>The new Brazilian plant, which will be Chrysler's third limited-production facility in South America, will
+            assemble the automaker's all-new Dakota compact pickup truck for sale in Argentina, Brazil, Paraguay and
+            Uruguay, the countries in the Mercosur free-trade zone.
+        </p>
+        <p>In Argentina, Chrysler said it will add production of about 6,000 Jeep Cherokees a year at a plant now under
+            construction in the Cordoba province. The plant is already scheduled to build about 14,000 Jeep Grand
+            Cherokees per year starting next April, and Cherokee output will begin in 1998.
+        </p>
+        <p>A site for the Brazilian plant will be selected by year-end and vehicles will roll off the assembly line
+            starting in mid-1998, Chrysler said. Production, however, will be modest, with 12,000 trucks in the first
+            year and an ultimate capacity of 40,000 units annually. Employment will start at 400 people.
+        </p>
+        <p>The trucks at first will be largely assembled from &quot;complete knock-down&quot; kits shipped from the
+            United States, but the automaker intends to meet the Mercosur trade bloc's 60 percent local content
+            requirement after three years.
+        </p>
+        <p>Chrysler has not decided whether to market the Dakota under the Dodge brand name or under one of its other
+            brands. The automaker now uses the only Jeep and Chrysler brand names outside the United States, Canada and
+            Mexico.
+        </p>
+        <p>The $315 million Brazil investment also includes a new diesel engine plant to be built by Detroit Diesel
+            Corp..
+        </p>
+        <p>The $10 million facility will supply the company's Italian-designed VM Motori four-cylinder turbocharged
+            diesel engines for use in the Brazilian Dakota as well as in Jeep models built in Argentina. Chrysler
+            installs about 40,000 of the engines annually into minivans and Jeep Grand Cherokees sold in Europe.
+        </p>
+        <p>Others suppliers supporting the Chrysler by opening plants in Latin America include Dana Corp., Johnson
+            Controls Inc., Lear Corp., Lear Corp. United Technologies Corp. and PPG Industries Inc., Chrysler executives
+            said.
+        </p>
+        <p>Eaton said total annual vehicle sales in the four-country Mercosur region will increase from about 2 million
+            units currently to about 2.5 million by the end of the decade.
+        </p>
+        <p>&quot;We think this is a major growth area,&quot; Eaton said. &quot;It's politically and economically a
+            stable region, we think with particularly rising consumer buying power.&quot;
+        </p>
+        <p>Including a small plant in Venezuela that assembles Cherokees and Neon small cars from kits, the investments
+            announced Tuesday bring to $735 million the total financial commitments Chrysler and its suppliers have made
+            in South America, the company said.
+        </p>
+        <p>Chrysler stock rose 25 cents to close at $28.875 Tuesday on the New York Stock Exchange.</p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="ARG">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="BRAZ">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="USA">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:industries:1.0">
+            <code code="I24700">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="I34320">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="I35101">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="I36400">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="C24">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="CCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="AUBURN HILLS, Mich."/>
+        <dc element="dc.creator.location.country.name" value="USA"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>
