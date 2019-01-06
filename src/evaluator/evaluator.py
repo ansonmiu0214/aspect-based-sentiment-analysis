@@ -121,6 +121,7 @@ class Evaluator:
         total_score = 0
         total_entity_score = 0
         total_attribute_score = 0
+        total_mse = 0
         id_to_score = []
 
         for id in all_docs:
@@ -152,11 +153,13 @@ class Evaluator:
             total_score += scores_dict['score']
             total_entity_score += scores_dict['ent_f1']
             total_attribute_score += scores_dict['attr_f1']
+            total_mse += scores_dict['mse']
 
         avg_score = total_score / doc_count
         avg_entity_f1 = total_entity_score / doc_count
         avg_attribute_f1 = total_attribute_score / doc_count
-        return avg_score, avg_entity_f1, avg_attribute_f1, id_to_score
+        avg_mse = total_mse / doc_count
+        return avg_score, avg_entity_f1, avg_attribute_f1, avg_mse, id_to_score
 
     def get_document(self, document_id):
         document = self.db.retrieve_document(document_id)

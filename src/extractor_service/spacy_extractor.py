@@ -144,6 +144,7 @@ def is_valid_attribute_token(token):
     # Skip if not noun.
     if token.pos_ != 'NOUN':
         return False
+
     # Skip nouns like 'who'.
     if token.tag_ == 'WP':
         return False

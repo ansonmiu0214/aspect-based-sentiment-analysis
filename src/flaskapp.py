@@ -183,6 +183,7 @@ def get_extractors():
 @cross_origin(supports_credentials=True)
 def run_evaluator():
     option = request.args.get('extractor')
-    avg_score, avg_ent, avg_attr, idx_to_score = evaluator.run_evaluator(option=option)
+    avg_score, avg_ent, avg_attr, avg_mse, idx_to_score = evaluator.run_evaluator(option=option)
     # print([key for entry in idx_to_score for key in entry])
-    return jsonify({'result': avg_score, 'ent_f1': avg_ent, 'attr_f1': avg_attr, 'breakdown': idx_to_score})
+    return jsonify(
+        {'result': avg_score, 'ent_f1': avg_ent, 'attr_f1': avg_attr, 'mse': avg_mse, 'breakdown': idx_to_score})

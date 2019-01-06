@@ -27,6 +27,8 @@ def document_error(model_output, ground_truth):
     attr_fp = 0
     attr_fn = 0
 
+    mse = 0
+
     tp_dict = {}
 
     matched_ents = set()
@@ -115,6 +117,7 @@ def document_error(model_output, ground_truth):
             'attr_f1': attr_f1,
             'ent_precision': ent_precision,
             'ent_recall': ent_recall,
+            'mse': mse,
             'tp': tp_dict
             }
 
