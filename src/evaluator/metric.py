@@ -18,6 +18,8 @@ def document_error(model_output, ground_truth):
     :return:
     '''
     loss_score = 0
+    sent_mse = 0
+    sent_count = 0
 
     ent_tp = 0
     ent_fp = 0
@@ -32,7 +34,6 @@ def document_error(model_output, ground_truth):
     tp_dict = {}
 
     matched_ents = set()
-
     for ent in model_output:
         matched_entity = token_match(ent, ground_truth, "E")
         if matched_entity is not None:
@@ -51,9 +52,32 @@ def document_error(model_output, ground_truth):
                 matched_attribute = token_match(attr, matched_entity.attributes, "A")
 
                 if matched_attribute is not None:
+
+                    sent_count += 1
                     if matched_attribute.text not in tp_dict[matched_entity.text]:
                         tp_dict[matched_entity.text][matched_attribute.text] = True
                         curr_tp += 1
+
+                        pred_score = 0
+                        ground_score = 0
+                        ground_num = 0
+                        pred_num = 0
+
+                        for expr in attr.expressions:
+                            ground_score += expr.sentiment
+                            ground_num += 1
+
+                        for expr in matched_attribute.expressions:
+                            pred_score += expr.sentiment
+                            pred_num += 1
+
+                        sent_mse += ((ground_score/ground_num) - (pred_score/pred_num))**2
+
+
+
+
+
+
 
                         # if matched_attribute not in matched_attrs:
                         #     matched_attrs.add(matched_attribute)
@@ -72,11 +96,14 @@ def document_error(model_output, ground_truth):
         else:
             ent_fp += 1
 
+    sent_mse = (sent_mse / sent_count)
+
     print("GT %s" % ground_truth)
 
     ent_fn += len(ground_truth) - ent_tp
 
     ent_precision = ent_recall = ent_f1 = 0
+
 
     if ent_tp == ent_fp == ent_fn == 0:
         ent_precision = ent_recall = ent_f1 = 1
