@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import { withStyles, Grid } from '@material-ui/core';
+import { withStyles, Grid, Paper, Tooltip } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios'
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep'
@@ -63,13 +63,7 @@ class DocumentList extends Component {
   }
 
   showDocument(event, documentId) {
-    axios.get(`${this.props.apiOne}?id=${documentId}`)
-      .then(({ data }) => {
-        this.setState({ showDocument: data })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    this.setState({ showDocument: documentId })
   }
 
   hideDocument() {
@@ -123,11 +117,13 @@ class DocumentList extends Component {
             )
           })}
           {
-            (showDocument !== null) && <DocumentModal document={showDocument} handleClose={this.hideDocument} />
+            (showDocument !== null) && <DocumentModal documentId={showDocument} api={this.props.apiOne} handleClose={this.hideDocument} />
           }
-          <Button variant="fab" color="secondary" aria-label="Add" className={classes.fab} onClick={this.deleteAll}>
-            <DeleteSweepIcon />
-          </Button>
+          <Tooltip title="Delete All" placement="top">
+            <Button variant="fab" color="secondary" aria-label="Add" className={classes.fab} onClick={this.deleteAll}>
+              <DeleteSweepIcon />
+            </Button>
+          </Tooltip>
         </Grid>
       }
       </>

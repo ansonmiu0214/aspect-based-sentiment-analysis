@@ -19,7 +19,6 @@ class SpacyExtractor(ExtractorService):
     def __init__(self, sentiment_service):
         self.nlp = spacy.load(MODEL)
         self.sentiment_service = sentiment_service  # type: SentimentService
-        self.coref = Coreferencer()
 
     def extract(self, input_doc: Document, verbose=False):
         ents_to_extract = {}
@@ -30,9 +29,6 @@ class SpacyExtractor(ExtractorService):
 
             if paragraph == '':
                 continue
-
-            # Coreference preprocessing
-            paragraph = self.coref.process(paragraph, verbose)
 
             doc = self.nlp(paragraph)
 

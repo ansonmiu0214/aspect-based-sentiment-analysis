@@ -63,8 +63,19 @@ class Evaluator:
         self.preprocessor = TextPreprocessor()
         self.sentiment_service = Vader()
         # self.extractor = SpacyExtractor(self.sentiment_service)
-        self.extractor = RuleBasedExtractor(self.sentiment_service)
+        # self.extractor = RuleBasedExtractor(self.sentiment_service)
+        self.extractors = {
+            'basic': {
+                'label': 'Basic',
+                'extractor': SpacyExtractor(self.sentiment_service)
+            },
+            'rule': {
+                'label': 'Rule-Based',
+                'extractor': RuleBasedExtractor(self.sentiment_service)
+            },
+        }
         self.db = DatabaseSource(is_production=False)
+        self.default = 'rule'
         pass
 
     def load_test_document(self, doc, ground_truth_json: str):
@@ -80,7 +91,18 @@ class Evaluator:
     def reset_all_test_documents(self):
         self.db.reset()
 
-    def run_evaluator(self):
+    def get_extractors(self):
+        res = {}
+        for extractor in self.extractors:
+            res[extractor] = {'label': self.extractors[extractor]['label']}
+        return res
+
+    def run_evaluator(self, option=None):
+        # Pick extractor
+        extractor = self.extractors[self.default]['extractor']
+        if option and option in self.extractors:
+            extractor = self.extractors[option]['extractor']
+
         # Get all documents
         all_docs = self.db.list_all_documents()
 
@@ -99,7 +121,7 @@ class Evaluator:
             ground_truth = list(doc.entities)
 
             doc.entities = []
-            doc = self.extractor.extract(doc)
+            doc = extractor.extract(doc)
 
             scores_dict = document_error(model_output=doc.entities, ground_truth=ground_truth)
             print(scores_dict['tp'])

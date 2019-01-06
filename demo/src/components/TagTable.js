@@ -26,7 +26,7 @@ function TPRow(props) {
       <TableCell style={{backgroundColor: color}}>{entity}</TableCell>
       <TableCell style={{backgroundColor: color}}>{attribute}</TableCell>
       <TableCell style={{backgroundColor: color}}>{expression}</TableCell>
-      <TableCell style={{textAlign: 'right'}}>{sentiment}</TableCell>
+      <TableCell style={{backgroundColor: color, textAlign: 'right'}}>{sentiment}</TableCell>
     </TableRow>
   )
 }
@@ -51,9 +51,19 @@ class TagTable extends Component {
     this.classes = props.classes
   }
 
+  comparatorFor(field) {
+    return function(elem1, elem2) {
+      console.log(elem1, elem2, field)
+      const first = elem1[field]
+      const second = elem2[field]
+  
+      return first == second ? 0 : (first < second ? -1 : 1)
+    }
+  }
+
   render() {
     const { classes, entities } = this.props
-    const tp = this.tp
+    const { tp, comparatorFor } = this
     return (
       <Table className={classes.root}>
         <TableHead>
@@ -66,22 +76,23 @@ class TagTable extends Component {
         </TableHead>
         <TableBody>
           {
-            entities.map(({ entity, attributes }, idOne) =>
-              attributes.map(({ attribute, expressions }, idTwo) =>
-                expressions.map(({ expression, sentiment }, idThree) => {
-                  const threeLength = expressions.length
-                  const twoLength = attributes.length + threeLength
-                  const oneLength = entities.length + twoLength
-                  const idx = idOne * oneLength + idTwo * twoLength + idThree * threeLength
+            entities.sort(comparatorFor('entity')).map(({ entity, attributes }, idOne) => 
+              attributes.sort(comparatorFor('attribute')).map(({ attribute, expressions }, idTwo) => 
+                expressions.sort(comparatorFor('expression')).map(({ expression, sentiment }, idThree) => {
+                    const threeLength = expressions.length
+                    const twoLength = attributes.length + threeLength
+                    const oneLength = entities.length + twoLength
+                    const idx = idOne * oneLength + idTwo * twoLength + idThree * threeLength
 
-                  const isTruePositive = entity in tp && attribute in tp[entity]
-                  return isTruePositive 
-                    ? (
-                      <TPRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
-                    )
-                    : (
-                      <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
-                    )
+                    const isTruePositive = entity in tp && attribute in tp[entity]
+                    // return <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
+                    return isTruePositive 
+                      ? (
+                        <TPRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
+                      )
+                      : (
+                        <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
+                      )
                 })
               )
             )

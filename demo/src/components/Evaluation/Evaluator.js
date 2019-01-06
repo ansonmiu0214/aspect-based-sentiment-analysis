@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Heading from '../Heading'
 import Loader from '../Loader'
 import axios from 'axios'
-import { Paper, Typography, Grid } from "@material-ui/core";
+import { Paper, Typography, Grid, Button } from "@material-ui/core";
 import { withStyles } from '@material-ui/core';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -151,25 +151,83 @@ class Scores extends Component {
   }
 }
 
+const buttonStyles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+  },
+})
+
+class Controls extends Component {
+  constructor(props) {
+    super(props)
+    this.classes = props.classes
+  }
+
+  runExtractor = id => event => {
+    this.props.runExtractor(id)
+  }
+
+  render() {
+    const { classes } = this
+    const { extractors } = this.props
+    return (
+      <div>
+        {
+          Object.keys(extractors).map(id => {
+            const { label } = extractors[id]
+            return (
+              <Button 
+                variant="contained" 
+                color="primary" 
+                className={classes.button} 
+                onClick={this.runExtractor(id)}
+                >
+                {label}
+              </Button>
+            )
+          })
+        }
+      </div>
+    )
+  }
+
+}
+
+const SelectionControls = withStyles(buttonStyles)(Controls)
+
 class Evaluator extends Component {
 
   constructor(props) {
     super(props)
     this.dp = 3
+    this.runExtractor = this.runExtractor.bind(this)
   }
 
   state = {
     result: null,
     breakdown: null,
-    loading: true,
+    loading: false,
+    extractors: []
+  }
+
+  runExtractor(option) {
+    this.setState({ loading: true })
+    axios.get(`/test?extractor=${option}`)
+      .then(({ data }) => {
+        const { result, ent_f1, attr_f1, breakdown } = data
+        this.setState({ loading: false, result: result, ent_f1: ent_f1, attr_f1: attr_f1, breakdown: breakdown })
+      })
+      .catch(error => {
+        console.error(error)
+        this.setState({ loading: false })
+      })
   }
 
   componentWillMount() {
-    axios.get('/test')
+    axios.get('/test/extractors')
       .then(({ data }) => {
+        this.setState({ extractors: data})
         console.log(data)
-        const { result, ent_f1, attr_f1, breakdown } = data
-        this.setState({ loading: false, result: result, ent_f1: ent_f1, attr_f1: attr_f1, breakdown: breakdown })
       })
   }
 
@@ -179,8 +237,9 @@ class Evaluator extends Component {
     return (
       <>
       <Heading text="Model Evaluation" />
-      {loading && <Loader />}
-      {!loading && 
+      <SelectionControls extractors={this.state.extractors} runExtractor={this.runExtractor} />
+      {loading && <Loader text="Computing F1-scores for test set..." />}
+      {!loading && result !== null && breakdown !== null && 
         <>
         <Scores result={result} ent_f1={ent_f1} attr_f1={attr_f1} dp={dp}/>
         <Breakdown breakdownList={breakdown} dp={dp}/>

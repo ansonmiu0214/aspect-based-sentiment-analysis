@@ -151,7 +151,7 @@ class Results extends Component {
           <Typography variant="h3" gutterBottom>
             {scoreTitle}
             {results.entity
-              ? results.score
+              ? results.score !== null
                 ? results.score.toFixed(this.dp)
                 : "?"
               : ""}
