@@ -24,7 +24,7 @@ def json_to_dict(entries):
         if attribute not in entities[entity]:
             entities[entity][attribute] = []
 
-        entities[entity][attribute].append(ExpressionEntry(expression, sentiment))
+        entities[entity][attribute].append(ExpressionEntry(expression, sentiment, is_header=False))
 
     return entities
 
@@ -63,8 +63,27 @@ class Evaluator:
         self.preprocessor = TextPreprocessor()
         self.sentiment_service = Vader()
         # self.extractor = SpacyExtractor(self.sentiment_service)
-        self.extractor = RuleBasedExtractor(self.sentiment_service)
+        # self.extractor = RuleBasedExtractor(self.sentiment_service)
+        self.extractors = {
+            'v1': {
+                'label': 'v1.0',
+                'extractor': SpacyExtractor(self.sentiment_service)
+            },
+            'v1.1': {
+                'label': 'v1.1 (Coreference Resolution)',
+                'extractor': SpacyExtractor(self.sentiment_service, use_coref=True)
+            },
+            'v1.2': {
+                'label': 'v1.2 (Basic with Strict Sentiment)',
+                'extractor': SpacyExtractor(self.sentiment_service, ignore_zero=True)
+            },
+            'v2': {
+                'label': 'v2.0 (Generics Analysis)',
+                'extractor': RuleBasedExtractor(self.sentiment_service)
+            },
+        }
         self.db = DatabaseSource(is_production=False)
+        self.default = 'v2'
         pass
 
     def load_test_document(self, doc, ground_truth_json: str):
@@ -80,7 +99,18 @@ class Evaluator:
     def reset_all_test_documents(self):
         self.db.reset()
 
-    def run_evaluator(self):
+    def get_extractors(self):
+        res = {}
+        for extractor in self.extractors:
+            res[extractor] = {'label': self.extractors[extractor]['label']}
+        return res
+
+    def run_evaluator(self, option=None):
+        # Pick extractor
+        extractor = self.extractors[self.default]['extractor']
+        if option and option in self.extractors:
+            extractor = self.extractors[option]['extractor']
+
         # Get all documents
         all_docs = self.db.list_all_documents()
 
@@ -91,6 +121,7 @@ class Evaluator:
         total_score = 0
         total_entity_score = 0
         total_attribute_score = 0
+        total_mse = 0
         id_to_score = []
 
         for id in all_docs:
@@ -99,7 +130,7 @@ class Evaluator:
             ground_truth = list(doc.entities)
 
             doc.entities = []
-            doc = self.extractor.extract(doc)
+            doc = extractor.extract(doc)
 
             scores_dict = document_error(model_output=doc.entities, ground_truth=ground_truth)
             print(scores_dict['tp'])
@@ -122,11 +153,13 @@ class Evaluator:
             total_score += scores_dict['score']
             total_entity_score += scores_dict['ent_f1']
             total_attribute_score += scores_dict['attr_f1']
+            total_mse += scores_dict['mse']
 
         avg_score = total_score / doc_count
         avg_entity_f1 = total_entity_score / doc_count
         avg_attribute_f1 = total_attribute_score / doc_count
-        return avg_score, avg_entity_f1, avg_attribute_f1, id_to_score
+        avg_mse = total_mse / doc_count
+        return avg_score, avg_entity_f1, avg_attribute_f1, avg_mse, id_to_score
 
     def get_document(self, document_id):
         document = self.db.retrieve_document(document_id)

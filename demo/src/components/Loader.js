@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { withStyles } from "@material-ui/core";
+import { withStyles, Typography } from "@material-ui/core";
 
 const styles = theme => ({
   progress: {
@@ -15,9 +15,18 @@ class Loader extends Component {
   }
 
   render() {
+    const { text } = this.props
     return (
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div><CircularProgress color="secondary" className={this.classes.progress}/></div>
+        {
+          (text !== undefined) &&
+            <div>
+              <Typography color="textSecondary" variant="h5">
+                {text}
+              </Typography>
+            </div>
+        }
       </div>
     )
   }

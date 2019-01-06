@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import Document from './Document'
 import { Modal, withStyles } from "@material-ui/core";
+import Loader from "./Loader";
+import axios from "axios";
 
 const styles = theme => ({
   paper: {
@@ -20,11 +22,25 @@ class DocumentModal extends Component {
   }
 
   state = {
-    open: this.props.document !== null
-  }  
+    open: this.props.documentId !== null,
+    loading: true,
+    document: null
+  }
+  
+  componentDidMount() {
+    axios.get(`${this.props.api}?id=${this.props.documentId}`)
+      .then(({ data }) => {
+        this.setState({ loading: false, document: data })
+      })
+      .catch(error => {
+        console.error(error)
+        this.setState({ loading: false })
+      })
+  }
 
   render() {
-    const { classes, document } = this.props
+    const { loading, document } = this.state
+    const { classes } = this.props
     return (
       <Modal
         aria-labelledby="document-title"
@@ -33,9 +49,12 @@ class DocumentModal extends Component {
         open={this.state.open}
         onClose={this.props.handleClose}  
       >
-        <div style={{top: '10%', margin: 'auto'}} className={classes.paper}>
-          <Document  document={document} />
-        </div>
+        {   
+          <div style={{top: '10%', margin: 'auto'}} className={classes.paper}>
+            { loading && <Loader text="Fetching document..." />}
+            { !loading && <Document  document={document} />}
+          </div>
+        }
       </Modal>
     )
   }

@@ -62,6 +62,7 @@ def delete_all_documents():
 
 
 @app.route("/absa/document", methods=['GET'])
+@cross_origin(supports_credentials=True)
 def get_document():
     document_id = request.args.get('id')
     if document_id is None:
@@ -77,6 +78,7 @@ def get_document():
 
 
 @app.route("/absa/document", methods=['POST'])
+@cross_origin(supports_credentials=True)
 def upload_document():
     document = request.files.get('document')
     if not document:
@@ -171,9 +173,17 @@ def delete_all_test_documents():
     return '', http.HTTPStatus.NO_CONTENT
 
 
+@app.route("/test/extractors", methods=['GET'])
+@cross_origin(supports_credentials=True)
+def get_extractors():
+    return jsonify(evaluator.get_extractors())
+
+
 @app.route("/test", methods=['GET'])
 @cross_origin(supports_credentials=True)
 def run_evaluator():
-    avg_score, avg_ent, avg_attr, idx_to_score = evaluator.run_evaluator()
-    print([key for entry in idx_to_score for key in entry])
-    return jsonify({'result': avg_score, 'ent_f1': avg_ent, 'attr_f1': avg_attr, 'breakdown': idx_to_score})
+    option = request.args.get('extractor')
+    avg_score, avg_ent, avg_attr, avg_mse, idx_to_score = evaluator.run_evaluator(option=option)
+    # print([key for entry in idx_to_score for key in entry])
+    return jsonify(
+        {'result': avg_score, 'ent_f1': avg_ent, 'attr_f1': avg_attr, 'mse': avg_mse, 'breakdown': idx_to_score})

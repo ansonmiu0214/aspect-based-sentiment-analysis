@@ -23,7 +23,7 @@ class ABSAAdder extends Component {
     const formData = new FormData()
     formData.append("document", this.docInput.current.files[0])
 
-    this.props.toggleLoading()
+    this.props.toggleLoading("Processing document...")
     axios.post('/absa/document', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -86,18 +86,24 @@ class DocumentAdder extends Component {
 
   state = {
     loading: false,
-    document: null
+    document: null,
+    loadingText: undefined,
   }
 
-  toggleLoading() {
-    this.setState(prevState => ({ loading: !prevState.loading }))
+  toggleLoading(loadingText = undefined) {
+    this.setState(prevState => ({ loading: !prevState.loading, loadingText: loadingText })) 
+    // this.setState(prevState => {
+    //   const newLoadingText = !prevState.loading ? loadingText : undefined
+    //   return ({ loading: !prevState.loading, loadingText: newLoadingText })
+    // })
   }
 
   requestDocument(documentId) {
+    this.setState({ loadingText: "Fetching document..." })
     axios.get(`/absa/document?id=${documentId}`)
       .then(response => {
         console.log(response)
-        this.setState({ document: response.data, loading: false })
+        this.setState({ document: response.data, loading: false, loadingText: undefined })
       })
       .catch(error => {
         console.error(error)
@@ -105,11 +111,11 @@ class DocumentAdder extends Component {
   }
 
   render() {
-    const { document, loading } = this.state
+    const { document, loading, loadingText } = this.state
     return (
       <>
       <Heading text="Add Document to ABSA" />
-      {loading && <Loader />}
+      {loading && <Loader text={loadingText} />}
       {!loading && 
         <Grid container direction="row" justify="center" spacing={24}>
           <Grid style={{ padding: "0 5% 10% 5%" }} item xs={4}>

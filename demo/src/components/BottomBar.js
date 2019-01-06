@@ -1,21 +1,16 @@
 import React, { Component } from "react";
 import PropTypes from 'prop-types';
 import { BottomNavigation, BottomNavigationAction, withStyles } from "@material-ui/core";
-import { FileCopy, LibraryAdd, PlayCircleFilled } from '@material-ui/icons'
 
-const styles = {
+const styles = theme => ({
   root: {
     width: '100%',
     position: 'fixed',
     bottom: 0
-  }
-}
+  },
+})
 
 class BottomBar extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     const { value, classes, actions } = this.props
     return (
@@ -28,7 +23,9 @@ class BottomBar extends Component {
         {
           Object.keys(actions).map(label => {
             return (
-              <BottomNavigationAction label={label} icon={actions[label]} />
+              <BottomNavigationAction 
+                label={label}
+                icon={actions[label]} />
             )
           })
         }

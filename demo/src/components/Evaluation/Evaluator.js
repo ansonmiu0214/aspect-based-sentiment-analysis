@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Heading from '../Heading'
 import Loader from '../Loader'
 import axios from 'axios'
-import { Paper, Typography, Grid } from "@material-ui/core";
+import { Paper, Typography, Grid, Button } from "@material-ui/core";
 import { withStyles } from '@material-ui/core';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -112,10 +112,33 @@ class Breakdown extends Component {
 class Scores extends Component {
 
   render() {
-    const { result, ent_f1, attr_f1, dp } = this.props
+    const { result, ent_f1, attr_f1, mse, dp } = this.props
+
+    const cells = [
+      { label: "Average Combined F-Score", value: Number(result).toFixed(dp) },
+      { label: "Average Entity F-Score", value: Number(ent_f1).toFixed(dp) },
+      { label: "Average Attribute F-Score", value: Number(attr_f1).toFixed(dp) },
+      { label: "Average Sentiment MSE", value: Number(mse).toFixed(dp) },
+    ]
+
     return (
       <Grid container spacing={24}>
-        <Grid item lg={4}>
+        {
+          cells.map(({ label, value }) => 
+            <Grid item xs={6} lg={3}>
+              <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
+                <Typography color="textSecondary" gutterBottom>
+                  {label}
+                </Typography>
+                <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
+                  {value}
+                </Typography>
+              </Paper>
+            </Grid>
+          )
+        }
+
+        {/* <Grid item xs={6} lg={4}>
           <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
             <Typography color="textSecondary" gutterBottom>
               Average Combined F-Score
@@ -125,7 +148,7 @@ class Scores extends Component {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item lg={4}>
+        <Grid item xs={6} lg={4}>
           <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
             <Typography color="textSecondary" gutterBottom>
               Average Entity F-Score
@@ -135,7 +158,7 @@ class Scores extends Component {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item lg={4}>
+        <Grid item xs={6} lg={4}>
           <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
             <Typography color="textSecondary" gutterBottom>
               Average Attribute F-Score
@@ -145,44 +168,119 @@ class Scores extends Component {
             </Typography>
           </Paper>
         </Grid>
+        <Grid item xs={6} lg={4}>
+          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
+            <Typography color="textSecondary" gutterBottom>
+              Average Sentiment MSE
+            </Typography>
+            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
+              {Number(mse).toFixed(dp)}
+            </Typography>
+          </Paper>
+        </Grid> */}
       </Grid>
 
     )
   }
 }
 
+const buttonStyles = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+    width: '100%',
+  },
+})
+
+class Controls extends Component {
+  constructor(props) {
+    super(props)
+    this.classes = props.classes
+  }
+
+  runExtractor = id => event => {
+    this.props.runExtractor(id)
+  }
+
+  render() {
+    const { classes } = this
+    const { extractors } = this.props
+    const gridWidth = 12 / extractors.length
+    const percentage = 100 / extractors.length
+    return (
+      <Grid container justify="space-around" gutterBottom>
+        {
+          Object.keys(extractors).map(id => {
+            const { label } = extractors[id]
+            return (
+              <Grid item xs={gridWidth}>
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  className={classes.button} 
+                  onClick={this.runExtractor(id)}
+                  >
+                  {label}
+                </Button>
+              </Grid>
+            )
+          })
+        }
+      </Grid>
+    )
+  }
+
+}
+
+const SelectionControls = withStyles(buttonStyles)(Controls)
+
 class Evaluator extends Component {
 
   constructor(props) {
     super(props)
     this.dp = 3
+    this.runExtractor = this.runExtractor.bind(this)
   }
 
   state = {
     result: null,
     breakdown: null,
-    loading: true,
+    loading: false,
+    extractors: []
+  }
+
+  runExtractor(option) {
+    this.setState({ loading: true })
+    axios.get(`/test?extractor=${option}`)
+      .then(({ data }) => {
+        const { result, ent_f1, attr_f1, breakdown, mse } = data
+        this.setState({ loading: false, result: result, ent_f1: ent_f1, attr_f1: attr_f1, breakdown: breakdown, mse: mse })
+      })
+      .catch(error => {
+        console.error(error)
+        this.setState({ loading: false })
+      })
   }
 
   componentWillMount() {
-    axios.get('/test')
+    axios.get('/test/extractors')
       .then(({ data }) => {
+        this.setState({ extractors: data})
         console.log(data)
-        const { result, ent_f1, attr_f1, breakdown } = data
-        this.setState({ loading: false, result: result, ent_f1: ent_f1, attr_f1: attr_f1, breakdown: breakdown })
       })
+      .catch(console.error)
   }
 
   render() {
     const dp = this.dp
-    const { result, ent_f1, attr_f1, breakdown, loading } = this.state
+    const { result, ent_f1, attr_f1, breakdown, loading, mse } = this.state
     return (
       <>
       <Heading text="Model Evaluation" />
-      {loading && <Loader />}
-      {!loading && 
+      <SelectionControls extractors={this.state.extractors} runExtractor={this.runExtractor} />
+      {loading && <Loader text="Computing F1-scores for test set..." />}
+      {!loading && result !== null && breakdown !== null && 
         <>
-        <Scores result={result} ent_f1={ent_f1} attr_f1={attr_f1} dp={dp}/>
+        <Scores result={result} ent_f1={ent_f1} attr_f1={attr_f1} mse={mse} dp={dp}/>
         <Breakdown breakdownList={breakdown} dp={dp}/>
         </>
       }
