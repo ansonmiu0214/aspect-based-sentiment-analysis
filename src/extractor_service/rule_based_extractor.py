@@ -1,6 +1,7 @@
 import spacy
 from collections import deque
 
+from extractor_service.attribute_dictionary import AttributeDictionary
 from extractor_service.coref import Coreferencer
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
     DocumentComponent
@@ -14,6 +15,7 @@ ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MO
 # ENT_TO_EXTRACT_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
 
+ATTR_DICT = []
 
 # ADDITIONS = {'focus','return','foreigner','buzz','point','mind','drop','strength','play','lack','move'}
 
@@ -45,6 +47,10 @@ def find_most_generic_attribute(cur_attr):
     return generic
 
 
+def is_in_dictionary(cur_attr, attribute_dictionary: AttributeDictionary):
+    return attribute_dictionary.validate_attr(cur_attr)
+
+
 class RuleBasedExtractor(ExtractorService):
     def __init__(self, sentiment_service):
         self.nlp = spacy.load(MODEL)
@@ -52,6 +58,7 @@ class RuleBasedExtractor(ExtractorService):
 
     def extract(self, input_doc: Document, verbose=False):
         ents_to_extract = {}
+
 
         for component in input_doc.components:
             is_header = component.type == 'headline'
@@ -123,6 +130,9 @@ class RuleBasedExtractor(ExtractorService):
 
                 # Skip if in blacklist.
                 if attribute in ATTR_BLACKLIST:
+                    continue
+
+                if not is_in_dictionary(attribute, AttributeDictionary(ATTR_DICT)):
                     continue
 
                 if cur_sent_polar is None:
