@@ -65,17 +65,25 @@ class Evaluator:
         # self.extractor = SpacyExtractor(self.sentiment_service)
         # self.extractor = RuleBasedExtractor(self.sentiment_service)
         self.extractors = {
-            'basic': {
-                'label': 'Basic',
+            'v1': {
+                'label': 'v1.0',
                 'extractor': SpacyExtractor(self.sentiment_service)
             },
-            'rule': {
-                'label': 'Rule-Based',
+            'v1.1': {
+                'label': 'v1.1 (Coreference Resolution)',
+                'extractor': SpacyExtractor(self.sentiment_service, use_coref=True)
+            },
+            'v1.2': {
+                'label': 'v1.2 (Basic with Strict Sentiment)',
+                'extractor': SpacyExtractor(self.sentiment_service, ignore_zero=True)
+            },
+            'v2': {
+                'label': 'v2.0 (Generics Analysis)',
                 'extractor': RuleBasedExtractor(self.sentiment_service)
             },
         }
         self.db = DatabaseSource(is_production=False)
-        self.default = 'rule'
+        self.default = 'v2'
         pass
 
     def load_test_document(self, doc, ground_truth_json: str):

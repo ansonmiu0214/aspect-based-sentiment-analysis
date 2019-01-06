@@ -16,9 +16,14 @@ ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
 
 
 class SpacyExtractor(ExtractorService):
-    def __init__(self, sentiment_service):
+    def __init__(self, sentiment_service, use_coref=False, ignore_zero=False):
         self.nlp = spacy.load(MODEL)
         self.sentiment_service = sentiment_service  # type: SentimentService
+        self.coref = Coreferencer()
+
+        # Flags
+        self.use_coref = use_coref
+        self.ignore_zero = ignore_zero
 
     def extract(self, input_doc: Document, verbose=False):
         ents_to_extract = {}
@@ -30,13 +35,15 @@ class SpacyExtractor(ExtractorService):
             if paragraph == '':
                 continue
 
+            if self.use_coref:
+                paragraph = self.coref.process(paragraph)
+
             doc = self.nlp(paragraph)
 
             # Calculate polarity of paragraph.
             para_polar = sum(map(lambda sent: self.sentiment_service.compute_sentiment(sent.text), doc.sents))
-
-            # if para_polar == 0:
-            #     continue
+            if self.ignore_zero and para_polar == 0:
+                continue
 
             para_ents_with_attr = {}
 
@@ -58,8 +65,8 @@ class SpacyExtractor(ExtractorService):
                     cur_sent_polar = None
 
                 # Skip if current sentence has 0 polarity.
-                # if cur_sent_polar == 0:
-                #     continue
+                if self.ignore_zero and cur_sent_polar == 0:
+                    continue
 
                 # Set current entity.
                 if token.ent_iob_ == 'B' and token.i in para_ents_with_attr:
@@ -69,7 +76,6 @@ class SpacyExtractor(ExtractorService):
 
                 # Skip if no attached entity.
                 if cur_entity is None:
-                    # TODO "of" check
                     continue
 
                 # Skip if compound (i.e. part of multi-word attribute)
@@ -92,10 +98,8 @@ class SpacyExtractor(ExtractorService):
                     cur_sent_polar = self.sentiment_service.compute_sentiment(token.sent.text)
 
                 # Skip if current sentence has 0 polarity.
-                # if cur_sent_polar == 0:
-                #     continue
-
-                # TODO "of" check to override if required
+                if self.ignore_zero and cur_sent_polar == 0:
+                    continue
 
                 ent_attributes = ents_to_extract[cur_entity.lemma_]
                 if attribute in ent_attributes:
@@ -104,8 +108,6 @@ class SpacyExtractor(ExtractorService):
                     ent_attributes[attribute] = [(token.sent.text, cur_sent_polar, is_header)]
 
         input_doc = update_document(input_doc, ents_to_extract)
-        print([key for key in input_doc.entities])
-
         return input_doc
 
 
