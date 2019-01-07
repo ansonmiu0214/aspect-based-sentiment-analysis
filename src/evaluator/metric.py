@@ -98,12 +98,9 @@ def document_error(model_output, ground_truth):
 
     sent_mse = (sent_mse / sent_count)
 
-    print("GT %s" % ground_truth)
-
     ent_fn += len(ground_truth) - ent_tp
 
     ent_precision = ent_recall = ent_f1 = 0
-
 
     if ent_tp == ent_fp == ent_fn == 0:
         ent_precision = ent_recall = ent_f1 = 1
@@ -144,7 +141,7 @@ def document_error(model_output, ground_truth):
             'attr_f1': attr_f1,
             'ent_precision': ent_precision,
             'ent_recall': ent_recall,
-            'mse': mse,
+            'mse': sent_mse,
             'tp': tp_dict
             }
 

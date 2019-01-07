@@ -13,7 +13,7 @@ import TagTable from "../TagTable";
 const panelStyle = theme => ({
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
+    flexBasis: '20%',
     flexShrink: 0,
   },
   // secondaryHeading: {
@@ -51,7 +51,7 @@ class Entry extends Component {
 
   render() {
     const { breakdown, handleChange, expanded, classes, dp } = this.props
-    const { id, score, ent_f1, attr_f1, model, truth, tp } = breakdown
+    const { id, score, ent_f1, attr_f1, mse, model, truth, tp } = breakdown
     console.log(Object.keys(tp))
     return (
       <ExpansionPanel expanded={expanded === id} onChange={handleChange(id)}>
@@ -60,6 +60,7 @@ class Entry extends Component {
           <Typography className={classes.numberHeading}>Combined F-Score: {Number(score).toFixed(dp)}</Typography>
           <Typography className={classes.numberHeading}>Entity F-Score: {Number(ent_f1).toFixed(dp)}</Typography>
           <Typography className={classes.numberHeading}>Attribute F-Score: {Number(attr_f1).toFixed(dp)}</Typography>
+          <Typography className={classes.numberHeading}>Sentiment MSE: {Number(mse).toFixed(dp)}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Grid container spacing={24}>
