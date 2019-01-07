@@ -45,9 +45,9 @@ def insert(connection, document: Document):
                 cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id, x.is_header],
                                                  attr.expressions)))
 
-    connection.commit()
-    cursor.close()
-    return doc_id
+        connection.commit()
+        cursor.close()
+        return doc_id
 
 
 def selectAttributes(connection, entity, attribute=None):
