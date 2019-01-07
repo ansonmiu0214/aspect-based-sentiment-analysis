@@ -204,7 +204,7 @@ class Controls extends Component {
 
   render() {
     const { classes } = this
-    const { extractors } = this.props
+    const { extractors, loading } = this.props
     const gridWidth = 12 / extractors.length
     const percentage = 100 / extractors.length
     return (
@@ -219,6 +219,7 @@ class Controls extends Component {
                   color="primary" 
                   className={classes.button} 
                   onClick={this.runExtractor(id)}
+                  disabled={loading} 
                   >
                   {label}
                 </Button>
@@ -277,7 +278,7 @@ class Evaluator extends Component {
     return (
       <>
       <Heading text="Model Evaluation" />
-      <SelectionControls extractors={this.state.extractors} runExtractor={this.runExtractor} />
+      <SelectionControls extractors={this.state.extractors} runExtractor={this.runExtractor} loading={loading} />
       {loading && <Loader text="Computing F1-scores for test set..." />}
       {!loading && result !== null && breakdown !== null && 
         <>

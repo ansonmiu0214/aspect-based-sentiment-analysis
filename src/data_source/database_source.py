@@ -185,7 +185,7 @@ class DatabaseSource(DataSourceService):
         self.setup_connection()
 
         reset(self.connection)
-        # self.destroy_connection()
+        self.destroy_connection()
 
     def process_document(self, document: Document):
         # Set up connection.
@@ -201,7 +201,7 @@ class DatabaseSource(DataSourceService):
                 for expr in attr.expressions:
                     expr.document_id = doc_id
 
-        # self.destroy_connection()
+        self.destroy_connection()
         return doc_id
 
     def lookup(self, query: Query):
@@ -219,7 +219,7 @@ class DatabaseSource(DataSourceService):
             attr.metadata = json.loads(metadata)
             attrs.append(attr)
 
-        # self.destroy_connection()
+        self.destroy_connection()
         return attrs
 
     def list_all_documents(self):
@@ -232,19 +232,19 @@ class DatabaseSource(DataSourceService):
         for id, metadata in rows:
             docs[id] = json.loads(metadata)
 
-        # self.destroy_connection()
+        self.destroy_connection()
         return docs
 
     def retrieve_document(self, document_id: int) -> Document:
         self.setup_connection()
 
         res = composeDocument(self.connection, document_id)
-        # self.destroy_connection()
+        self.destroy_connection()
         return res
 
     def setup_connection(self):
-        if self.connection is None:
-            self.connection = aws_database.get_connection(self.is_production)
+        # if self.connection is None:
+        self.connection = aws_database.get_connection(self.is_production)
 
     def delete_document(self, document_id):
         self.setup_connection()
