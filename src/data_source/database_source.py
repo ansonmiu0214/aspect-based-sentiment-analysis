@@ -46,7 +46,6 @@ def insert(connection, document: Document):
                                                  attr.expressions)))
 
         connection.commit()
-        cursor.close()
         return doc_id
 
 
@@ -64,7 +63,6 @@ def selectAttributes(connection, entity, attribute=None):
             cursor.execute(sql, (entity, attribute))
 
         results = list(cursor.fetchall())
-        cursor.close()
         return results
 
 
@@ -75,7 +73,6 @@ def selectExpressions(connection, attribute_id):
               "WHERE attribute_id = %s"
         cursor.execute(sql, (attribute_id))
         results = list(cursor.fetchall())
-        cursor.close()
         return results
         # return list(map(lambda x: x[0], cursor.fetchall()))
 
@@ -94,15 +91,15 @@ def reset(connection):
         cursor.execute(sql, ())
         connection.commit()
         print("All deleted.")
-        cursor.close()
+        # cursor.close()
 
 
 def selectDocuments(connection):
+    connection.open
     with connection.cursor() as cursor:
         sql = "SELECT * FROM document"
         cursor.execute(sql, ())
         results = list(cursor.fetchall())
-        cursor.close()
         return results
 
 
@@ -169,7 +166,7 @@ def composeDocument(connection, document_id: int) -> Document:
 
             document.add_entity(entity_entry)
 
-        cursor.close()
+            # cursor.close()
     return document
 
 
@@ -188,6 +185,7 @@ class DatabaseSource(DataSourceService):
         self.setup_connection()
 
         reset(self.connection)
+        # self.destroy_connection()
 
     def process_document(self, document: Document):
         # Set up connection.
@@ -203,6 +201,7 @@ class DatabaseSource(DataSourceService):
                 for expr in attr.expressions:
                     expr.document_id = doc_id
 
+        # self.destroy_connection()
         return doc_id
 
     def lookup(self, query: Query):
@@ -220,6 +219,7 @@ class DatabaseSource(DataSourceService):
             attr.metadata = json.loads(metadata)
             attrs.append(attr)
 
+        # self.destroy_connection()
         return attrs
 
     def list_all_documents(self):
@@ -232,11 +232,15 @@ class DatabaseSource(DataSourceService):
         for id, metadata in rows:
             docs[id] = json.loads(metadata)
 
+        # self.destroy_connection()
         return docs
 
     def retrieve_document(self, document_id: int) -> Document:
         self.setup_connection()
-        return composeDocument(self.connection, document_id)
+
+        res = composeDocument(self.connection, document_id)
+        # self.destroy_connection()
+        return res
 
     def setup_connection(self):
         if self.connection is None:
@@ -244,4 +248,10 @@ class DatabaseSource(DataSourceService):
 
     def delete_document(self, document_id):
         self.setup_connection()
-        return delete(self.connection, document_id)
+        res = delete(self.connection, document_id)
+        self.destroy_connection()
+        return res
+
+    def destroy_connection(self):
+        if self.connection:
+            self.connection.close()
