@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from models import DocumentComponent, PreprocessorService, Document
 
+
 class TextPreprocessor(PreprocessorService):
     '''
     Simple input preprocessor, takes string input and wraps
@@ -17,7 +18,10 @@ class TextPreprocessor(PreprocessorService):
         except AttributeError:
             return doc.name
 
-    def preprocess(self, doc):
+    def preprocess(self, doc, ext):
+        if ext == 'xml':
+            return self.preprocess_xml_text(doc)
+
         document = Document()
 
         if isinstance(doc, str):
@@ -41,5 +45,19 @@ class TextPreprocessor(PreprocessorService):
         else:
             content = doc.read().decode('utf-8')
             document.add_component(DocumentComponent('content', content))
+
+        return document
+
+    def preprocess_xml_text(self, text):
+        document = Document()
+
+        root = ET.fromstring(text)
+
+        content = self.concat_elements(root, './text/p')
+        document.add_component(DocumentComponent('content', content))
+
+        document.add_metadata('title', self.concat_elements(root, './title'))
+        document.add_metadata('headline', self.concat_elements(root, './headline'))
+        document.add_metadata('date', root.attrib['date'])
 
         return document

@@ -1,33 +1,33 @@
 import React, { Component } from "react";
-import Title from "./components/Title.js";
-import Options from "./components/Options.js";
-import Results from "./components/Results.js";
-import Grid from "@material-ui/core/Grid";
-import "./App.css";
+import MenuBar from "./components/MenuBar.js";
+import ProductionInterface from "./components/Production/Interface";
+import EvaluationInterface from "./components/Evaluation/Interface";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { results: { entity: null, score: null, entries: [] } };
-    this.updateResults = this.updateResults.bind(this);
+    this.toggleHandler = this.toggleHandler.bind(this);
   }
 
-  updateResults(results) {
-    this.setState({ results });
+  state = {
+    isProduction: true
+  };
+
+  toggleHandler() {
+    this.setState(prevState => ({
+      isProduction: !prevState.isProduction
+    }));
   }
 
   render() {
     return (
       <div className="App">
-        <Title />
-        <Grid container direction="row" justify="center" spacing={24}>
-          <Grid style={{ padding: "0 5% 0 5%" }} item xs={4}>
-            <Options updateResults={this.updateResults} />
-          </Grid>
-          <Grid style={{ padding: "0 5% 0 5%" }} item xs={8}>
-            <Results results={this.state.results} />
-          </Grid>
-        </Grid>
+        <MenuBar
+          isProduction={this.state.isProduction}
+          toggleHandler={this.toggleHandler}
+        />
+        {this.state.isProduction && <ProductionInterface />}
+        {!this.state.isProduction && <EvaluationInterface />}
       </div>
     );
   }

@@ -1,4 +1,4 @@
-from database_source import DatabaseSource
+from data_source.database_source import DatabaseSource
 from models import *
 
 
@@ -51,7 +51,7 @@ def reset_database(db_source):
     db_source.reset()
 
 
-db_source = DatabaseSource()
+db_source = DatabaseSource(is_production=False)
 reset_database(db_source)
 insert_test(db_source)
 select_test(db_source)

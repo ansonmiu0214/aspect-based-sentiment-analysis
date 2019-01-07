@@ -21,14 +21,16 @@ class ABSA:
         self.query_parser = query_parser  # type: QueryParser
         self.aggregator_service = aggregator  # type: AggregatorService
 
-    def load_document(self, input_document, verbose=False):
+    def load_document(self, document_string, extension="txt", verbose=True):
         '''
         Load and process a document of any form.
 
-        :param input_document:
-        :return: void
+        :param document_string:
+        :param extension:
+        :param verbose:
+        :return: document id
         '''
-        doc = self.preprocessor_service.preprocess(input_document)
+        doc = self.preprocessor_service.preprocess(document_string, extension)
         if verbose:
             print("Preprocessing complete.")
 
@@ -37,9 +39,11 @@ class ABSA:
             print("Extraction complete.")
             print("Entities found: {}".format(", ".join(map(lambda ent: ent.text, doc.entities))))
 
-        self.data_source.process_document(doc)
+        doc_id = self.data_source.process_document(doc)
         if verbose:
             print("Document processed into data source.")
+
+        return doc_id
 
     def process_query(self, entity, attribute, verbose=False):
         '''

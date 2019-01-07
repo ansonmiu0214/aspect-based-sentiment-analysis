@@ -53,6 +53,16 @@ class Document(HasMetadata):
     def add_entity(self, entity):
         self.entities.append(entity)
 
+    def as_dict(self):
+        doc = {}
+
+        # Components
+        doc['components'] = list(map(lambda x: x.as_dict(), self.components))
+        doc['metadata'] = self.metadata
+        doc['entities'] = list(map(lambda x: x.as_dict(), self.entities))
+
+        return doc
+
 
 class DocumentComponent:
     '''
@@ -63,6 +73,9 @@ class DocumentComponent:
     def __init__(self, type, text):
         self.type = type  # type: str
         self.text = text  # type: str
+
+    def as_dict(self):
+        return {'type': self.type, 'text': self.text}
 
 
 class EntityEntry(HasMetadata, HasText):
@@ -84,7 +97,15 @@ class EntityEntry(HasMetadata, HasText):
         self.attributes.append(attribute)
 
     def __repr__(self):
-        return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
+        return self.text
+        # return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
+
+    def as_dict(self):
+        entity_dict = {}
+
+        entity_dict['entity'] = self.text
+        entity_dict['attributes'] = list(map(lambda x: x.as_dict(), self.attributes))
+        return entity_dict
 
 
 class AttributeEntry(HasMetadata, HasText):
@@ -103,6 +124,13 @@ class AttributeEntry(HasMetadata, HasText):
     def __repr__(self):
         return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.expressions)))
 
+    def as_dict(self):
+        attribute_dict = {}
+
+        attribute_dict['attribute'] = self.text
+        attribute_dict['expressions'] = list(map(lambda x: x.as_dict(), self.expressions))
+        return attribute_dict
+
 
 class ExpressionEntry(HasMetadata, HasText):
     '''
@@ -119,6 +147,13 @@ class ExpressionEntry(HasMetadata, HasText):
 
     def __repr__(self):
         return '("{}", {}, {})'.format(self.text, self.sentiment, self.is_header)
+
+    def as_dict(self):
+        expression_dict = {}
+
+        expression_dict['expression'] = self.text
+        expression_dict['sentiment'] = self.sentiment
+        return expression_dict
 
 
 class Query:
@@ -138,11 +173,12 @@ class Query:
 
 class PreprocessorService(abc.ABC):
     @abc.abstractmethod
-    def preprocess(self, doc):
+    def preprocess(self, document_string, extension):
         '''
         Given a document (of any kind), adapts it to a Document object.
 
-        :param doc:
+        :param document_string:
+        :param extension
         :rtype: Document
         '''
         pass
@@ -157,7 +193,7 @@ class ExtractorService(abc.ABC):
         Annotates the Document object with the extractedEntityEntry objects.
         Returns the annotated Document.
 
-        :param doc:
+        :param doc: Document
         :rtype: Document
         '''
         pass

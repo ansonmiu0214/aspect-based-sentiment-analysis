@@ -108,6 +108,7 @@ function initWindow(window, words) {
 
   let spaceOffset = 0
   let space = ' '
+  let consoleText = ''
 
   for (let idx = 0; idx < words.length; ++idx) {
     const word = words[idx]
@@ -124,6 +125,7 @@ function initWindow(window, words) {
     const innerText = space + word
     const tag = new TagElement(word, innerText, correctIdx)
     const spanElem = buildSpan(tag)
+    consoleText += innerText
 
     // Reset space
     space = ' '
@@ -131,4 +133,6 @@ function initWindow(window, words) {
     tags.push(tag)
     window.appendChild(spanElem)
   }
+
+  text = consoleText
 }
