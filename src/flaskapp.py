@@ -187,3 +187,8 @@ def run_evaluator():
     # print([key for entry in idx_to_score for key in entry])
     return jsonify(
         {'result': avg_score, 'ent_f1': avg_ent, 'attr_f1': avg_attr, 'mse': avg_mse, 'breakdown': idx_to_score})
+
+
+@app.route("/_health")
+def health():
+    return 'OK'
