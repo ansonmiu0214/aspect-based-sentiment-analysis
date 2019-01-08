@@ -128,13 +128,14 @@ class Results extends Component {
   }
 
   showDocument(event, documentId) {
-    axios.get(`/absa/document?id=${documentId}`)
-      .then(({ data }) => {
-        this.setState({ showDocument: data })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    this.setState({ showDocument: documentId })
+    // axios.get(`/absa/document?id=${documentId}`)
+    //   .then(({ data }) => {
+    //     this.setState({ showDocument: data })
+    //   })
+    //   .catch(error => {
+    //     console.error(error)
+    //   })
   }
 
   render() {
@@ -165,7 +166,7 @@ class Results extends Component {
           </div>
         ))} */}
         {
-          (showDocument !== null) && <DocumentModal document={showDocument} handleClose={this.hideDocument} />
+          (showDocument !== null) && <DocumentModal documentId={showDocument} api={"/absa/document"} handleClose={this.hideDocument} />
         }
       </div>
     );
