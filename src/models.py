@@ -177,8 +177,8 @@ class PreprocessorService(abc.ABC):
         '''
         Given a document (of any kind), adapts it to a Document object.
 
-        :param document_string:
-        :param extension
+        :param document_string: str
+        :param extension: str
         :rtype: Document
         '''
         pass
@@ -220,7 +220,7 @@ class QueryParser(abc.ABC):
         Given an input string, parses it into a Query object.
         The Query must specify the Entity, and the Attribute / Sentiment are optional.
 
-        :param text:
+        :param text: str
         :rtype: Query
         '''
         pass
@@ -230,10 +230,10 @@ class DataSourceService(abc.ABC):
     @abc.abstractmethod
     def process_document(self, document: Document):
         '''
-        Processes the Document object into the persistent storage solution used by the implementer.
+        Processes the Document object into the persistent storage solution used by the implementer, returning the stored document id.
 
-        :param document:
-        :return:
+        :param document: Document
+        :return: int
         '''
         pass
 
@@ -242,8 +242,8 @@ class DataSourceService(abc.ABC):
         '''
         Given a Query, returns the relevant AttributeEntry objects from the data source.
 
-        :param query:
-        :return:
+        :param query: Query
+        :return: [AttributeEntry]
         '''
         pass
 
