@@ -1,9 +1,8 @@
+import spacy
 from collections import deque
 
-from extractor_service.attribute_dictionary import AttributeDictionary
+from extractor_service.attribute_dictionary import AttributeDictionary, KnowledgeModel
 from extractor_service.coref import Coreferencer
-import spacy
-
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
     DocumentComponent
 from sentiment_service.vader import Vader
@@ -15,6 +14,10 @@ ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MO
                             'PRODUCT'}
 # ENT_TO_EXTRACT_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
+
+ATTR_DICT_GPE = ['market', 'job', 'population', 'capital', 'region', 'continent', 'interest']
+ATTR_DICT_ORG = ['stock', 'location', 'profit', 'asset', 'liability', 'type', 'product', 'service', 'equity'
+    , 'website']
 
 
 # ADDITIONS = {'focus','return','foreigner','buzz','point','mind','drop','strength','play','lack','move'}
@@ -154,6 +157,13 @@ class RuleBasedExtractor(ExtractorService):
                     else:
                         # No live range
                         continue
+
+                km = KnowledgeModel()
+                km.add_dict(AttributeDictionary(ATTR_DICT_ORG), 'ORG')
+                km.add_dict(AttributeDictionary(ATTR_DICT_GPE), 'GPE')
+
+                if not km.validate(entity_to_use.label_, attribute):
+                    continue
 
                 ent_attributes = ents_to_extract[entity_to_use.lemma_]
                 if attribute in ent_attributes:
