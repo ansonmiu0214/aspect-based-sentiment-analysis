@@ -4,8 +4,15 @@ from models import DocumentComponent, PreprocessorService, Document
 
 class TextPreprocessor(PreprocessorService):
     '''
-    Simple input preprocessor, takes string input and wraps
+    Simple input preprocessor, takes string input and wraps by extension
     '''
+
+    def __init__(self):
+        # Dictionary of callbacks (function pointers)
+        self.handlers = {
+            'xml': self.preprocess_xml,
+            'txt': self.preprocess_txt
+        }
 
     @staticmethod
     def concat_elements(root, tag):
@@ -19,36 +26,12 @@ class TextPreprocessor(PreprocessorService):
             return doc.name
 
     def preprocess(self, doc, ext):
-        if ext == 'xml':
-            return self.preprocess_xml_text(doc)
+        if ext not in self.handlers:
+            return None
 
-        document = Document()
+        return self.handlers[ext](doc)
 
-        if isinstance(doc, str):
-            document.add_component(DocumentComponent('content', doc))
-            return document
-
-        document.add_metadata('title', 'Imported from TextPreprocessor')
-
-        if self.get_filename(doc).endswith(".xml"):
-            tree = ET.parse(doc)
-            root = tree.getroot()
-
-            content = self.concat_elements(root, './text/p')
-            document.add_component(DocumentComponent('content', content))
-
-            headline = self.concat_elements(root, './headline')
-            document.add_component(DocumentComponent('headline', headline))
-
-            author = self.concat_elements(root, './byline')
-            document.add_metadata('author', author)
-        else:
-            content = doc.read().decode('utf-8')
-            document.add_component(DocumentComponent('content', content))
-
-        return document
-
-    def preprocess_xml_text(self, text):
+    def preprocess_xml(self, text):
         document = Document()
 
         root = ET.fromstring(text)
@@ -58,6 +41,13 @@ class TextPreprocessor(PreprocessorService):
 
         document.add_metadata('title', self.concat_elements(root, './title'))
         document.add_metadata('headline', self.concat_elements(root, './headline'))
+        document.add_metadata('author', self.concat_elements(root, './byline'))
         document.add_metadata('date', root.attrib['date'])
 
+        return document
+
+    def preprocess_txt(self, text):
+        document = Document()
+
+        document.add_component(DocumentComponent('content', text))
         return document

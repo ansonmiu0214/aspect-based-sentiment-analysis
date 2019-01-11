@@ -54,12 +54,11 @@ class Document(HasMetadata):
         self.entities.append(entity)
 
     def as_dict(self):
-        doc = {}
-
-        # Components
-        doc['components'] = list(map(lambda x: x.as_dict(), self.components))
-        doc['metadata'] = self.metadata
-        doc['entities'] = list(map(lambda x: x.as_dict(), self.entities))
+        doc = {
+            'components': list(map(lambda x: x.as_dict(), self.components)),
+            'metadata': self.metadata,
+            'entities': list(map(lambda x: x.as_dict(), self.entities))
+        }
 
         return doc
 
@@ -98,13 +97,13 @@ class EntityEntry(HasMetadata, HasText):
 
     def __repr__(self):
         return self.text
-        # return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.attributes)))
 
     def as_dict(self):
-        entity_dict = {}
+        entity_dict = {
+            'entity': self.text,
+            'attributes': list(map(lambda x: x.as_dict(), self.attributes))
+        }
 
-        entity_dict['entity'] = self.text
-        entity_dict['attributes'] = list(map(lambda x: x.as_dict(), self.attributes))
         return entity_dict
 
 
@@ -125,10 +124,11 @@ class AttributeEntry(HasMetadata, HasText):
         return '("{}", [{}])'.format(self.text, ", ".join(map(str, self.expressions)))
 
     def as_dict(self):
-        attribute_dict = {}
+        attribute_dict = {
+            'attribute': self.text,
+            'expressions': list(map(lambda x: x.as_dict(), self.expressions))
+        }
 
-        attribute_dict['attribute'] = self.text
-        attribute_dict['expressions'] = list(map(lambda x: x.as_dict(), self.expressions))
         return attribute_dict
 
 
@@ -167,9 +167,12 @@ class Query:
         self.positive_sentiment = positive_sentiment
 
 
-##############
+#############################################
 # Strategies
-##############
+#############################################
+# (No `interface' construct in Python
+#  , modelled with abstract base classes.
+#############################################
 
 class PreprocessorService(abc.ABC):
     @abc.abstractmethod
@@ -213,24 +216,12 @@ class SentimentService(abc.ABC):
         pass
 
 
-class QueryParser(abc.ABC):
-    @abc.abstractmethod
-    def parse_query(self, text) -> Query:
-        '''
-        Given an input string, parses it into a Query object.
-        The Query must specify the Entity, and the Attribute / Sentiment are optional.
-
-        :param text: str
-        :rtype: Query
-        '''
-        pass
-
-
 class DataSourceService(abc.ABC):
     @abc.abstractmethod
     def process_document(self, document: Document):
         '''
-        Processes the Document object into the persistent storage solution used by the implementer, returning the stored document id.
+        Processes the Document object into the persistent storage solution used by the implementer,
+        returning the stored document id.
 
         :param document: Document
         :return: int
@@ -245,6 +236,14 @@ class DataSourceService(abc.ABC):
         :param query: Query
         :return: [AttributeEntry]
         '''
+        pass
+
+    @abc.abstractmethod
+    def list_all_documents(self):
+        pass
+
+    @abc.abstractmethod
+    def retrieve_document(self, document_id):
         pass
 
 
