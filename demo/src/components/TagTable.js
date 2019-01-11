@@ -18,23 +18,10 @@ const styles = theme => ({
   },
 })
 
-function TPRow(props) {
-  const { id, entity, attribute, expression, sentiment } = props
-  const color = 'green'
-  return (
-    <TableRow key={id}>
-      <TableCell style={{backgroundColor: color}}>{entity}</TableCell>
-      <TableCell style={{backgroundColor: color}}>{attribute}</TableCell>
-      <TableCell style={{backgroundColor: color}}>{expression}</TableCell>
-      <TableCell style={{backgroundColor: color, textAlign: 'right'}}>{sentiment}</TableCell>
-    </TableRow>
-  )
-}
-
 function NormalRow(props) {
-  const { id, entity, attribute, expression, sentiment } = props
+  const { entity, attribute, expression, sentiment } = props
   return (
-    <TableRow key={id}>
+    <TableRow>
       <TableCell>{entity}</TableCell>
       <TableCell>{attribute}</TableCell>
       <TableCell>{expression}</TableCell>
@@ -51,19 +38,16 @@ class TagTable extends Component {
     this.classes = props.classes
   }
 
-  comparatorFor(field) {
-    return function(elem1, elem2) {
-      console.log(elem1, elem2, field)
-      const first = elem1[field]
-      const second = elem2[field]
-  
-      return first == second ? 0 : (first < second ? -1 : 1)
-    }
+  comparatorFor = field => (elem1, elem2) => {
+    const first = elem1[field]
+    const second = elem2[field]
+
+    return first == second ? 0 : (first < second ? -1 : 1)
   }
 
   render() {
     const { classes, entities } = this.props
-    const { tp, comparatorFor } = this
+    const { comparatorFor } = this
     return (
       <Table className={classes.root}>
         <TableHead>
@@ -84,15 +68,7 @@ class TagTable extends Component {
                     const oneLength = entities.length + twoLength
                     const idx = idOne * oneLength + idTwo * twoLength + idThree * threeLength
 
-                    const isTruePositive = entity in tp && attribute in tp[entity]
-                    return <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
-                    // return isTruePositive 
-                    //   ? (
-                    //     <TPRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
-                    //   )
-                    //   : (
-                    //     <NormalRow id={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
-                    //   )
+                    return <NormalRow key={idx} entity={entity} attribute={attribute} expression={expression} sentiment={sentiment} />
                 })
               )
             )

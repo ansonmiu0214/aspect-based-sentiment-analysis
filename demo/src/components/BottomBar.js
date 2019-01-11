@@ -21,9 +21,10 @@ class BottomBar extends Component {
         className={classes.root}
       >
         {
-          Object.keys(actions).map(label => {
-            return (
+          Object.keys(actions)
+            .map((label, idx) => 
               <BottomNavigationAction 
+                key={idx}
                 label={label}
                 icon={actions[label]} />
             )

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Button from "@material-ui/core/Button";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import Divider from "@material-ui/core/Divider";
 import Grid from "@material-ui/core/Grid";
 import Document from '../Document'
 import Heading from '../Heading'
@@ -32,7 +31,6 @@ class TestAdder extends Component {
         'Content-Type': 'multipart/form-data'
       }
     }).then(({ data }) => {
-      console.log(data)
       this.props.requestDocument(data.documentId)
     }).catch(error => {
       this.props.toggleLoading()
@@ -114,13 +112,8 @@ class DocumentAdder extends Component {
 
   requestDocument(documentId) {
     axios.get(`/test/document?id=${documentId}`)
-      .then(response => {
-        console.log(response)
-        this.setState({ document: response.data, loading: false })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+      .then(response => this.setState({ document: response.data, loading: false }))
+      .catch(console.error)
   }
 
   render() {
@@ -128,7 +121,7 @@ class DocumentAdder extends Component {
     return (
       <>
       <Heading text="Add Test Document" />
-      {loading && <Loader />}
+      {loading && <Loader text="Adding test document..."/>}
       {!loading && 
         <Grid container direction="row" justify="center" spacing={24}>
           <Grid style={{ padding: "0 5% 10% 5%" }} item xs={4}>

@@ -16,12 +16,6 @@ const panelStyle = theme => ({
     flexBasis: '20%',
     flexShrink: 0,
   },
-  // secondaryHeading: {
-  //   fontSize: theme.typography.pxToRem(15),
-  //   flexBasis: '10%',
-  //   flexShrink: 0,
-  //   color: theme.palette.text.secondary,
-  // },
   numberHeading: {
     fontSize: theme.typography.pxToRem(15),
     flexBasis: '20%',
@@ -52,7 +46,6 @@ class Entry extends Component {
   render() {
     const { breakdown, handleChange, expanded, classes, dp } = this.props
     const { id, score, ent_f1, attr_f1, mse, model, truth, tp } = breakdown
-    console.log(Object.keys(tp))
     return (
       <ExpansionPanel expanded={expanded === id} onChange={handleChange(id)}>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -100,8 +93,8 @@ class Breakdown extends Component {
     return (
       <div style={{width: '100%'}}>
         {
-          breakdownList.map(breakdown => 
-            <StyledEntry breakdown={breakdown} handleChange={this.handleChange} expanded={expanded} dp={dp} />  
+          breakdownList.map((breakdown, idx) => 
+            <StyledEntry key={idx} breakdown={breakdown} handleChange={this.handleChange} expanded={expanded} dp={dp} />  
           )
         }
       </div>
@@ -125,8 +118,8 @@ class Scores extends Component {
     return (
       <Grid container spacing={24}>
         {
-          cells.map(({ label, value }) => 
-            <Grid item xs={6} lg={3}>
+          cells.map(({ label, value }, idx) => 
+            <Grid key={idx} item xs={6} lg={3}>
               <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
                 <Typography color="textSecondary" gutterBottom>
                   {label}
@@ -138,47 +131,6 @@ class Scores extends Component {
             </Grid>
           )
         }
-
-        {/* <Grid item xs={6} lg={4}>
-          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
-            <Typography color="textSecondary" gutterBottom>
-              Average Combined F-Score
-            </Typography>
-            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
-              {Number(result).toFixed(dp)}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={6} lg={4}>
-          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
-            <Typography color="textSecondary" gutterBottom>
-              Average Entity F-Score
-            </Typography>
-            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
-              {Number(ent_f1).toFixed(dp)}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={6} lg={4}>
-          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
-            <Typography color="textSecondary" gutterBottom>
-              Average Attribute F-Score
-            </Typography>
-            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
-              {Number(attr_f1).toFixed(dp)}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={6} lg={4}>
-          <Paper style={{textAlign: 'center', padding: '10px', marginBottom: '40px'}}>
-            <Typography color="textSecondary" gutterBottom>
-              Average Sentiment MSE
-            </Typography>
-            <Typography variant="h3" component="h2" style={{marginBottom: '20px'}}>
-              {Number(mse).toFixed(dp)}
-            </Typography>
-          </Paper>
-        </Grid> */}
       </Grid>
 
     )
@@ -205,15 +157,14 @@ class Controls extends Component {
   render() {
     const { classes } = this
     const { extractors, loading } = this.props
-    const gridWidth = 12 / extractors.length
-    const percentage = 100 / extractors.length
+    
     return (
       <Grid container justify="space-around" gutterBottom>
         {
-          Object.keys(extractors).map(id => {
+          Object.keys(extractors).map((id, idx) => {
             const { label } = extractors[id]
             return (
-              <Grid item xs={gridWidth}>
+              <Grid item key={idx}>
                 <Button 
                   variant="contained" 
                   color="primary" 
@@ -258,17 +209,14 @@ class Evaluator extends Component {
         this.setState({ loading: false, result: result, ent_f1: ent_f1, attr_f1: attr_f1, breakdown: breakdown, mse: mse })
       })
       .catch(error => {
-        console.error(error)
         this.setState({ loading: false })
+        console.error(error)
       })
   }
 
   componentWillMount() {
     axios.get('/test/extractors')
-      .then(({ data }) => {
-        this.setState({ extractors: data})
-        console.log(data)
-      })
+      .then(({ data }) => this.setState({ extractors: data}))
       .catch(console.error)
   }
 
@@ -288,7 +236,6 @@ class Evaluator extends Component {
       }
       </>
     )
-
   }
 
 }

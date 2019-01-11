@@ -20,8 +20,8 @@ function DocumentBody(props) {
         {headline}
       </Typography>
       {
-        components.map(({ text }) => 
-          <Typography component="p" style={{marginBottom: '5px', lineHeight: '1.5rem'}}>{text}</Typography>
+        components.map(({ text }, idx) => 
+          <Typography key={idx} component="p" style={{marginBottom: '5px', lineHeight: '1.5rem'}}>{text}</Typography>
         )
       }
     </div>
