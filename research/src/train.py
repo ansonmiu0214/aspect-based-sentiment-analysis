@@ -7,38 +7,9 @@ import sys
 from spacy.util import minibatch
 
 '''
-TRAIN_DATA = [
-    ('find a cafe with great wifi.', {
-        'heads': [0, 2, 0, 5, 5, 2, 0],  # index of token head
-        'deps': ['ROOT', '-', 'PLACE', '-', 'QUALITY', 'ATTRIBUTE', '-']
-    }),
-    ("find a hotel near the beach", {
-        'heads': [0, 2, 0, 5, 5, 2],
-        'deps': ['ROOT', '-', 'PLACE', 'QUALITY', '-', 'ATTRIBUTE']
-    }),
-    ("find me the closest gym that's open late", {
-        'heads': [0, 0, 4, 4, 0, 6, 4, 6, 6],
-        'deps': ['ROOT', '-', '-', 'QUALITY', 'PLACE', '-', '-', 'ATTRIBUTE', 'TIME']
-    }),
-    ("show me the cheapest store that sells flowers", {
-        'heads': [0, 0, 4, 4, 0, 4, 4, 4],  # attach "flowers" to store!
-        'deps': ['ROOT', '-', '-', 'QUALITY', 'PLACE', '-', '-', 'PRODUCT']
-    }),
-    ("find a nice restaurant in london", {
-        'heads': [0, 3, 3, 0, 3, 3],
-        'deps': ['ROOT', '-', 'QUALITY', 'PLACE', '-', 'LOCATION']
-    }),
-    ("show me the coolest hostel in berlin", {
-        'heads': [0, 0, 4, 4, 0, 4, 4],
-        'deps': ['ROOT', '-', '-', 'QUALITY', 'PLACE', '-', 'LOCATION']
-    }),
-    ("find a good italian restaurant near work", {
-        'heads': [0, 4, 4, 4, 0, 4, 5],
-        'deps': ['ROOT', '-', 'QUALITY', 'ATTRIBUTE', 'PLACE', 'ATTRIBUTE', 'LOCATION']
-    })
-]
-
+Different sentence structures used for model training purposes
 '''
+
 
 '''
 TRAIN_DATA = [
@@ -213,6 +184,8 @@ TRAIN_DATA = [
 ]
 '''
 
+
+
 TRAIN_DATA = [
 ('Facebook reported a big drop in stocks last week', {
         'heads': [0,0,0,0,0,0,0,0,0],
@@ -355,6 +328,7 @@ def create_training_data():
     return train_data
 
 
+
 def create_training_data_sentence():
     file = open(sys.argv[1])
     json_text = json.load(file)
@@ -397,14 +371,10 @@ def create_training_data_sentence():
     return train_data
 
 
-def test_model(model):
-    pass
 
 
 def start_training(model=None, output=None, epoch=30):
     train_data = TRAIN_DATA2 + TRAIN_DATA
-    # train_data = create_training_data()
-    print(train_data)
 
     # Loading or create an empty model.
     if model is not None:
@@ -453,9 +423,13 @@ def test_model(nlp, text):
 
 
 if __name__ == '__main__':
-    model = start_training()#
+    model = start_training()
 
     while True:
         print("Enter sentence: ", end="")
         doc = model(input().strip())
         print([(t.text, t.dep_, t.head.text) for t in doc if t.dep_ != '-'])
+
+'''
+Model code referenced from spaCy's example on their site.
+'''

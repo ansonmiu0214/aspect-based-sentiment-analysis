@@ -3,7 +3,14 @@
 import numpy as np
 import spacy
 
+from models import EntityEntry
+
 nlp = spacy.load('en_core_web_sm')
+'''
+Calculates the difference between the model ouptut and the tagged ground truth
+using the metrics of F-score for entity and attribute extraction and  MSE loss
+for sentiment scores
+'''
 
 
 def document_error(model_output, ground_truth):
@@ -11,7 +18,7 @@ def document_error(model_output, ground_truth):
 
     :param model_output:
     :param ground_truth:
-    :return:
+    :return: F-score for entity and attributes and MSE for sentiment
     '''
     loss_score = 0
     sent_mse = 0
@@ -37,13 +44,9 @@ def document_error(model_output, ground_truth):
                 tp_dict[matched_entity.text] = {}
                 ent_tp += 1
 
-            # if matched_entity not in matched_ents:
-            #     matched_ents.add(matched_entity)
-            #     ent_tp += 1
             curr_tp = 0
             curr_fp = 0
 
-            matched_attrs = set()
             for attr in ent.attributes:
                 matched_attribute = token_match(attr, matched_entity.attributes, "A")
 
@@ -69,21 +72,7 @@ def document_error(model_output, ground_truth):
 
                         sent_mse += ((ground_score/ground_num) - (pred_score/pred_num))**2
 
-
-
-
-
-
-
-                        # if matched_attribute not in matched_attrs:
-                        #     matched_attrs.add(matched_attribute)
-                        #     curr_tp += 1
-
-                        # for expr in attr.expressions:
-                        #     diff = find_similar_phrase(expr, attr.expressions)
-                        #     loss_score += diff
                 else:
-                    print("ENT %s attr fp: model= %s" % (ent.text, attr.text))
                     curr_fp += 1
 
             attr_tp += curr_tp
@@ -92,7 +81,10 @@ def document_error(model_output, ground_truth):
         else:
             ent_fp += 1
 
-    sent_mse = (sent_mse / sent_count)
+    if sent_count > 0:
+        sent_mse = (sent_mse / sent_count)
+    else:
+        sent_mse = -1
 
     ent_fn += len(ground_truth) - ent_tp
 
@@ -120,17 +112,6 @@ def document_error(model_output, ground_truth):
 
     loss_score = ent_f1 + attr_f1
 
-    print("Ent precision = %s" % ent_precision)
-    print("Ent recall = %s" % ent_recall)
-    print("Ent tp = %s" % ent_tp)
-    print("Ent fp = %s" % ent_fp)
-    print("Ent fn = %s" % ent_fn)
-    print("Attr precision = %s" % attr_precision)
-    print("Attr recall = %s" % attr_recall)
-    print("Attr tp = %s" % attr_tp)
-    print("Attr fp = %s" % attr_fp)
-    print("Attr fn = %s" % attr_fn)
-    print("***")
 
     return {'score': abs(loss_score),
             'ent_f1': ent_f1,
@@ -141,6 +122,11 @@ def document_error(model_output, ground_truth):
             'tp': tp_dict
             }
 
+
+'''
+Checks if there is a token from the model output that matches one from the ground truth
+of tokens
+'''
 
 def token_match(input, target_set, type):
     input_text = ""
@@ -161,13 +147,13 @@ def calculate_error(attr1, attr2):
     else:
         return abs(attr1.sentiment - attr2.sentiment)
 
+'''
+Compares the similarity of two phrases using cosine similarity based on word vectors
+'''
 
 def find_similar_phrase(phrase, phrases):
     word_set1 = phrase.text.split(" ")
     word_set1 = sorted(word_set1)
-
-    # print("The original phrase is %s" % phrase)
-
 
     idx = 0
     while word_set1[idx] == "" or word_set1[idx] == '\n':
@@ -206,15 +192,11 @@ def find_similar_phrase(phrase, phrases):
 
         diff = np.dot(v1, v2) / ((np.linalg.norm(v1)) * np.linalg.norm(v2))
 
-        # print("The current phrase is %s" % p)
-        # print("The error of the current phrase is %f" % diff)
 
         if diff > max_val:
             max_val = diff
             min_phrase = p
 
-    # print("The min val is %f" % min_val)
-    # print("The min phrase is %s" % min_phrase)
 
     return abs(max_val - 1)
 
@@ -227,30 +209,6 @@ def find_most_similar(target, candidates, threshold):
     if score < threshold:
         return None, score
 
-    # TODO handle the case if there is a tiebreaker
     return cand, score
 
 
-def sentiment_error(expr_sent, ground_sent):
-    '''
-
-    :param expr_sent:
-    :param ground_sent:
-    :return:
-    '''
-
-    return 0
-
-# if __name__ == '__main__':
-#     sent_service = Vader()
-#     extractor = SpacyExtractor(sent_service)
-#
-#     original_doc = newsdocument.get_original_doc()
-#     model_output = extractor.extract(original_doc)
-#
-#     ground_truth = newsdocument.get_doc()
-#     print("document_error(model_output, ground_truth):")
-#     print("%f" % document_error(model_output.entities, ground_truth.entities))
-#
-#     print("document_error(ground_truth, ground_truth):")
-#     print("%f" % document_error(ground_truth.entities, ground_truth.entities))

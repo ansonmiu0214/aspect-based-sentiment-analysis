@@ -100,5 +100,9 @@ def evaluate(tokenizer, textcat, texts, cats):
     return {'textcat_p': precision, 'textcat_r': recall, 'textcat_f': f_score}
 
 
+'''
+Referenced from spaCy's example on their website
+'''
+
 if __name__ == '__main__':
     plac.call(main)
