@@ -26,7 +26,7 @@ class MenuBar extends Component {
       <AppBar className={this.classes.root} position="static">
         <Toolbar>
           <Typography variant="h6" color="inherit" className={this.classes.grow}>
-            Aspect-Based Sentiment Analysis
+            Doc2Sent
           </Typography>
           <Toggle 
             isProduction={this.props.isProduction} 

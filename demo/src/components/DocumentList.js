@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import { withStyles, Grid, Paper, Tooltip } from '@material-ui/core';
+import { withStyles, Grid, Tooltip } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios'
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep'
@@ -53,8 +53,8 @@ class DocumentList extends Component {
       this.handleDocuments(data)
     })
     .catch(error => {
-      this.setState({ loading: false })
       console.error(error)
+      this.setState({ loading: false })
     })
   }
 
@@ -93,8 +93,8 @@ class DocumentList extends Component {
             const { id, metadata } = element
             const { date, title, headline } = metadata
             return (
-              <Grid item xs={12} lg={6}>
-                <Card key={id}>
+              <Grid key={id} item xs={12} lg={6}>
+                <Card>
                   <CardContent>
                   <Typography className={classes.title} color="textSecondary" gutterBottom>
                     {date}
@@ -102,9 +102,6 @@ class DocumentList extends Component {
                   <Typography variant="h5" component="h2">
                     {title}
                   </Typography>
-                  {/* <Typography className={classes.pos} color="textSecondary">
-                    {Object.keys(others).map(key => `${key}: ${others[key]}`).join('<br />')}
-                  </Typography> */}
                   <Typography component="p">
                     {headline}
                   </Typography>

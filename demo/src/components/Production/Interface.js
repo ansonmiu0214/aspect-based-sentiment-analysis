@@ -1,12 +1,8 @@
 import React, { Component } from "react";
 import "../../App.css";
-import Title from "../Title.js";
-import Options from "./Options.js";
-import Results from "./Results.js";
 import DocumentList from '../DocumentList'
 import DocumentAdder from './DocumentAdder'
 import Grid from "@material-ui/core/Grid";
-import Heading from "../Heading";
 import BottomBar from "../BottomBar";
 import { FileCopy, LibraryAdd, Search } from "@material-ui/icons";
 import QueryView from "./QueryView";
@@ -38,7 +34,6 @@ class ProductionInterface extends Component {
       'Query': <Search />
     }
     return (
-      // <div className="Production">
       <div>
         <Grid container justify="center">
           <Grid item xs={10}>
@@ -48,16 +43,6 @@ class ProductionInterface extends Component {
           </Grid>
         </Grid>
 
-
-        {/* <Heading text="ABSA Demo" />
-        <Grid container direction="row" justify="center" spacing={24}>
-          <Grid style={{ padding: "0 5% 0 5%" }} item xs={4}>
-            <Options updateResults={this.updateResults} />
-          </Grid>
-          <Grid style={{ padding: "0 5% 0 5%" }} item xs={8}>
-            <Results results={this.state.results} />
-          </Grid>
-        </Grid> */}
         <BottomBar actions={actions} handleChange={this.bottomBarHandler} value={value} />
       </div>
     );

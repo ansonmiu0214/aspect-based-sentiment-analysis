@@ -28,7 +28,6 @@ class ABSAAdder extends Component {
         'Content-Type': 'multipart/form-data'
       }
     }).then(({ data }) => {
-      console.log(data)
       this.props.requestDocument(data.documentId)
     }).catch(error => {
       this.props.toggleLoading()
@@ -91,22 +90,13 @@ class DocumentAdder extends Component {
 
   toggleLoading(loadingText = undefined) {
     this.setState(prevState => ({ loading: !prevState.loading, loadingText: loadingText })) 
-    // this.setState(prevState => {
-    //   const newLoadingText = !prevState.loading ? loadingText : undefined
-    //   return ({ loading: !prevState.loading, loadingText: newLoadingText })
-    // })
   }
 
   requestDocument(documentId) {
     this.setState({ loadingText: "Fetching document..." })
     axios.get(`/absa/document?id=${documentId}`)
-      .then(response => {
-        console.log(response)
-        this.setState({ document: response.data, loading: false, loadingText: undefined })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+      .then(response => this.setState({ document: response.data, loading: false, loadingText: undefined }))
+      .catch(error => console.error(error))
   }
 
   render() {
