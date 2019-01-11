@@ -11,11 +11,11 @@ class SentimentTests(unittest.TestCase):
         score = self.sentiment.compute_sentiment("")
         self.assertEqual(score, 0)
 
-    def test_trivial_positive(self):
+    def test_trivial_positive_should_be_positive(self):
         score = self.sentiment.compute_sentiment("Today is a great day.")
         self.assertGreater(score, 0)
 
-    def test_trivial_negative(self):
+    def test_trivial_negative_should_be_negative(self):
         score = self.sentiment.compute_sentiment("Today was a terrible day.")
         self.assertLess(score, 0)
 
