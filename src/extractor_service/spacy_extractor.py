@@ -1,18 +1,18 @@
-import spacy
 from collections import deque
 
+import spacy
+
 from extractor_service.coref import Coreferencer
-from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
-    DocumentComponent
-from sentiment_service.vader import Vader
+from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry
 
 MODEL = 'en_core_web_sm'
+
+# Irrelevant NER categories from spaCy
 ENT_WITH_ATTR_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
+
+# Irrelevant attributes from spaCy
 ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
-
-
-# ADDITIONS = {'focus','return','foreigner','buzz','point','mind','drop','strength','play','lack','move'}
 
 
 class SpacyExtractor(ExtractorService):

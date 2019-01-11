@@ -1,7 +1,7 @@
 import json
 
-from models import *
 from data_source import aws_database
+from models import *
 
 
 def insert(connection, document: Document):
@@ -41,7 +41,8 @@ def insert(connection, document: Document):
                 attr_id = cursor.fetchone()[0]
 
                 # Expressions.
-                sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id, is_header) VALUES (%s, %s, %s, %s, %s)"
+                sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id, is_header) " \
+                      "VALUES (%s, %s, %s, %s, %s)"
                 cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id, x.is_header],
                                                  attr.expressions)))
 
@@ -49,7 +50,7 @@ def insert(connection, document: Document):
         return doc_id
 
 
-def selectAttributes(connection, entity, attribute=None):
+def select_attributes(connection, entity, attribute=None):
     with connection.cursor() as cursor:
         if attribute is None:
             sql = "SELECT attribute.id as id, attribute, attribute.metadata " \
@@ -66,7 +67,7 @@ def selectAttributes(connection, entity, attribute=None):
         return results
 
 
-def selectExpressions(connection, attribute_id):
+def select_expressions(connection, attribute_id):
     with connection.cursor() as cursor:
         sql = "SELECT text, sentiment, document_id, is_header as doc_id " \
               "FROM expression " \
@@ -74,7 +75,6 @@ def selectExpressions(connection, attribute_id):
         cursor.execute(sql, (attribute_id))
         results = list(cursor.fetchall())
         return results
-        # return list(map(lambda x: x[0], cursor.fetchall()))
 
 
 def reset(connection):
@@ -91,11 +91,9 @@ def reset(connection):
         cursor.execute(sql, ())
         connection.commit()
         print("All deleted.")
-        # cursor.close()
 
 
-def selectDocuments(connection):
-    connection.open
+def select_documents(connection):
     with connection.cursor() as cursor:
         sql = "SELECT * FROM document"
         cursor.execute(sql, ())
@@ -103,7 +101,7 @@ def selectDocuments(connection):
         return results
 
 
-def composeDocument(connection, document_id: int) -> Document:
+def compose_document(connection, document_id: int) -> Document:
     document = Document(identifier=document_id)
     with connection.cursor() as cursor:
         # Select metadata
@@ -166,13 +164,7 @@ def composeDocument(connection, document_id: int) -> Document:
 
             document.add_entity(entity_entry)
 
-            # cursor.close()
     return document
-
-
-def delete(connection, document_id):
-    # TODO
-    return True
 
 
 class DatabaseSource(DataSourceService):
@@ -183,9 +175,7 @@ class DatabaseSource(DataSourceService):
     def reset(self):
         # Set up connection.
         self.setup_connection()
-
         reset(self.connection)
-        # self.destroy_connection()
 
     def process_document(self, document: Document):
         # Set up connection.
@@ -201,56 +191,44 @@ class DatabaseSource(DataSourceService):
                 for expr in attr.expressions:
                     expr.document_id = doc_id
 
-        # self.destroy_connection()
         return doc_id
 
     def lookup(self, query: Query):
         # Set up connection.
         self.setup_connection()
 
-        rows = selectAttributes(self.connection, query.entity, query.attribute)
+        rows = select_attributes(self.connection, query.entity, query.attribute)
 
         attrs = []
 
         for (id, name, metadata) in rows:
-            expressions = selectExpressions(self.connection, id)
-            exprs = [ExpressionEntry(text, sentiment, doc_id, is_header) for text, sentiment, doc_id, is_header in expressions]
+            expressions = select_expressions(self.connection, id)
+            exprs = [ExpressionEntry(text, sentiment, doc_id, is_header)
+                     for text, sentiment, doc_id, is_header in expressions]
             attr = AttributeEntry(name, exprs)
             attr.metadata = json.loads(metadata)
             attrs.append(attr)
 
-        # self.destroy_connection()
         return attrs
 
     def list_all_documents(self):
         self.setup_connection()
 
         # Select documents
-        rows = selectDocuments(self.connection)
+        rows = select_documents(self.connection)
 
         docs = {}
         for id, metadata in rows:
             docs[id] = json.loads(metadata)
 
-        # self.destroy_connection()
         return docs
 
     def retrieve_document(self, document_id: int) -> Document:
         self.setup_connection()
-
-        res = composeDocument(self.connection, document_id)
-        # self.destroy_connection()
-        return res
+        return compose_document(self.connection, document_id)
 
     def setup_connection(self):
-        # if self.connection is None:
         self.connection = aws_database.get_connection(self.is_production)
-
-    def delete_document(self, document_id):
-        self.setup_connection()
-        res = delete(self.connection, document_id)
-        # self.destroy_connection()
-        return res
 
     def destroy_connection(self):
         if self.connection:

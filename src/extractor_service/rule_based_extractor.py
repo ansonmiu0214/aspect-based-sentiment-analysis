@@ -1,7 +1,7 @@
-import spacy
 from collections import deque
 
-from extractor_service.coref import Coreferencer
+import spacy
+
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
     DocumentComponent
 from sentiment_service.vader import Vader

@@ -1,14 +1,12 @@
-import thinc.extra.datasets
-
-import pandas as pd
-import spacy
 import random
 from collections import Counter
 
-
+import pandas as pd
+import spacy
+import thinc.extra.datasets
+from spacy.lang.en.stop_words import STOP_WORDS
 # Define function to cleanup text by removing personal pronouns, stopwords, and puncuation
 from spacy.symbols import NOUN
-from spacy.lang.en.stop_words import STOP_WORDS
 
 stopwords = list(STOP_WORDS)
 

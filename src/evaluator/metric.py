@@ -1,11 +1,7 @@
 # import newsdocument
-import random
 
 import numpy as np
 import spacy
-
-from extractor_service.spacy_extractor import SpacyExtractor
-from sentiment_service.vader import Vader
 
 nlp = spacy.load('en_core_web_sm')
 

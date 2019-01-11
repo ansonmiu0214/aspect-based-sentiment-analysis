@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 from collections import deque
 
 import spacy
@@ -5,7 +6,6 @@ import spacy
 from extractor_service.coref import Coreferencer
 from models import ExtractorService, Document, SentimentService, DocumentComponent
 from sentiment_service.vader import Vader
-import xml.etree.ElementTree as ET
 
 ''' Utilities '''
 
