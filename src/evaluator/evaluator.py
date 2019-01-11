@@ -10,6 +10,9 @@ from sentiment_service.vader import Vader
 
 
 def json_to_dict(entries):
+    '''
+    Adapter for JSON entries into dictionary representation.
+    '''
     entities = {}
 
     for entry in entries:
@@ -29,21 +32,29 @@ def json_to_dict(entries):
     return entities
 
 
-def json_to_entities(json_string: str) -> List[EntityEntry]:
-    entries = json.loads(json_string)
-    entities = json_to_dict(entries)
-
+def dict_to_entities(dictionary: dict) -> List[EntityEntry]:
+    '''
+    Converts dictionary representation to EntityEntry model.
+    '''
     entity_entries = []
-    for entity in entities:
+    for entity in dictionary:
         entity_entry = EntityEntry(entity.lower())
 
-        attributes = entities[entity]
+        attributes = dictionary[entity]
         for attribute in attributes:
             expr_entries = attributes[attribute]
             attr_entry = AttributeEntry(attribute.lower(), expr_entries)
             entity_entry.add_attribute(attr_entry)
         entity_entries.append(entity_entry)
     return entity_entries
+
+
+def json_to_entities(json_string: str) -> List[EntityEntry]:
+    '''
+    Adapter from JSON string to the required EntityEntry model.
+    '''
+    entries = json.loads(json_string)
+    return dict_to_entities(json_to_dict(entries))
 
 
 def update_tags_from_json(document: Document, json_string: str) -> Document:
@@ -107,15 +118,29 @@ class Evaluator:
         return self.db.list_all_documents()
 
     def reset_all_test_documents(self):
+        '''
+        Resets all test documents in the databse
+        :return:
+        '''
         self.db.reset()
 
     def get_extractors(self):
+        '''
+        Returns a dictionary of extractor id'd by the label.
+        '''
         res = {}
         for extractor in self.extractors:
             res[extractor] = {'label': self.extractors[extractor]['label']}
         return res
 
     def run_evaluator(self, option=None):
+        '''
+        Run the evaluator with the user-specified extractor.
+        Return the overall average scores and a dictionary of the breakdown scores.
+        :param option:
+        :return:
+        '''
+
         # Pick extractor
         extractor = self.extractors[self.default]['extractor']
         if option and option in self.extractors:
@@ -143,7 +168,6 @@ class Evaluator:
             doc = extractor.extract(doc)
 
             scores_dict = document_error(model_output=doc.entities, ground_truth=ground_truth)
-            print(scores_dict['tp'])
 
             model_entities = list(map(lambda ent: ent.as_dict(), doc.entities))
             truth_entities = list(map(lambda ent: ent.as_dict(), ground_truth))
@@ -152,13 +176,6 @@ class Evaluator:
             scores_dict['model'] = model_entities
             scores_dict['truth'] = truth_entities
 
-            # id_to_score.append({'id': id,
-            #                     'score': score,
-            #                     'ent_f1': scores_dict['ent_f1'],
-            #                     'attr_f1': scores_dict['attr_f1'],
-            #                     'model': model_entities,
-            #                     'truth': truth_entities
-            #                     })
             id_to_score.append(scores_dict)
             total_score += scores_dict['score']
             total_entity_score += scores_dict['ent_f1']
@@ -172,6 +189,11 @@ class Evaluator:
         return avg_score, avg_entity_f1, avg_attribute_f1, avg_mse, id_to_score
 
     def get_document(self, document_id):
+        '''
+        Retrieves the document (as a dictionary for serialisability) specified by :param document_id.
+        :param document_id: int
+        :return:
+        '''
         document = self.db.retrieve_document(document_id)
         if document is None:
             return document
