@@ -1,10 +1,10 @@
 from models import AggregatorService
 
+HEADLINE_MULTIPLIER = 2
+CONTENT_MULTIPLIER = 1
+
 
 class AverageAggregator(AggregatorService):
-    HEADLINE_MULTIPLIER = 2
-    CONTENT_MULTIPLIER = 1
-
     def aggregate_sentiment(self, data):
         '''
         Calculates the weighted average of the given sentiment.
