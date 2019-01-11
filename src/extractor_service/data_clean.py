@@ -52,10 +52,6 @@ def save_dict(attr_dict):
 
 
 if __name__ == '__main__':
-
-    # train_data, _ = thinc.extra.datasets.imdb()
-    # train_data = [i[0] for i in train_data]
-
     train_data = []
     print("Loading data...")
     with open('Amazon_Unlocked_Mobile.csv') as csv_file:
