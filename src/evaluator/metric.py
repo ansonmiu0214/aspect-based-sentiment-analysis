@@ -1,9 +1,9 @@
-# import newsdocument
-
 import numpy as np
 import spacy
 
 from models import EntityEntry
+
+ERROR_VALUE = -1
 
 nlp = spacy.load('en_core_web_sm')
 '''
@@ -36,9 +36,8 @@ def document_error(model_output, ground_truth):
 
     tp_dict = {}
 
-    matched_ents = set()
     for ent in model_output:
-        matched_entity = token_match(ent, ground_truth, "E")
+        matched_entity = token_match(ent, ground_truth)
         if matched_entity is not None:
             if matched_entity.text not in tp_dict:
                 tp_dict[matched_entity.text] = {}
@@ -48,7 +47,7 @@ def document_error(model_output, ground_truth):
             curr_fp = 0
 
             for attr in ent.attributes:
-                matched_attribute = token_match(attr, matched_entity.attributes, "A")
+                matched_attribute = token_match(attr, matched_entity.attributes)
 
                 if matched_attribute is not None:
 
@@ -70,7 +69,7 @@ def document_error(model_output, ground_truth):
                             pred_score += expr.sentiment
                             pred_num += 1
 
-                        sent_mse += ((ground_score/ground_num) - (pred_score/pred_num))**2
+                        sent_mse += ((ground_score / ground_num) - (pred_score / pred_num)) ** 2
 
                 else:
                     curr_fp += 1
@@ -84,7 +83,7 @@ def document_error(model_output, ground_truth):
     if sent_count > 0:
         sent_mse = (sent_mse / sent_count)
     else:
-        sent_mse = -1
+        sent_mse = ERROR_VALUE
 
     ent_fn += len(ground_truth) - ent_tp
 
@@ -112,7 +111,6 @@ def document_error(model_output, ground_truth):
 
     loss_score = ent_f1 + attr_f1
 
-
     return {'score': abs(loss_score),
             'ent_f1': ent_f1,
             'attr_f1': attr_f1,
@@ -128,10 +126,8 @@ Checks if there is a token from the model output that matches one from the groun
 of tokens
 '''
 
-def token_match(input, target_set, type):
-    input_text = ""
-    original_text = ""
 
+def token_match(input, target_set):
     input_text = input.text
 
     for token in target_set:
@@ -147,9 +143,11 @@ def calculate_error(attr1, attr2):
     else:
         return abs(attr1.sentiment - attr2.sentiment)
 
+
 '''
 Compares the similarity of two phrases using cosine similarity based on word vectors
 '''
+
 
 def find_similar_phrase(phrase, phrases):
     word_set1 = phrase.text.split(" ")
@@ -181,9 +179,11 @@ def find_similar_phrase(phrase, phrases):
             if w.strip() != '':
                 v2 = np.add(v2, nlp(w)[0].vector)
 
-        max_length = max(len(v1), len(v2))
+        len_v1 = len(v1)
+        len_v2 = len(v2)
+        max_length = max(len_v1, len_v2)
 
-        if len(v1) > len(v2):
+        if len_v1 > len_v2:
             for x in range(max_length):
                 np.add(v2, 0)
         else:
@@ -192,11 +192,9 @@ def find_similar_phrase(phrase, phrases):
 
         diff = np.dot(v1, v2) / ((np.linalg.norm(v1)) * np.linalg.norm(v2))
 
-
         if diff > max_val:
             max_val = diff
             min_phrase = p
-
 
     return abs(max_val - 1)
 
@@ -210,5 +208,3 @@ def find_most_similar(target, candidates, threshold):
         return None, score
 
     return cand, score
-
-
