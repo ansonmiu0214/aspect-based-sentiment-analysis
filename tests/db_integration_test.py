@@ -1,5 +1,14 @@
+import unittest
+
 from data_source.database_source import DatabaseSource
 from models import *
+
+'''
+(mexico, economy, foo, 2)
+(mexico, economy, bar, 2)
+
+(mexico, economy, bar, 3)
+'''
 
 
 def insert_test(db_source):
@@ -55,3 +64,11 @@ db_source = DatabaseSource(is_production=False)
 reset_database(db_source)
 insert_test(db_source)
 select_test(db_source)
+
+
+class DatabaseIntegrationTests(unittest.TestCase):
+    def setUp(self):
+        self.db = DatabaseSource(is_production=False)
+
+    def tearDown(self):
+        pass
