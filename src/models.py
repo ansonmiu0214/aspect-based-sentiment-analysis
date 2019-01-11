@@ -146,7 +146,7 @@ class ExpressionEntry(HasMetadata, HasText):
         self.is_header = is_header
 
     def __repr__(self):
-        return '("{}", {}, {})'.format(self.text, self.sentiment, self.is_header)
+        return '("{}", {}, {}, {})'.format(self.text, self.sentiment, self.is_header, self.document_id)
 
     def as_dict(self):
         expression_dict = {}
