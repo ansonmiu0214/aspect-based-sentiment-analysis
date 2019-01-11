@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 import extractor
-from old.sentiment_regression.sentiment_model import SentimentModel
+from research.sentiment_regression.sentiment_model import SentimentModel
 
 default_text = "The iPhone has a great camera but a poor screen. The MacBook has excellent battery, just like the " \
                "iPhone. The iPhone and MacBook also have terrible prices. "

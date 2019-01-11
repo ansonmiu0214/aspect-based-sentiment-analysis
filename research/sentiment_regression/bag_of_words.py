@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 from argparse import ArgumentParser
 from pathlib import Path
-from old.sentiment_regression import sentiment_model
+from research.sentiment_regression import sentiment_model
 
 polynomial_degree = 2
 
