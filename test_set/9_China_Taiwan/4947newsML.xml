@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="4947" id="root" date="1996-08-20" xml:lang="en">
+    <title>CHINA: China issues rules on shipping links with Taiwan.</title>
+    <headline>China issues rules on shipping links with Taiwan.</headline>
+    <dateline>BEIJING 1996-08-20</dateline>
+    <text>
+        <p>China has issued a set of regulations governing direct shipping links with Taiwan, the Xinhua news agency
+            said on Tuesday.
+        </p>
+        <p>The regulations take effect today, although Taiwan still bans direct shipping links between the two sides.
+        </p>
+        <p>&quot;The regulations...are meant to promote cargo and passenger transport between the two sides of the
+            Straits and accelerate the development of direct mail service, trade, and air and shipping links across the
+            Straits,&quot; Xinhua said. It gave no further details.
+        </p>
+        <p>Hong Kong's Beijing-backed Wen Wei Po newspaper said on Tuesday that the southeastern Chinese cities of
+            Xiamen and Fuzhou would be the first ports to be opened to direct shipping links with Taiwan.
+        </p>
+        <p>The conditions were ripe for establishing direct shipping links between the two sides, the newspaper said.
+        </p>
+        <p>An official of the Ministry of Communications declined to comment on the reports, saying only that China
+            would make a statement through the official media in future.
+        </p>
+        <p>Taiwan has banned direct air and shipping links with China since Chiang Kai-shek's Nationalists lost the
+            Chinese civil war and fled to the island in 1949.
+        </p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="CHINA">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="TAIWAN">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:industries:1.0">
+            <code code="I74000">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="C13">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="CCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="E51">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="E512">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="ECAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="GCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="GDIP">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="BEIJING"/>
+        <dc element="dc.creator.location.country.name" value="CHINA"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

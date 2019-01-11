@@ -1,0 +1,34 @@
+[
+  {
+    "expr": "World oil prices slipped on Tuesday in a market where refiners stung by high crude premiums and poor margins began to bargain for a cheaper barrel .",
+    "sentiment": -0.2
+  },
+  {
+    "expr": "World oil prices slipped on Tuesday in a market where refiners stung by high crude premiums and poor margins began to bargain for a cheaper barrel .",
+    "sentiment": -0.7
+  },
+  {
+    "expr": "There was a broad feeling in the market that Brent was overheated and had to come down , \" a trader said .",
+    "sentiment": -0.4
+  },
+  {
+    "expr": "This could avert the risk of refineries running less crude through their systems to pump up the price of products .",
+    "sentiment": 0.15
+  },
+  {
+    "expr": "This could avert the risk of refineries running less crude through their systems to pump up the price of products .",
+    "sentiment": 0.4
+  },
+  {
+    "expr": "The market was also waiting for direction from U.S. stocks data due out later on Tuesday which is forecast to show a 1.3 million barrel build in heating oil and diesel stocks in the run - up to the winter season , when gasoline gives way to heating oil as the guiding light for crude prices .",
+    "sentiment": 0.6
+  },
+  {
+    "expr": "Low inventory builds in the United States were largely supportive of the North Sea and West African markets with 5.0 million barrels of distillate - rich North Sea grades heading trans - Atlantic in the last week alone .",
+    "sentiment": 0.75
+  },
+  {
+    "expr": "Low inventory builds in the United States were largely supportive of the North Sea and West African markets with 5.0 million barrels of distillate - rich North Sea grades heading trans - Atlantic in the last week alone .",
+    "sentiment": 0.9
+  }
+]

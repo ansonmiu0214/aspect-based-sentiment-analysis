@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="4919" id="root" date="1996-08-20" xml:lang="en">
+    <title>GERMANY: Bundesbank sets 14-day repo tender at 3.30 pct.</title>
+    <headline>Bundesbank sets 14-day repo tender at 3.30 pct.</headline>
+    <dateline>FRANKFURT 1996-08-20</dateline>
+    <text>
+        <p>The Bundesbank said it was setting a tender for 14-day securities repurchase agreements, offering banks
+            liquidity at fixed rate of 3.30 percent.
+        </p>
+        <p>Funds will be credited to accounts tomorrow, Wednesday, and the securities have to be repurchased on
+            September 4.
+        </p>
+        <p>A 69.9 billion-mark repo pact set also at a fixed 3.30 percent rate expires on Wednesday.</p>
+        <p>The Bundesbank has kept the rate fixed at 3.30 percent since February.</p>
+        <p>--Frankfurt Newsroom, +49 69 756525</p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="GFR">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="M13">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="M131">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="MCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="FRANKFURT"/>
+        <dc element="dc.creator.location.country.name" value="GERMANY"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

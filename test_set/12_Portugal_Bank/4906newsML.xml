@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="4906" id="root" date="1996-08-20" xml:lang="en">
+    <title>PORTUGAL: Bank/Portugal sets 10 bln esc variable rate repo.</title>
+    <headline>Bank/Portugal sets 10 bln esc variable rate repo.</headline>
+    <dateline>LISBON 1996-08-20</dateline>
+    <text>
+        <p>The Bank of Portugal offered to inject 10 billion escudos of six-day funds into the money market in a
+            variable rate securities repurchase tender.
+        </p>
+        <p>The central bank also offered to drain liquidity today with six-day certificates at a fixed rate of 6.80
+            percent. Its emergency lending rate for up to 100 billion escudos of one-day funds to resident banks was
+            unchanged at 9.00 percent.
+        </p>
+        <p>Bids for the repo funds must be submitted by 0900 GMT and bids for the certificates by 1400 GMT.</p>
+        <p>--LISBON BUREAU 3511-3538254</p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="PORL">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="M13">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="M131">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="MCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="LISBON"/>
+        <dc element="dc.creator.location.country.name" value="PORTUGAL"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

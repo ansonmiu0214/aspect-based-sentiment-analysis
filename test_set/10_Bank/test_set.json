@@ -1,0 +1,50 @@
+[
+  {
+    "entity": "Bundesbank",
+    "attribute": "tender",
+    "expression": "The Bundesbank said it was setting a tender for 14-day securities repurchase agreements , offering banks liquidity at fixed rate of 3.30 percent .",
+    "sentiment": 0.2
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "repurchase agreements",
+    "expression": "The Bundesbank said it was setting a tender for 14-day securities repurchase agreements , offering banks liquidity at fixed rate of 3.30 percent .",
+    "sentiment": 0.3
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "liquidity",
+    "expression": "The Bundesbank said it was setting a tender for 14-day securities repurchase agreements , offering banks liquidity at fixed rate of 3.30 percent .",
+    "sentiment": 0.3
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "rate",
+    "expression": "The Bundesbank said it was setting a tender for 14-day securities repurchase agreements , offering banks liquidity at fixed rate of 3.30 percent .",
+    "sentiment": 0.3
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "accounts",
+    "expression": "Funds will be credited to accounts tomorrow , Wednesday , and the securities have to be repurchased on September 4 .",
+    "sentiment": 0.4
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "securities",
+    "expression": "Funds will be credited to accounts tomorrow , Wednesday , and the securities have to be repurchased on September 4 .",
+    "sentiment": 0.2
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "repo pact",
+    "expression": "A 69.9 billion - mark repo pact set also at a fixed 3.30 percent rate expires on Wednesday .",
+    "sentiment": 0.2
+  },
+  {
+    "entity": "Bundesbank",
+    "attribute": "rate",
+    "expression": "A 69.9 billion - mark repo pact set also at a fixed 3.30 percent rate expires on Wednesday .",
+    "sentiment": 0.2
+  }
+]
