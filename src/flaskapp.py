@@ -6,6 +6,7 @@ from flask_cors import CORS, cross_origin
 from aggregator_service.average_aggregator import AverageAggregator
 from data_source.database_source import DatabaseSource
 from evaluator.evaluator import Evaluator
+from extractor_service.rule_based_extractor import RuleBasedExtractor
 from extractor_service.spacy_extractor import SpacyExtractor
 from main import ABSA
 from preprocessor_service.text_preprocessor import TextPreprocessor
@@ -15,15 +16,13 @@ from sentiment_service.vader import Vader
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
-sentiment_service = Vader()
+vader = Vader()
 database_source = DatabaseSource()
 absa = ABSA(preprocessor=TextPreprocessor(),
-            extractor=SpacyExtractor(sentiment_service),
-            sentiment=sentiment_service,
+            extractor=SpacyExtractor(vader),
+            sentiment=vader,
             datasource=database_source,
             aggregator=AverageAggregator())
-
-evaluator = Evaluator()
 
 
 @app.route("/_health")
@@ -83,16 +82,6 @@ def upload_document():
     return jsonify({'documentId': doc_id})
 
 
-@app.route("/absa/load", methods=['POST'])
-@cross_origin(supports_credentials=True)
-def load():
-    document = request.files.get('file')
-    if document is not None:
-        absa.load_document(document)
-        return '', http.HTTPStatus.NO_CONTENT
-    return '', http.HTTPStatus.BAD_REQUEST
-
-
 @app.route("/absa/query")
 @cross_origin(supports_credentials=True)
 def query():
@@ -108,6 +97,31 @@ def query():
 '''
 ROUTING: EVALUATOR
 '''
+
+preprocessor = TextPreprocessor()
+extractors = {
+    'v1': {
+        'label': 'v1.0', 'extractor': SpacyExtractor(vader)
+    },
+    'v1.1': {
+        'label': 'v1.1 (Coreference Resolution)', 'extractor': SpacyExtractor(vader, use_coref=True)
+    },
+    'v1.2': {
+        'label': 'v1.2 (Basic with Strict Sentiment)', 'extractor': SpacyExtractor(vader, ignore_zero=True)
+    },
+    'v2': {
+        'label': 'v2.0 (Generics Analysis)', 'extractor': RuleBasedExtractor(vader)
+    },
+}
+
+test_db = DatabaseSource(is_production=False)
+default = 'v2'
+
+evaluator = Evaluator(preprocessor=preprocessor,
+                      sentiment_service=vader,
+                      extractors=extractors,
+                      db=test_db,
+                      default=default)
 
 
 @app.route("/test/documents", methods=['GET'])

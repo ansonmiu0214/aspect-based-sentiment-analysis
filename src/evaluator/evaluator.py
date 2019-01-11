@@ -1,98 +1,16 @@
 import json
 
-from data_source.database_source import DatabaseSource
 from evaluator.metric import document_error
-from extractor_service.rule_based_extractor import RuleBasedExtractor
-from extractor_service.spacy_extractor import SpacyExtractor
 from models import *
-from preprocessor_service.text_preprocessor import TextPreprocessor
-from sentiment_service.vader import Vader
-
-
-def json_to_dict(entries):
-    '''
-    Adapter for JSON entries into dictionary representation.
-    '''
-    entities = {}
-
-    for entry in entries:
-        entity = entry['entity']
-        attribute = entry['attribute']
-        expression = entry['expression']
-        sentiment = entry['sentiment']
-
-        if entity not in entities:
-            entities[entity] = {}
-
-        if attribute not in entities[entity]:
-            entities[entity][attribute] = []
-
-        entities[entity][attribute].append(ExpressionEntry(expression, sentiment, is_header=False))
-
-    return entities
-
-
-def dict_to_entities(dictionary: dict) -> List[EntityEntry]:
-    '''
-    Converts dictionary representation to EntityEntry model.
-    '''
-    entity_entries = []
-    for entity in dictionary:
-        entity_entry = EntityEntry(entity.lower())
-
-        attributes = dictionary[entity]
-        for attribute in attributes:
-            expr_entries = attributes[attribute]
-            attr_entry = AttributeEntry(attribute.lower(), expr_entries)
-            entity_entry.add_attribute(attr_entry)
-        entity_entries.append(entity_entry)
-    return entity_entries
-
-
-def json_to_entities(json_string: str) -> List[EntityEntry]:
-    '''
-    Adapter from JSON string to the required EntityEntry model.
-    '''
-    entries = json.loads(json_string)
-    return dict_to_entities(json_to_dict(entries))
-
-
-def update_tags_from_json(document: Document, json_string: str) -> Document:
-    '''
-    Given a Document object that has already been preprocessed with the DocumentComponents
-    and a well-formatted JSON string of the ground truth tags, returns the annotated Document.
-    '''
-
-    entities = json_to_entities(json_string)
-    for entity in entities:
-        document.add_entity(entity)
-    return document
 
 
 class Evaluator:
-    def __init__(self):
-        self.preprocessor = TextPreprocessor()
-        self.sentiment_service = Vader()
-        self.extractors = {
-            'v1': {
-                'label': 'v1.0',
-                'extractor': SpacyExtractor(self.sentiment_service)
-            },
-            'v1.1': {
-                'label': 'v1.1 (Coreference Resolution)',
-                'extractor': SpacyExtractor(self.sentiment_service, use_coref=True)
-            },
-            'v1.2': {
-                'label': 'v1.2 (Basic with Strict Sentiment)',
-                'extractor': SpacyExtractor(self.sentiment_service, ignore_zero=True)
-            },
-            'v2': {
-                'label': 'v2.0 (Generics Analysis)',
-                'extractor': RuleBasedExtractor(self.sentiment_service)
-            },
-        }
-        self.db = DatabaseSource(is_production=False)
-        self.default = 'v2'
+    def __init__(self, preprocessor, sentiment_service, extractors, db, default):
+        self.preprocessor = preprocessor
+        self.sentiment_service = sentiment_service
+        self.extractors = extractors
+        self.db = db
+        self.default = default
 
     def load_test_document(self, doc, ground_truth_json: str):
         '''
@@ -199,3 +117,68 @@ class Evaluator:
             return document
 
         return document.as_dict()
+
+
+'''
+UTILITIES
+'''
+
+
+def json_to_dict(entries):
+    '''
+    Adapter for JSON entries into dictionary representation.
+    '''
+    entities = {}
+
+    for entry in entries:
+        entity = entry['entity']
+        attribute = entry['attribute']
+        expression = entry['expression']
+        sentiment = entry['sentiment']
+
+        if entity not in entities:
+            entities[entity] = {}
+
+        if attribute not in entities[entity]:
+            entities[entity][attribute] = []
+
+        entities[entity][attribute].append(ExpressionEntry(expression, sentiment, is_header=False))
+
+    return entities
+
+
+def dict_to_entities(dictionary: dict) -> List[EntityEntry]:
+    '''
+    Converts dictionary representation to EntityEntry model.
+    '''
+    entity_entries = []
+    for entity in dictionary:
+        entity_entry = EntityEntry(entity.lower())
+
+        attributes = dictionary[entity]
+        for attribute in attributes:
+            expr_entries = attributes[attribute]
+            attr_entry = AttributeEntry(attribute.lower(), expr_entries)
+            entity_entry.add_attribute(attr_entry)
+        entity_entries.append(entity_entry)
+    return entity_entries
+
+
+def json_to_entities(json_string: str) -> List[EntityEntry]:
+    '''
+    Adapter from JSON string to the required EntityEntry model.
+    '''
+    entries = json.loads(json_string)
+    return dict_to_entities(json_to_dict(entries))
+
+
+def update_tags_from_json(document: Document, json_string: str) -> Document:
+    '''
+    Given a Document object that has already been preprocessed with the DocumentComponents
+    and a well-formatted JSON string of the ground truth tags, returns the annotated Document.
+    '''
+
+    entities = json_to_entities(json_string)
+    for entity in entities:
+        document.add_entity(entity)
+    return document
