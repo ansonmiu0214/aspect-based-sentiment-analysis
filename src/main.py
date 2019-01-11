@@ -1,12 +1,5 @@
-from aggregator_service.average_aggregator import AverageAggregator
-from data_source.VolatileSource import VolatileSource
-from data_source.database_source import DatabaseSource
-from extractor_service.spacy_extractor import SpacyExtractor
-from models import ExtractorService, SentimentService, PreprocessorService, QueryParser, AggregatorService, \
+from models import ExtractorService, SentimentService, PreprocessorService, AggregatorService, \
     DataSourceService, Query
-from preprocessor_service.text_preprocessor import TextPreprocessor
-from query_parser.simple_parser import SimpleParser
-from sentiment_service.vader import Vader
 
 
 class ABSA:
