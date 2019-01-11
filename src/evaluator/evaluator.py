@@ -118,6 +118,9 @@ class Evaluator:
 
         return document.as_dict()
 
+    def delete_document(self, document_id):
+        self.db.delete_document(document_id)
+
 
 '''
 UTILITIES
