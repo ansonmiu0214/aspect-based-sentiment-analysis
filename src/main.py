@@ -10,12 +10,11 @@ from sentiment_service.vader import Vader
 
 
 class ABSA:
-    def __init__(self, preprocessor, extractor, sentiment, datasource, query_parser, aggregator):
+    def __init__(self, preprocessor, extractor, sentiment, datasource, aggregator):
         self.preprocessor_service = preprocessor  # type: PreprocessorService
         self.extractor_service = extractor        # type: ExtractorService
         self.sentiment_service = sentiment        # type: SentimentService
         self.data_source = datasource             # type: DataSourceService
-        self.query_parser = query_parser          # type: QueryParser
         self.aggregator_service = aggregator      # type: AggregatorService
 
     def load_document(self, document_string, extension="txt", verbose=True):
@@ -47,7 +46,9 @@ class ABSA:
         '''
         Process the user query and return the aggregated sentiment and related entries.
 
-        :param query: str
+        :param entity:  str
+        :param attribute: str
+        :param verbose: bool
         :rtype: (float, List[AttributeEntry])
         '''
 
