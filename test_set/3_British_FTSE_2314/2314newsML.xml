@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="2314" id="root" date="1996-08-20" xml:lang="en">
+    <title>UK: British FTSE index closes at record 3,883 points.</title>
+    <headline>British FTSE index closes at record 3,883 points.</headline>
+    <dateline>LONDON</dateline>
+    <text>
+        <p>Britain's FTSE 100 stock index, which sank to its lowest level of the year a month ago, chalked up a record
+            closing high Tuesday, led by retail stocks.
+        </p>
+        <p>&quot;You probably couldn't have forecast a better background for the equity market than the one we've
+            currently got,&quot; said one stock trader. &quot;The market has a lot going for it.&quot;
+        </p>
+        <p>The blue chip index closed 19.5 points higher at 3,883.2, surpassing the previous 3,872.9 record it set just
+            last week.
+        </p>
+        <p>Gainers outweighed decliners by a margin of two to one but volume was a subdued 512.9 million shares as all
+            eyes remained fixed on the outcome of the Federal Reserve's interest-rate-setting Federal Open Markets
+            Committee, which was meeting as the London market closed.
+        </p>
+        <p>Retail stocks which led an early advance were boosted by the latest economic figures which showed an
+            improvement in British consumer sentiment.
+        </p>
+        <p>&quot;The consumer credit figures this morning showed another booming month -- the consumer is back with a
+            vengeance,&quot; another trader said.
+        </p>
+        <p>But the return of the so-called &quot;feel-good factor&quot; in the retail sector may also reduce the
+            likelihood of any further cuts in British interest rates, traders said.
+        </p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="UK">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="M11">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="MCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="LONDON"/>
+        <dc element="dc.creator.location.country.name" value="UK"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

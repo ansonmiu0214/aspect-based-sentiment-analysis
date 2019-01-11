@@ -1,47 +1,38 @@
-import http, json
+import http
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 
 from aggregator_service.average_aggregator import AverageAggregator
-from data_source.VolatileSource import VolatileSource
 from data_source.database_source import DatabaseSource
 from evaluator.evaluator import Evaluator
+from extractor_service.rule_based_extractor import RuleBasedExtractor
 from extractor_service.spacy_extractor import SpacyExtractor
 from main import ABSA
 from preprocessor_service.text_preprocessor import TextPreprocessor
-from query_parser.simple_parser import SimpleParser
 from sentiment_service.vader import Vader
 
+# Setup
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
-sentiment_service = Vader()
+vader = Vader()
 database_source = DatabaseSource()
 absa = ABSA(preprocessor=TextPreprocessor(),
-            extractor=SpacyExtractor(sentiment_service),
-            sentiment=sentiment_service,
-            # datasource=VolatileSource(),
+            extractor=SpacyExtractor(vader),
+            sentiment=vader,
             datasource=database_source,
-            query_parser=SimpleParser(),
             aggregator=AverageAggregator())
 
-evaluator = Evaluator()
+
+@app.route("/_health")
+def health():
+    return 'OK'
 
 
-def jsonify_entry(entry):
-    print(entry)
-    return {
-        'attribute': entry.text,
-        'entries': list(
-            map(lambda e: {'expression': str(e.text), 'sentiment': e.sentiment, 'documentId': e.document_id},
-                entry.expressions)),
-        'score': sum(map(lambda e: e.sentiment, entry.expressions)) / len(entry.expressions)
-    }
-
-
-def jsonify_entries(entries):
-    return list(map(jsonify_entry, entries))
+'''
+ROUTING: PRODUCTION
+'''
 
 
 @app.route("/absa/documents", methods=['GET'])
@@ -91,16 +82,6 @@ def upload_document():
     return jsonify({'documentId': doc_id})
 
 
-@app.route("/absa/load", methods=['POST'])
-@cross_origin(supports_credentials=True)
-def load():
-    document = request.files.get('file')
-    if document is not None:
-        absa.load_document(document)
-        return '', http.HTTPStatus.NO_CONTENT
-    return '', http.HTTPStatus.BAD_REQUEST
-
-
 @app.route("/absa/query")
 @cross_origin(supports_credentials=True)
 def query():
@@ -111,6 +92,36 @@ def query():
         (score, relevant_entries) = absa.process_query(entity, attribute)
         return jsonify({'score': score, 'entries': jsonify_entries(relevant_entries)})
     return '', http.HTTPStatus.NO_CONTENT
+
+
+'''
+ROUTING: EVALUATOR
+'''
+
+preprocessor = TextPreprocessor()
+extractors = {
+    'v1': {
+        'label': 'v1.0', 'extractor': SpacyExtractor(vader)
+    },
+    'v1.1': {
+        'label': 'v1.1 (Coreference Resolution)', 'extractor': SpacyExtractor(vader, use_coref=True)
+    },
+    'v1.2': {
+        'label': 'v1.2 (Basic with Strict Sentiment)', 'extractor': SpacyExtractor(vader, ignore_zero=True)
+    },
+    'v2': {
+        'label': 'v2.0 (Generics Analysis)', 'extractor': RuleBasedExtractor(vader)
+    },
+}
+
+test_db = DatabaseSource(is_production=False)
+default = 'v2'
+
+evaluator = Evaluator(preprocessor=preprocessor,
+                      sentiment_service=vader,
+                      extractors=extractors,
+                      db=test_db,
+                      default=default)
 
 
 @app.route("/test/documents", methods=['GET'])
@@ -138,17 +149,6 @@ def upload_test_document():
     tags_string = tags.read().decode('utf-8')
     doc_id = evaluator.load_test_document((doc_string, ext), tags_string)
     return jsonify({'documentId': doc_id})
-
-
-@app.route("/test/document", methods=['DELETE'])
-@cross_origin(supports_credentials=True)
-def delete_test_document():
-    document_id = request.args.get('id')
-    if document_id is None:
-        return '', http.HTTPStatus.NO_CONTENT
-
-    status = evaluator.delete_test_document(document_id)
-    return '', http.HTTPStatus.OK if status else http.HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @app.route("/test/document", methods=['GET'])
@@ -184,11 +184,24 @@ def get_extractors():
 def run_evaluator():
     option = request.args.get('extractor')
     avg_score, avg_ent, avg_attr, avg_mse, idx_to_score = evaluator.run_evaluator(option=option)
-    # print([key for entry in idx_to_score for key in entry])
     return jsonify(
         {'result': avg_score, 'ent_f1': avg_ent, 'attr_f1': avg_attr, 'mse': avg_mse, 'breakdown': idx_to_score})
 
 
-@app.route("/_health")
-def health():
-    return 'OK'
+'''
+UTILITIES
+'''
+
+
+def jsonify_entry(entry):
+    return {
+        'attribute': entry.text,
+        'entries': list(
+            map(lambda e: {'expression': str(e.text), 'sentiment': e.sentiment, 'documentId': e.document_id},
+                entry.expressions)),
+        'score': sum(map(lambda e: e.sentiment, entry.expressions)) / len(entry.expressions)
+    }
+
+
+def jsonify_entries(entries):
+    return list(map(jsonify_entry, entries))

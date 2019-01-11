@@ -1,11 +1,10 @@
 import json
 
-from models import *
 from data_source import aws_database
+from models import *
 
 
 def insert(connection, document: Document):
-    print(connection)
     doc_id = None
     with connection.cursor() as cursor:
         sql = "INSERT INTO `document` (metadata) VALUES (%s)"
@@ -23,25 +22,41 @@ def insert(connection, document: Document):
         print("Inserted document components.")
         for ent in document.entities:
             # Entity
-            sql = "INSERT INTO `entity` (name, metadata) VALUES (%s, %s)"
+            ent_id = None
 
-            cursor.execute(sql, (ent.text, json.dumps(ent.metadata)))
-            sql = "SELECT LAST_INSERT_ID()"
-            cursor.execute(sql, ())
-            ent_id = cursor.fetchone()[0]
+            sql = "SELECT id FROM entity WHERE name = %s"
+            cursor.execute(sql, ent.text)
+
+            if cursor.rowcount > 0:
+                ent_id = cursor.fetchone()[0]
+            else:
+                sql = "INSERT INTO `entity` (name, metadata) VALUES (%s, %s)"
+
+                cursor.execute(sql, (ent.text, json.dumps(ent.metadata)))
+                sql = "SELECT LAST_INSERT_ID()"
+                cursor.execute(sql, ())
+                ent_id = cursor.fetchone()[0]
 
             for attr in ent.attributes:
                 # Attribute.
                 attr_id = None
-                sql = "INSERT INTO `attribute` (entity_id, attribute, metadata) VALUES (%s, %s, %s)"
-                cursor.execute(sql, (ent_id, attr.text, json.dumps(attr.metadata)))
 
-                sql = "SELECT LAST_INSERT_ID()"
-                cursor.execute(sql, ())
-                attr_id = cursor.fetchone()[0]
+                sql = "SELECT id FROM attribute WHERE entity_id = %s AND attribute = %s"
+                cursor.execute(sql, (ent_id, attr.text))
+
+                if cursor.rowcount > 0:
+                    attr_id = cursor.fetchone()[0]
+                else:
+                    sql = "INSERT INTO `attribute` (entity_id, attribute, metadata) VALUES (%s, %s, %s)"
+                    cursor.execute(sql, (ent_id, attr.text, json.dumps(attr.metadata)))
+
+                    sql = "SELECT LAST_INSERT_ID()"
+                    cursor.execute(sql, ())
+                    attr_id = cursor.fetchone()[0]
 
                 # Expressions.
-                sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id, is_header) VALUES (%s, %s, %s, %s, %s)"
+                sql = "INSERT INTO `expression` (attribute_id, text, sentiment, document_id, is_header) " \
+                      "VALUES (%s, %s, %s, %s, %s)"
                 cursor.executemany(sql, list(map(lambda x: [attr_id, x.text, x.sentiment, doc_id, x.is_header],
                                                  attr.expressions)))
 
@@ -49,7 +64,7 @@ def insert(connection, document: Document):
         return doc_id
 
 
-def selectAttributes(connection, entity, attribute=None):
+def select_attributes(connection, entity, attribute=None):
     with connection.cursor() as cursor:
         if attribute is None:
             sql = "SELECT attribute.id as id, attribute, attribute.metadata " \
@@ -66,7 +81,7 @@ def selectAttributes(connection, entity, attribute=None):
         return results
 
 
-def selectExpressions(connection, attribute_id):
+def select_expressions(connection, attribute_id):
     with connection.cursor() as cursor:
         sql = "SELECT text, sentiment, document_id, is_header as doc_id " \
               "FROM expression " \
@@ -74,7 +89,6 @@ def selectExpressions(connection, attribute_id):
         cursor.execute(sql, (attribute_id))
         results = list(cursor.fetchall())
         return results
-        # return list(map(lambda x: x[0], cursor.fetchall()))
 
 
 def reset(connection):
@@ -91,11 +105,68 @@ def reset(connection):
         cursor.execute(sql, ())
         connection.commit()
         print("All deleted.")
-        # cursor.close()
 
 
-def selectDocuments(connection):
-    connection.open
+def delete_document(connection, document_id):
+    with connection.cursor() as cursor:
+        sql = "SELECT attribute_id FROM expression WHERE document_id = %s"
+        cursor.execute(sql, document_id)
+
+        attr_ids = list(set(map(lambda x: x[0], cursor.fetchall())))
+
+        formatters = ','.join(['%s'] * len(attr_ids))
+        sql = "SELECT entity_id FROM attribute WHERE id IN (%s)" % formatters
+        cursor.execute(sql, tuple(attr_ids))
+
+        ent_ids = list(set(map(lambda x: x[0], cursor.fetchall())))
+
+        # Delete expressions
+        sql = "DELETE FROM expression WHERE document_id = %s"
+        cursor.execute(sql, document_id)
+
+        # For each attribute, check whether an expression still exists;
+        # if not, delete the attribute
+
+        attrs_to_delete = []
+        for attr_id in attr_ids:
+            sql = "SELECT id FROM expression WHERE attribute_id = %s"
+            cursor.execute(sql, (attr_id))
+
+            if cursor.rowcount == 0:
+                attrs_to_delete.append(attr_id)
+
+        if attrs_to_delete:
+            formatters = ','.join(['%s'] * len(attrs_to_delete))
+            sql = "DELETE FROM attribute WHERE id IN (%s)" % formatters
+            cursor.execute(sql, tuple(attrs_to_delete))
+
+        # For each entity, check whether an attribute still exists;
+        # if not, delete the entity
+
+        ents_to_delete = []
+        for ent_id in ent_ids:
+            sql = "SELECT id FROM attribute WHERE entity_id = %s"
+            cursor.execute(sql, (ent_id))
+
+            if cursor.rowcount == 0:
+                ents_to_delete.append(ent_id)
+
+        if ents_to_delete:
+            formatters = ','.join(['%s'] * len(ents_to_delete))
+            sql = "DELETE FROM entity WHERE id IN (%s)" % formatters
+            cursor.execute(sql, tuple(ents_to_delete))
+
+        # Delete document components
+        sql = "DELETE FROM component WHERE document_id = %s"
+        cursor.execute(sql, document_id)
+
+        # Delete document
+        sql = "DELETE FROM document WHERE id = %s"
+        cursor.execute(sql, document_id)
+        connection.commit()
+
+
+def select_documents(connection):
     with connection.cursor() as cursor:
         sql = "SELECT * FROM document"
         cursor.execute(sql, ())
@@ -103,12 +174,15 @@ def selectDocuments(connection):
         return results
 
 
-def composeDocument(connection, document_id: int) -> Document:
+def compose_document(connection, document_id: int) -> Document:
     document = Document(identifier=document_id)
     with connection.cursor() as cursor:
         # Select metadata
         sql = "SELECT metadata FROM document WHERE id = %s"
         cursor.execute(sql, (document_id))
+
+        if cursor.rowcount == 0:
+            return None
 
         metadata = cursor.fetchone()[0]
         document.metadata = json.loads(metadata)
@@ -118,8 +192,6 @@ def composeDocument(connection, document_id: int) -> Document:
         cursor.execute(sql, (document_id))
 
         components = cursor.fetchall()
-        if not components:
-            return None
 
         all_text = []
         for type, text in components:
@@ -166,13 +238,7 @@ def composeDocument(connection, document_id: int) -> Document:
 
             document.add_entity(entity_entry)
 
-            # cursor.close()
     return document
-
-
-def delete(connection, document_id):
-    # TODO
-    return True
 
 
 class DatabaseSource(DataSourceService):
@@ -183,9 +249,7 @@ class DatabaseSource(DataSourceService):
     def reset(self):
         # Set up connection.
         self.setup_connection()
-
         reset(self.connection)
-        # self.destroy_connection()
 
     def process_document(self, document: Document):
         # Set up connection.
@@ -201,56 +265,48 @@ class DatabaseSource(DataSourceService):
                 for expr in attr.expressions:
                     expr.document_id = doc_id
 
-        # self.destroy_connection()
         return doc_id
 
     def lookup(self, query: Query):
         # Set up connection.
         self.setup_connection()
 
-        rows = selectAttributes(self.connection, query.entity, query.attribute)
+        rows = select_attributes(self.connection, query.entity, query.attribute)
 
         attrs = []
 
         for (id, name, metadata) in rows:
-            expressions = selectExpressions(self.connection, id)
-            exprs = [ExpressionEntry(text, sentiment, doc_id, is_header) for text, sentiment, doc_id, is_header in expressions]
+            expressions = select_expressions(self.connection, id)
+            exprs = [ExpressionEntry(text, sentiment, doc_id, is_header)
+                     for text, sentiment, doc_id, is_header in expressions]
             attr = AttributeEntry(name, exprs)
             attr.metadata = json.loads(metadata)
             attrs.append(attr)
 
-        # self.destroy_connection()
         return attrs
 
     def list_all_documents(self):
         self.setup_connection()
 
         # Select documents
-        rows = selectDocuments(self.connection)
+        rows = select_documents(self.connection)
 
         docs = {}
         for id, metadata in rows:
             docs[id] = json.loads(metadata)
 
-        # self.destroy_connection()
         return docs
 
     def retrieve_document(self, document_id: int) -> Document:
         self.setup_connection()
+        return compose_document(self.connection, document_id)
 
-        res = composeDocument(self.connection, document_id)
-        # self.destroy_connection()
-        return res
+    def delete_document(self, document_id: int):
+        self.setup_connection()
+        return delete_document(self.connection, document_id)
 
     def setup_connection(self):
-        # if self.connection is None:
         self.connection = aws_database.get_connection(self.is_production)
-
-    def delete_document(self, document_id):
-        self.setup_connection()
-        res = delete(self.connection, document_id)
-        # self.destroy_connection()
-        return res
 
     def destroy_connection(self):
         if self.connection:

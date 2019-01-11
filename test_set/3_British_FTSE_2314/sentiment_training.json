@@ -1,0 +1,38 @@
+[
+  {
+    "expr": "Britain 's FTSE 100 stock index , which sank to its lowest level of the year a month ago , chalked up a record closing high Tuesday , led by retail stocks .",
+    "sentiment": 0.9
+  },
+  {
+    "expr": "Britain 's FTSE 100 stock index , which sank to its lowest level of the year a month ago , chalked up a record closing high Tuesday , led by retail stocks .",
+    "sentiment": 0.9
+  },
+  {
+    "expr": "\" The market has a lot going for it . \"",
+    "sentiment": 0.6
+  },
+  {
+    "expr": "The blue chip index closed 19.5 points higher at 3,883.2 , surpassing the previous 3,872.9 record it set just last week .",
+    "sentiment": 0.75
+  },
+  {
+    "expr": "Retail stocks which led an early advance were boosted by the latest economic figures which showed an improvement in British consumer sentiment .",
+    "sentiment": 0.9
+  },
+  {
+    "expr": "Retail stocks which led an early advance were boosted by the latest economic figures which showed an improvement in British consumer sentiment .",
+    "sentiment": 0.8
+  },
+  {
+    "expr": "Retail stocks which led an early advance were boosted by the latest economic figures which showed an improvement in British consumer sentiment .",
+    "sentiment": 0.85
+  },
+  {
+    "expr": "\" The consumer credit figures this morning showed another booming month -- the consumer is back with a vengeance , \" another trader said .",
+    "sentiment": 1
+  },
+  {
+    "expr": "But the return of the so - called \" feel - good factor \" in the retail sector may also reduce the likelihood of any further cuts in British interest rates , traders said .",
+    "sentiment": -0.2
+  }
+]

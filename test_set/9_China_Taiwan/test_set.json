@@ -1,0 +1,122 @@
+[
+  {
+    "entity": "China",
+    "attribute": "regulations",
+    "expression": "China has issued a set of regulations governing direct shipping links with Taiwan , the Xinhua news agency said on Tuesday .",
+    "sentiment": 0
+  },
+  {
+    "entity": "China",
+    "attribute": "shipping links",
+    "expression": "China has issued a set of regulations governing direct shipping links with Taiwan , the Xinhua news agency said on Tuesday .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Taiwan",
+    "attribute": "shipping links",
+    "expression": "The regulations take effect today , although Taiwan still bans direct shipping links between the two sides .",
+    "sentiment": -0.2
+  },
+  {
+    "entity": "Straits",
+    "attribute": "passenger transport",
+    "expression": "\" The regulations ... are meant to promote cargo and passenger transport between the two sides of the Straits and accelerate the development of direct mail service , trade , and air and shipping links across the Straits , \" Xinhua said .",
+    "sentiment": 0.3
+  },
+  {
+    "entity": "Taiwan",
+    "attribute": "regulations",
+    "expression": "\" The regulations ... are meant to promote cargo and passenger transport between the two sides of the Straits and accelerate the development of direct mail service , trade , and air and shipping links across the Straits , \" Xinhua said .",
+    "sentiment": 0.2
+  },
+  {
+    "entity": "Taiwan",
+    "attribute": "cargo",
+    "expression": "\" The regulations ... are meant to promote cargo and passenger transport between the two sides of the Straits and accelerate the development of direct mail service , trade , and air and shipping links across the Straits , \" Xinhua said .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Straits",
+    "attribute": "direct mail service",
+    "expression": "\" The regulations ... are meant to promote cargo and passenger transport between the two sides of the Straits and accelerate the development of direct mail service , trade , and air and shipping links across the Straits , \" Xinhua said .",
+    "sentiment": 0.4
+  },
+  {
+    "entity": "Straits",
+    "attribute": "trade",
+    "expression": "\" The regulations ... are meant to promote cargo and passenger transport between the two sides of the Straits and accelerate the development of direct mail service , trade , and air and shipping links across the Straits , \" Xinhua said .",
+    "sentiment": 0.4
+  },
+  {
+    "entity": "Straits",
+    "attribute": "shipping links",
+    "expression": "\" The regulations ... are meant to promote cargo and passenger transport between the two sides of the Straits and accelerate the development of direct mail service , trade , and air and shipping links across the Straits , \" Xinhua said .",
+    "sentiment": 0.4
+  },
+  {
+    "entity": "Xinhua",
+    "attribute": "details",
+    "expression": "It gave no further details .",
+    "sentiment": -0.1
+  },
+  {
+    "entity": "Chinese",
+    "attribute": "cities",
+    "expression": "Hong Kong 's Beijing - backed Wen Wei Po newspaper said on Tuesday that the southeastern Chinese cities of Xiamen and Fuzhou would be the first ports to be opened to direct shipping links with Taiwan .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Fuzhou",
+    "attribute": "shipping links",
+    "expression": "Hong Kong 's Beijing - backed Wen Wei Po newspaper said on Tuesday that the southeastern Chinese cities of Xiamen and Fuzhou would be the first ports to be opened to direct shipping links with Taiwan .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Xiamen",
+    "attribute": "ports",
+    "expression": "Hong Kong 's Beijing - backed Wen Wei Po newspaper said on Tuesday that the southeastern Chinese cities of Xiamen and Fuzhou would be the first ports to be opened to direct shipping links with Taiwan .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Xiamen",
+    "attribute": "conditions",
+    "expression": "conditions",
+    "sentiment": 0
+  },
+  {
+    "entity": "Taiwan",
+    "attribute": "shipping links",
+    "expression": "The conditions were ripe for establishing direct shipping links between the two sides , the newspaper said .",
+    "sentiment": 0
+  },
+  {
+    "entity": "China",
+    "attribute": "statement",
+    "expression": "An official of the Ministry of Communications declined to comment on the reports , saying only that China would make a statement through the official media in future .",
+    "sentiment": 0
+  },
+  {
+    "entity": "China",
+    "attribute": "media",
+    "expression": "An official of the Ministry of Communications declined to comment on the reports , saying only that China would make a statement through the official media in future .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Taiwan",
+    "attribute": "shipping links",
+    "expression": "Taiwan has banned direct air and shipping links with China since Chiang Kai - shek 's Nationalists lost the Chinese civil war and fled to the island in 1949 .",
+    "sentiment": 0
+  },
+  {
+    "entity": "Chinese",
+    "attribute": "war",
+    "expression": "Taiwan has banned direct air and shipping links with China since Chiang Kai - shek 's Nationalists lost the Chinese civil war and fled to the island in 1949 .",
+    "sentiment": -0.7
+  },
+  {
+    "entity": "Chinese",
+    "attribute": "island",
+    "expression": "Taiwan has banned direct air and shipping links with China since Chiang Kai - shek 's Nationalists lost the Chinese civil war and fled to the island in 1949 .",
+    "sentiment": -0.2
+  }
+]

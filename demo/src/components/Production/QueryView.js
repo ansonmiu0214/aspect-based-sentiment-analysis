@@ -35,7 +35,7 @@ class QueryView extends Component {
         <Grid item xs={4}>
           <Options setLoading={this.setLoading} updateResults={this.updateResults} />
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={8} style={{marginBottom: '50px'}}>
           {loading && <Loader />}
           {!loading && results != [] && <Results results={results} />}
         </Grid>

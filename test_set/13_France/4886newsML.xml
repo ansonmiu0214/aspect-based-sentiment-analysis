@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="4886" id="root" date="1996-08-20" xml:lang="en">
+    <title>FRANCE: French Riviera train strike ends.</title>
+    <headline>French Riviera train strike ends.</headline>
+    <dateline>MARSEILLE, France 1996-08-20</dateline>
+    <text>
+        <p>French Riviera train conductors ended a 36-hour strike on Tuesday against growing crime which has badly
+            disrupted traffic at the peak summer holiday period.
+        </p>
+        <p>A trade union spokesman said the management of state railway company SNCF had responded to the protest by
+            promising to increase staff and equip conductors with portable telephones to tighten security on routes
+            regarded as dangerous.
+        </p>
+        <p>Unionists say train conductors in southeast France are increasingly at risk from fare dodgers, pickpockets
+            and thugs.
+        </p>
+        <p>The strike forced SNCF to cancel five long distance trains between Marseille and Nice and 75 percent of
+            regional traffic on Monday. High-speed trains ran normally.
+        </p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="FRA">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:industries:1.0">
+            <code code="I71000">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="C42">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="CCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="E41">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="ECAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="GCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="GJOB">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="MARSEILLE, France"/>
+        <dc element="dc.creator.location.country.name" value="FRANCE"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

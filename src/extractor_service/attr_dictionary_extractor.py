@@ -1,8 +1,8 @@
-import spacy
 from collections import deque
 
+import spacy
+
 from extractor_service.attribute_dictionary import AttributeDictionary, KnowledgeModel
-from extractor_service.coref import Coreferencer
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
     DocumentComponent
 from sentiment_service.vader import Vader
@@ -12,7 +12,6 @@ ENT_WITH_ATTR_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MON
                            'PRODUCT'}
 ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL',
                             'PRODUCT'}
-# ENT_TO_EXTRACT_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
 
 ATTR_DICT_GPE = ['market', 'job', 'population', 'capital', 'region', 'continent', 'interest']
@@ -76,7 +75,6 @@ class RuleBasedExtractor(ExtractorService):
 
             # Extract entities and add sentiments.
             for ent in filter(lambda x: x.label_ not in ENT_TO_EXTRACT_BLACKLIST and x.lemma_ != '', doc.ents):
-                print(ent, ent.label_)
                 ents_to_extract[ent.lemma_] = {}
 
             # Map indices to entities.
@@ -101,7 +99,6 @@ class RuleBasedExtractor(ExtractorService):
                     else:
                         # Check if it is the most generic entity
                         generic_entity = find_most_generic_entity(token)
-                        print("curr=%s generic=%s" % (token, generic_entity))
 
                         is_same = generic_entity == token
                         is_part_of_same_entity = generic_entity.text in temp_entity.text
@@ -118,16 +115,7 @@ class RuleBasedExtractor(ExtractorService):
                 if not is_valid_attribute_token(token):
                     continue
 
-                # # Skip if no attached entity.
-                # if cur_entity is None:
-                #     ent_token = of_check(token)
-                #     if ent_token is None:
-                #         continue
-                #
-                #     temp_entity = para_ents_with_attr[ent_token.i]
-
                 # Retrieve attribute.
-                # token = find_most_generic_attribute(token)
                 attribute = retrieve_attribute(token)
 
                 # Skip if in blacklist.
@@ -137,12 +125,7 @@ class RuleBasedExtractor(ExtractorService):
                 if cur_sent_polar is None:
                     cur_sent_polar = self.sentiment_service.compute_sentiment(token.sent.text)
 
-                # Skip if current sentence has 0 polarity.
-                # if cur_sent_polar == 0:
-                #     continue
-
-                # TODO "of" check to override if required
-                ent_token = of_check(token)
+                ent_token = live_range_override_check(token)
 
                 entity_to_use = None
 
@@ -185,7 +168,7 @@ def path_contains_another_valid_attr(entity, token):
     return False
 
 
-def of_check(token):
+def live_range_override_check(token):
     all_descendants = [descendant for descendant in token.subtree]
     for desc in all_descendants:
         if desc.ent_iob_ == "B":

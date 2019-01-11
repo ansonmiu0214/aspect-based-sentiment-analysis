@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="2307" id="root" date="1996-08-20" xml:lang="en">
+    <title>UK: Oil prices slip as refiners shop for bargains.</title>
+    <headline>Oil prices slip as refiners shop for bargains.</headline>
+    <dateline>LONDON 1996-08-20</dateline>
+    <text>
+        <p>World oil prices slipped on Tuesday in a market where refiners stung by high crude premiums and poor margins
+            began to bargain for a cheaper barrel.
+        </p>
+        <p>October futures for world benchmark Brent Blend crude from the North Sea closed down 38 cents at $20.43 a
+            barrel after failing to break through the day's high of $20.80.
+        </p>
+        <p>&quot;There was a broad feeling in the market that Brent was overheated and had to come down,&quot; a trader
+            said.
+        </p>
+        <p>On the unofficial Brent forward market, prompt differentials for Dated or physical Brent shrank, suggesting
+            cargoes would fetch lower premiums in the weeks ahead. This could avert the risk of refineries running less
+            crude through their systems to pump up the price of products.
+        </p>
+        <p>The market was also waiting for direction from U.S. stocks data due out later on Tuesday which is forecast to
+            show a 1.3 million barrel build in heating oil and diesel stocks in the run-up to the winter season, when
+            gasoline gives way to heating oil as the guiding light for crude prices.
+        </p>
+        <p>Low inventory builds in the United States were largely supportive of the North Sea and West African markets
+            with 5.0 million barrels of distillate-rich North Sea grades heading trans-Atlantic in the last week alone.
+        </p>
+        <p>Crude oil prices in dollars per barrel:</p>
+        <p>Aug 20 Aug 19</p>
+        <p>(close) (close)</p>
+        <p>Dated Brent $21.35 $21.73</p>
+        <p>IPE London Brent futures (Oct) $20.43 $20.85</p>
+        <p>NYMEX light crude futures (Sept) $22.80 $23.26</p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="UK">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="M14">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="M143">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="MCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="LONDON"/>
+        <dc element="dc.creator.location.country.name" value="UK"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

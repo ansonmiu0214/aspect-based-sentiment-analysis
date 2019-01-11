@@ -1,17 +1,13 @@
+import csv
 import json
-
-import thinc.extra.datasets
+import random
+from collections import Counter
 
 import pandas as pd
 import spacy
-import random
-import csv
-
-from collections import Counter
-
+from spacy.lang.en.stop_words import STOP_WORDS
 # Define function to cleanup text by removing personal pronouns, stopwords, and puncuation
 from spacy.symbols import NOUN
-from spacy.lang.en.stop_words import STOP_WORDS
 
 stopwords = list(STOP_WORDS)
 
@@ -56,10 +52,6 @@ def save_dict(attr_dict):
 
 
 if __name__ == '__main__':
-
-    # train_data, _ = thinc.extra.datasets.imdb()
-    # train_data = [i[0] for i in train_data]
-
     train_data = []
     print("Loading data...")
     with open('Amazon_Unlocked_Mobile.csv') as csv_file:

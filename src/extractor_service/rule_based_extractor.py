@@ -1,8 +1,8 @@
-import spacy
 from collections import deque
 
+import spacy
+
 from extractor_service.attribute_dictionary import AttributeDictionary
-from extractor_service.coref import Coreferencer
 from models import ExtractorService, SentimentService, Document, EntityEntry, AttributeEntry, ExpressionEntry, \
     DocumentComponent
 from sentiment_service.vader import Vader
@@ -10,13 +10,9 @@ from sentiment_service.vader import Vader
 MODEL = 'en_core_web_sm'
 ENT_WITH_ATTR_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL',
                            'PRODUCT'}
-ENT_TO_EXTRACT_BLACKLIST = {'PERSON', 'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL',
+ENT_TO_EXTRACT_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL',
                             'PRODUCT'}
-# ENT_TO_EXTRACT_BLACKLIST = {'LANGUAGE', 'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL'}
 ATTR_BLACKLIST = {'high', 'low', 'max', 'maximum', 'min', 'minimum', 'lot'}
-
-
-# ADDITIONS = {'focus','return','foreigner','buzz','point','mind','drop','strength','play','lack','move'}
 
 
 def find_most_generic_entity(cur_entity):
@@ -114,16 +110,7 @@ class RuleBasedExtractor(ExtractorService):
                 if not is_valid_attribute_token(token):
                     continue
 
-                # # Skip if no attached entity.
-                # if cur_entity is None:
-                #     ent_token = of_check(token)
-                #     if ent_token is None:
-                #         continue
-                #
-                #     temp_entity = para_ents_with_attr[ent_token.i]
-
                 # Retrieve attribute.
-                # token = find_most_generic_attribute(token)
                 attribute = retrieve_attribute(token)
 
                 # Skip if in blacklist.
@@ -133,16 +120,9 @@ class RuleBasedExtractor(ExtractorService):
                 if cur_sent_polar is None:
                     cur_sent_polar = self.sentiment_service.compute_sentiment(token.sent.text)
 
-                # Skip if current sentence has 0 polarity.
-                # if cur_sent_polar == 0:
-                #     continue
-
-                # TODO "of" check to override if required
-                ent_token = of_check(token)
+                ent_token = live_range_override_check(token)
 
                 entity_to_use = None
-
-                print("attr=%s ent_token=%s" % (attribute, ent_token))
 
                 if ent_token is not None and ent_token.i in para_ents_with_attr:
                     entity_to_use = para_ents_with_attr[ent_token.i]
@@ -174,7 +154,7 @@ def path_contains_another_valid_attr(entity, token):
     return False
 
 
-def of_check(token):
+def live_range_override_check(token):
     all_descendants = [descendant for descendant in token.subtree]
     for desc in all_descendants:
         if desc.ent_iob_ == "B":

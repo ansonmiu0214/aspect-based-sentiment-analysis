@@ -1,0 +1,98 @@
+[
+  {
+    "entity": "Riviera",
+    "attribute": "strike",
+    "expression": "French Riviera train conductors ended a 36-hour strike on Tuesday against growing crime which has badly disrupted traffic at the peak summer holiday period .",
+    "sentiment": -0.5
+  },
+  {
+    "entity": "Riviera",
+    "attribute": "crime",
+    "expression": "French Riviera train conductors ended a 36-hour strike on Tuesday against growing crime which has badly disrupted traffic at the peak summer holiday period .",
+    "sentiment": -0.5
+  },
+  {
+    "entity": "Riviera",
+    "attribute": "conductors",
+    "expression": "French Riviera train conductors ended a 36-hour strike on Tuesday against growing crime which has badly disrupted traffic at the peak summer holiday period .",
+    "sentiment": 0
+  },
+  {
+    "entity": "SNCF",
+    "attribute": "management",
+    "expression": "A trade union spokesman said the management of state railway company SNCF had responded to the protest by promising to increase staff and equip conductors with portable telephones to tighten security on routes regarded as dangerous .",
+    "sentiment": 0.2
+  },
+  {
+    "entity": "SNCF",
+    "attribute": "security",
+    "expression": "A trade union spokesman said the management of state railway company SNCF had responded to the protest by promising to increase staff and equip conductors with portable telephones to tighten security on routes regarded as dangerous .",
+    "sentiment": 0.4
+  },
+  {
+    "entity": "SNCF",
+    "attribute": "routes",
+    "expression": "A trade union spokesman said the management of state railway company SNCF had responded to the protest by promising to increase staff and equip conductors with portable telephones to tighten security on routes regarded as dangerous .",
+    "sentiment": -0.4
+  },
+  {
+    "entity": "SNCF",
+    "attribute": "conductors",
+    "expression": "A trade union spokesman said the management of state railway company SNCF had responded to the protest by promising to increase staff and equip conductors with portable telephones to tighten security on routes regarded as dangerous .",
+    "sentiment": 0
+  },
+  {
+    "entity": "SNCF",
+    "attribute": "staff",
+    "expression": "A trade union spokesman said the management of state railway company SNCF had responded to the protest by promising to increase staff and equip conductors with portable telephones to tighten security on routes regarded as dangerous .",
+    "sentiment": 0
+  },
+  {
+    "entity": "France",
+    "attribute": "fare dodgers",
+    "expression": "Unionists say train conductors in southeast France are increasingly at risk from fare dodgers , pickpockets and thugs .",
+    "sentiment": -0.3
+  },
+  {
+    "entity": "Marseille",
+    "attribute": "trains",
+    "expression": "The strike forced SNCF to cancel five long distance trains between Marseille and Nice and 75 percent of regional traffic on Monday . High - speed trains ran normally .",
+    "sentiment": -0.5
+  },
+  {
+    "entity": "Nice",
+    "attribute": "trains",
+    "expression": "The strike forced SNCF to cancel five long distance trains between Marseille and Nice and 75 percent of regional traffic on Monday . High - speed trains ran normally .",
+    "sentiment": -0.5
+  },
+  {
+    "entity": "Nice",
+    "attribute": "traffic",
+    "expression": "The strike forced SNCF to cancel five long distance trains between Marseille and Nice and 75 percent of regional traffic on Monday . High - speed trains ran normally .",
+    "sentiment": -0.2
+  },
+  {
+    "entity": "Marseille",
+    "attribute": "traffic",
+    "expression": "The strike forced SNCF to cancel five long distance trains between Marseille and Nice and 75 percent of regional traffic on Monday . High - speed trains ran normally .",
+    "sentiment": -0.2
+  },
+  {
+    "entity": "France",
+    "attribute": "risk",
+    "expression": "Unionists say train conductors in southeast France are increasingly at risk from fare dodgers , pickpockets and thugs .",
+    "sentiment": -0.4
+  },
+  {
+    "entity": "France",
+    "attribute": "pickpockets",
+    "expression": "Unionists say train conductors in southeast France are increasingly at risk from fare dodgers , pickpockets and thugs .",
+    "sentiment": -0.5
+  },
+  {
+    "entity": "France",
+    "attribute": "thugs",
+    "expression": "Unionists say train conductors in southeast France are increasingly at risk from fare dodgers , pickpockets and thugs .",
+    "sentiment": -0.5
+  }
+]

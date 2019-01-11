@@ -1,5 +1,6 @@
-from models import SentimentService
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+from models import SentimentService
 
 
 class Vader(SentimentService):

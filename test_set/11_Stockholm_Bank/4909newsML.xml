@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="4909" id="root" date="1996-08-20" xml:lang="en">
+    <title>SWEDEN: Riksbank leaves repo rate unchanged at 5.40 pct.</title>
+    <headline>Riksbank leaves repo rate unchanged at 5.40 pct.</headline>
+    <dateline>STOCKHOLM 1996-08-20</dateline>
+    <text>
+        <p>Sweden's Riksbank (central bank) left as expected its key repo rate unchanged at 5.40 percent on Tuesday in
+            the latest of its weekly reverse repurchase money market tenders.
+        </p>
+        <p>Bids from primary dealers must be with the Riksbank by 0800 GMT on August 20, the Riksbank said.</p>
+        <p>The bank said the lowest accepted volume is 200 million crowns and the highest accepted volume 40 billion
+            crowns.
+        </p>
+        <p>The Riksbank last lowered the repo rate a week ago, on August 13, when it trimmed off another 15 basis
+            points.
+        </p>
+        <p>It was the 17th cut so far this year.</p>
+        <p>The repo rate, which is the bank's key tool for controlling money market liquidity, began the year at 8.91
+            percent.
+        </p>
+        <p>The other two elements of the central bank's interest rate corridor, the deposit and lending rates, are
+            currently set at 4.75 percent and 6.25 percent respectively after a 50 basis point cut on August 15.
+        </p>
+        <p>-- Stockholm newsroom +46-8-700 1017</p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="SWED">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="E12">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="ECAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="M13">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="M131">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="MCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.date.created" value="1996-08-20"/>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="STOCKHOLM"/>
+        <dc element="dc.creator.location.country.name" value="SWEDEN"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>

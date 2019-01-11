@@ -1,12 +1,9 @@
-import json
-
 import spacy
 
 
 def is_similar(model, attr1, attr2, threshold):
     tokens = model(' '.join([attr1, attr2]))
     similarity = tokens[0].similarity(tokens[1])
-    # print(similarity)
     return similarity >= threshold
 
 

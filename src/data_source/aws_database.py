@@ -2,7 +2,6 @@ import pymysql
 
 host = "myspicyanalysis.chywzz3l5nmu.us-east-1.rds.amazonaws.com"
 port = 3306
-# dbname = "dbspicyanalysis"
 PRODUCTION_DB = "production"
 EVALUATION_DB = "evaluation"
 user = "seoinchai"

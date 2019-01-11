@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<newsitem itemid="2326" id="root" date="1996-08-20" xml:lang="en">
+    <title>UK: Orange telecom group loss grows but says future bright.</title>
+    <headline>Orange telecom group loss grows but says future bright.</headline>
+    <dateline>LONDON</dateline>
+    <text>
+        <p>British mobile telephone group Orange Plc said Tuesday its pre-tax losses expanded by 40 percent to 125.2
+            million pounds ($193.6 million) in the first half of the year, although its subscriber base and revenues
+            both grew.
+        </p>
+        <p>Orange, whose shares have fallen well below the level at which they were offered to the public in March, said
+            the loss was expected and pointed to steady gains in its subscribers and revenue as proof of the underlying
+            health of the business.
+        </p>
+        <p>&quot;Our net growth has increased dramatically ... All the key drivers of the business, we are succeeding
+            on,&quot; Managing Director Hans Snook said in an interview.
+        </p>
+        <p>Shares in Orange gained 4 pence (6.2 cents) to 191 ($2.95) after the results, which compared with a loss of
+            88.8 million ($137.3 million) a year earlier.
+        </p>
+        <p>But the stock is still well short of the 205 pence ($3.17) level of its flotation, which valued the group at
+            some 2.5 billion pounds ($3.9 billion) and propelled it into the FTSE-100 index of leading British shares.
+        </p>
+        <p>Orange said its revenue more than doubled to 256.5 million pounds ($396.7 million) from 100 million pounds
+            (154.7 million) as it added a further 194,000 subscribers to take its total customer base to 573,000.
+        </p>
+    </text>
+    <copyright>(c) Reuters Limited 1996</copyright>
+    <metadata>
+        <codes class="bip:countries:1.0">
+            <code code="UK">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:industries:1.0">
+            <code code="I79020">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <codes class="bip:topics:1.0">
+            <code code="C15">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="C151">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+            <code code="CCAT">
+                <editdetail attribution="Reuters BIP Coding Group" action="confirmed" date="1996-08-20"/>
+            </code>
+        </codes>
+        <dc element="dc.publisher" value="Reuters Holdings Plc"/>
+        <dc element="dc.date.published" value="1996-08-20"/>
+        <dc element="dc.source" value="Reuters"/>
+        <dc element="dc.creator.location" value="LONDON"/>
+        <dc element="dc.creator.location.country.name" value="UK"/>
+        <dc element="dc.source" value="Reuters"/>
+    </metadata>
+</newsitem>
