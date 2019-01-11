@@ -124,6 +124,7 @@ class Evaluator:
         total_mse = 0
         id_to_score = []
 
+
         for id in all_docs:
             doc = self.db.retrieve_document(id)
 

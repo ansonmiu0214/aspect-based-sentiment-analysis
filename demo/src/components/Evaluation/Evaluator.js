@@ -13,7 +13,7 @@ import TagTable from "../TagTable";
 const panelStyle = theme => ({
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
+    flexBasis: '20%',
     flexShrink: 0,
   },
   // secondaryHeading: {
@@ -51,7 +51,7 @@ class Entry extends Component {
 
   render() {
     const { breakdown, handleChange, expanded, classes, dp } = this.props
-    const { id, score, ent_f1, attr_f1, model, truth, tp } = breakdown
+    const { id, score, ent_f1, attr_f1, mse, model, truth, tp } = breakdown
     console.log(Object.keys(tp))
     return (
       <ExpansionPanel expanded={expanded === id} onChange={handleChange(id)}>
@@ -60,13 +60,14 @@ class Entry extends Component {
           <Typography className={classes.numberHeading}>Combined F-Score: {Number(score).toFixed(dp)}</Typography>
           <Typography className={classes.numberHeading}>Entity F-Score: {Number(ent_f1).toFixed(dp)}</Typography>
           <Typography className={classes.numberHeading}>Attribute F-Score: {Number(attr_f1).toFixed(dp)}</Typography>
+          <Typography className={classes.numberHeading}>Sentiment MSE: {Number(mse).toFixed(dp)}</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Grid container spacing={24}>
-            <Grid item xs={12} lg={6}>
+            <Grid item xs={12} xl={6}>
               <LabelledTagTable title="Model Output" entities={model} tp={tp} />
             </Grid>
-            <Grid item xs={12} lg={6}>
+            <Grid item xs={12} xl={6}>
               <LabelledTagTable title="Ground Truth" entities={truth} />
             </Grid>
           </Grid>
@@ -203,7 +204,7 @@ class Controls extends Component {
 
   render() {
     const { classes } = this
-    const { extractors } = this.props
+    const { extractors, loading } = this.props
     const gridWidth = 12 / extractors.length
     const percentage = 100 / extractors.length
     return (
@@ -218,6 +219,7 @@ class Controls extends Component {
                   color="primary" 
                   className={classes.button} 
                   onClick={this.runExtractor(id)}
+                  disabled={loading} 
                   >
                   {label}
                 </Button>
@@ -276,7 +278,7 @@ class Evaluator extends Component {
     return (
       <>
       <Heading text="Model Evaluation" />
-      <SelectionControls extractors={this.state.extractors} runExtractor={this.runExtractor} />
+      <SelectionControls extractors={this.state.extractors} runExtractor={this.runExtractor} loading={loading} />
       {loading && <Loader text="Computing F1-scores for test set..." />}
       {!loading && result !== null && breakdown !== null && 
         <>

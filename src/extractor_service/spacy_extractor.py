@@ -26,6 +26,18 @@ class SpacyExtractor(ExtractorService):
         self.ignore_zero = ignore_zero
 
     def extract(self, input_doc: Document, verbose=False):
+        '''
+        Uses spaCy's NER to extract entities.
+        Uses a rule-based system to extract attributes and match with an entity.
+        Extracts the expression containing the attribute and computes the sentiment by
+        delegating to the sentiment service.
+
+        Stores all data extracted as [EntityEntry] in the Document.
+
+        :param input_doc: Document
+        :verbose: Bool
+        :rtype: Document
+        '''
         ents_to_extract = {}
 
         for component in input_doc.components:
@@ -114,6 +126,10 @@ class SpacyExtractor(ExtractorService):
 def update_document(document, ents_to_extract):
     '''
     Translate `ents_to_extract` into EntityEntry components for the document.
+
+    :param document: Document
+    :param ents_to_extract: Dict<str, Dict<str, (str, float, bool)>>
+    :rtype: Document
     '''
 
     for ent in ents_to_extract:
@@ -137,6 +153,12 @@ def update_document(document, ents_to_extract):
 
 
 def is_valid_attribute_token(token):
+    '''
+    Checks if the current token has valid properties of an attribute.
+
+    :param token: Token
+    :rtype: bool
+    '''
     # Skip if part of entity (e.g. 'pound' is MONEY).
     if token.ent_iob_ != 'O':
         return False
@@ -157,6 +179,12 @@ def is_valid_attribute_token(token):
 
 
 def retrieve_attribute(token):
+    '''
+    From an attribute Token, follows dependency arcs to collect the full compound attribute.
+
+    :param token: Token
+    :rtype: str
+    '''
     s = deque([token.lemma_])
     cur = token
 
